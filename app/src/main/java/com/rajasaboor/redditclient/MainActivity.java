@@ -1,11 +1,13 @@
 package com.rajasaboor.redditclient;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 
+import com.google.gson.Gson;
 import com.rajasaboor.redditclient.adapter.ItemsAdapter;
 import com.rajasaboor.redditclient.adapter.ItemsViewHolder;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
@@ -19,7 +21,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements RetrofitController.IOnDownloadComplete, ItemsViewHolder.IOnPostTapped {
     private static final String TAG = MainActivity.class.getSimpleName(); // Tag name for the Debug purposes
     private List<RedditPostWrapper> postWrapperList = new ArrayList<>();
-    private RecyclerView postsRecyclerView;
+    private RecyclerView postsRecyclerView = null;
     private ItemsAdapter itemsAdapter = null;
 
     @Override
@@ -32,14 +34,74 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         * Ini views get the reference of the XML views
          */
         iniViews();
-        RetrofitController controller = new RetrofitController(this);
-        controller.start();
         setUpRecyclerView();
-        /*
-        * Initiate the call to the base URI
-         */
+
+        if (savedInstanceState != null) {
+            Log.d(TAG, "onCreate: Bundle contains the data");
+            postWrapperList = getPostListFromSharedPrefs();
+            itemsAdapter.updateAdapter(postWrapperList);
+            Log.d(TAG, "onCreate: size of the wrapper list is ---> " + postWrapperList.size());
+        } else {
+            Log.d(TAG, "onCreate: Bundle is empty making the network call");
+             /*
+            * Initiate the call to the base URI
+             */
+            RetrofitController controller = new RetrofitController(this);
+            controller.start();
+        }
+
+
         Log.d(TAG, "onCreate: end");
     }
+
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        Log.d(TAG, "onSaveInstanceState: start");
+        super.onSaveInstanceState(outState);
+        if (postWrapperList.size() > 0) {
+            Log.d(TAG, "onSaveInstanceState: data is inside the list");
+            savePostListInJSON();
+        } else {
+            Log.d(TAG, "onSaveInstanceState: Post list is empty");
+        }
+        Log.d(TAG, "onSaveInstanceState: end");
+    }
+
+    /*
+    * An utility method to perform the save operation for the list of the posts
+     */
+    private void savePostListInJSON() {
+        Log.d(TAG, "savePostListInJSON: start");
+        SharedPreferences.Editor editor = getSharedPreferences(Consts.SHARED_PREFS_NAME, MODE_PRIVATE).edit();
+        editor.putInt(Consts.SIZE_OF_POST_LIST, postWrapperList.size());
+        Gson gson = new Gson();
+        for (int i = 0; i < postWrapperList.size(); i++) {
+            editor.putString(Integer.toString(i), gson.toJson(postWrapperList.get(i)));
+        }
+        editor.apply();
+        Log.d(TAG, "savePostListInJSON: end");
+    }
+
+    /*
+    * An utility method which is use to fetch the post list from the shared prefs and convert the json string into the object
+     */
+    private List<RedditPostWrapper> getPostListFromSharedPrefs() {
+        Log.d(TAG, "getPostListFromSharedPrefs: start");
+        Gson gson = new Gson();
+        List<RedditPostWrapper> temp = new ArrayList<>();
+        SharedPreferences sharedPreferences = getSharedPreferences(Consts.SHARED_PREFS_NAME, MODE_PRIVATE);
+        for (int i = 0; i < sharedPreferences.getInt(Consts.SIZE_OF_POST_LIST, 0); i++)
+            temp.add(gson.fromJson(sharedPreferences.getString(String.valueOf(i), ""), RedditPostWrapper.class));
+
+        Log.d(TAG, "getPostListFromSharedPrefs: size of temp ---> " + temp.size());
+        Log.d(TAG, "getPostListFromSharedPrefs: end");
+        return temp;
+    }
+
+    /*
+    * Setting up the adapter and set the adapter with recycler view
+     */
 
     private void setUpRecyclerView() {
         postsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -83,6 +145,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     public void onPostTappedListener(int position) {
         Log.d(TAG, "onPostTappedListener: start");
         Log.d(TAG, "onPostTappedListener: position ---> " + position);
+        // TODO: 8/3/2017 will place the functionality for the detail screen
         Log.d(TAG, "onPostTappedListener: end");
     }
 }

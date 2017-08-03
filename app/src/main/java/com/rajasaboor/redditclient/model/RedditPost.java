@@ -2,15 +2,18 @@ package com.rajasaboor.redditclient.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
+
 /**
  * Created by default on 8/2/2017.
  * The Reddit Model which contains the post attributes e.g Title, username, comments etc
  */
 
-public class RedditPost {
+public class RedditPost implements Serializable {
     /*
     Tag is used for the logging/debug purposes
      */
+    private static final long serialVersionUID = 1L; // to make sure that serializable interface work on all devices
     private static final String TAG = RedditPost.class.getSimpleName();
     @SerializedName("title")
     private String postTitle;
