@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Reddit Client</string>
-    <string name="ups_text">%d Ups</string>
+    <string name="ups_text">%d</string>
     <string name="comments_text">%d Comments</string>
     <string name="base_link">https://www.reddit.com%s</string>
+    <string name="thumb_up">Thumb up</string>
 </resources>

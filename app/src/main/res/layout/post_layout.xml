@@ -15,23 +15,25 @@
         android:layout_marginTop="8dp"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Ups" />
+        tools:text="Ups"
+        android:layout_marginLeft="8dp"
+        tools:ignore="RtlHardcoded" />
 
     <TextView
         android:id="@+id/title_text_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginRight="7dp"
         android:layout_marginTop="8dp"
         android:maxLines="4"
         android:textColor="@android:color/black"
         android:textStyle="bold"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toRightOf="@+id/ups_text_view"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:text="Title" />
+        tools:text="Title"
+        app:layout_constraintLeft_toRightOf="@+id/imageView"
+        android:layout_marginLeft="8dp"
+        tools:ignore="RtlHardcoded" />
 
     <TextView
         android:id="@+id/user_name_text_view"
@@ -68,4 +70,16 @@
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/title_text_view"
         tools:text="Comments" />
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginLeft="2dp"
+        android:layout_marginTop="8dp"
+        android:contentDescription="@string/thumb_up"
+        app:layout_constraintLeft_toRightOf="@+id/ups_text_view"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/thumb_up"
+        tools:ignore="ContentDescription,RtlHardcoded" />
 </android.support.constraint.ConstraintLayout>
