@@ -4,7 +4,11 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.model.RedditRespone;
+import com.rajasaboor.redditclient.util.Consts;
+
+import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -15,6 +19,8 @@ import retrofit2.http.GET;
 
 /**
  * Created by default on 8/2/2017.
+ * A connection class which connects to the internet and download the raw data from the {@link Consts.BASE_URI} and when the download is complete without any exception
+ * a call back method is invoke which sends the response back to the caller (in this case caller in MainActivity)
  */
 
 
@@ -24,13 +30,17 @@ interface IRetroApi {
 }
 
 public class RetrofitController implements Callback<RedditRespone> {
-    private static final String TAG = RetrofitController.class.getSimpleName();
-    public static final String BASE_URI = "https://www.reddit.com/";
+    private static final String TAG = RetrofitController.class.getSimpleName(); // Tag name for the Debug purposes
+    private final IOnDownloadComplete onDownloadComplete; // An interface instance to call the listener method
+
+    public RetrofitController(IOnDownloadComplete onDownloadComplete) {
+        this.onDownloadComplete = onDownloadComplete;
+    }
 
     public void start() {
         Log.d(TAG, "start: start");
         Gson gson = new GsonBuilder().setLenient().create();
-        Retrofit.Builder retrofitBuilder = new Retrofit.Builder().baseUrl(BASE_URI).addConverterFactory(GsonConverterFactory.create(gson));
+        Retrofit.Builder retrofitBuilder = new Retrofit.Builder().baseUrl(Consts.BASE_URI).addConverterFactory(GsonConverterFactory.create(gson));
         Retrofit retrofit = retrofitBuilder.build();
         Log.d(TAG, "start: retrofit ===> " + retrofit.baseUrl());
         IRetroApi iRetroApi = retrofit.create(IRetroApi.class);
@@ -44,7 +54,9 @@ public class RetrofitController implements Callback<RedditRespone> {
         Log.d(TAG, "onResponse: start");
 
         if (response.isSuccessful()) {
-            Log.d(TAG, "onResponse: successful size of list is ==> " + (response.body() != null ? response.body().getData().getChildren().size() : " null"));
+            if (onDownloadComplete != null) {
+                onDownloadComplete.onDownloadCompleteListener(response.code(), response.body().getData().getChildren());
+            }
         } else {
             Log.e(TAG, "onResponse: error ===> " + response.errorBody() + " code ===> " + response.code());
         }
@@ -56,5 +68,21 @@ public class RetrofitController implements Callback<RedditRespone> {
         Log.d(TAG, "onFailure: start");
         t.printStackTrace();
         Log.d(TAG, "onFailure: end");
+    }
+
+    public IOnDownloadComplete getOnDownloadComplete() {
+        return onDownloadComplete;
+    }
+
+    /*
+    * An interface which sends the download result back to the Caller who request the data in this case its MainActivity
+     */
+
+    public interface IOnDownloadComplete {
+        /*
+        * @Params responseCode is to check whether response is ok or not e.g server is up or not
+        * @Params postList is to send the list of data which is downloaded and parse by the Retrofit to the Caller
+         */
+        void onDownloadCompleteListener(int responseCode, List<RedditPostWrapper> postsList);
     }
 }

@@ -2,11 +2,12 @@ package com.rajasaboor.redditclient.model;
 
 /**
  * Created by default on 8/2/2017.
+ * Parent JSON object "DATA"
  */
 
 public class RedditRespone {
 
-    public RedditChildren data;
+    private RedditChildren data;
 
     public RedditRespone(RedditChildren data) {
         this.data = data;

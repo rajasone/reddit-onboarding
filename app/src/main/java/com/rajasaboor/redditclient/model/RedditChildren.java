@@ -4,10 +4,11 @@ import java.util.List;
 
 /**
  * Created by default on 8/2/2017.
+ * Child of {@link RedditRespone} contains the JSON array named as CHILDREN
  */
 
 public class RedditChildren {
-    public List<RedditPostWrapper> children;
+    private List<RedditPostWrapper> children;
 
     public RedditChildren(List<RedditPostWrapper> children) {
         this.children = children;
