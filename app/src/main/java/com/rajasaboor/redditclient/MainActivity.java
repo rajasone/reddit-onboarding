@@ -203,7 +203,6 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     public void onPostTappedListener(int position) {
         Log.d(TAG, "onPostTappedListener: start");
         Log.d(TAG, "onPostTappedListener: position ---> " + position);
-        // TODO: 8/3/2017 will place the functionality for the detail screen
         Intent detailActivityIntent = new Intent(this, DetailActivity.class);
         detailActivityIntent.putExtra(Consts.INDIVIDUAL_POST_ITEM_KEY, getPostListFromSharedPrefs().get(position).getData());
         startActivity(detailActivityIntent);
