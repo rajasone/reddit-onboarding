@@ -5,7 +5,12 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
 
 import com.google.gson.Gson;
 import com.rajasaboor.redditclient.adapter.ItemsAdapter;
@@ -18,11 +23,14 @@ import com.rajasaboor.redditclient.util.Util;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class MainActivity extends AppCompatActivity implements RetrofitController.IOnDownloadComplete, ItemsViewHolder.IOnPostTapped {
     private static final String TAG = MainActivity.class.getSimpleName(); // Tag name for the Debug purposes
     private List<RedditPostWrapper> postWrapperList = new ArrayList<>();
     private RecyclerView postsRecyclerView = null;
     private ItemsAdapter itemsAdapter = null;
+    private Toolbar toolbar; // custom toolbar with the progressbar
+    private ProgressBar progressBar; // this custom bar will shown to user when the refresh request is made
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,26 +42,70 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         * Ini views get the reference of the XML views
          */
         iniViews();
+        setSupportActionBar(toolbar); // setting up the custom toolbar as the action bar
         setUpRecyclerView();
 
-        if (savedInstanceState != null) {
-            Log.d(TAG, "onCreate: Bundle contains the data");
+        SharedPreferences preferences = getSharedPreferences(Consts.SHARED_PREFS_NAME, MODE_PRIVATE);
+
+        /*
+        * Following if and else condition is used to check whether data is inside the shared prefs or not and also check for the orientation change
+        * Check whether the data is inside the shared prefs
+        * if data is found dont make the request call to the server
+        * if data is not found OR the savedInstanceState is empty then make a request call
+         */
+        if (preferences.getString(Consts.KEY_TO_CHECK_DATA, null) != null || savedInstanceState != null) {
+            Log.d(TAG, "onCreate: Data is inside the preferences");
             postWrapperList = getPostListFromSharedPrefs();
             itemsAdapter.updateAdapter(postWrapperList);
-            Log.d(TAG, "onCreate: size of the wrapper list is ---> " + postWrapperList.size());
         } else {
-            Log.d(TAG, "onCreate: Bundle is empty making the network call");
-             /*
-            * Initiate the call to the base URI
-             */
-            RetrofitController controller = new RetrofitController(this);
-            controller.start();
+               /*
+            * Initiate the call to the base URI and VISIBLE the progress bar
+            */
+
+            Log.d(TAG, "onCreate: Preference is empty");
+            makeServerRequest();
         }
-
-
         Log.d(TAG, "onCreate: end");
     }
 
+    /*
+       *An utility method to make a server request
+     */
+
+    private void makeServerRequest() {
+        hideOrShowTheProgressBar(true);
+        RetrofitController controller = new RetrofitController(this);
+        controller.start();
+    }
+
+    /*
+    * An utility method to Hide Or Visible the Progress bar
+     */
+
+    private void hideOrShowTheProgressBar(boolean command) {
+        progressBar.setVisibility(command ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d(TAG, "onCreateOptionsMenu: start");
+        getMenuInflater().inflate(R.menu.main_menu, menu);
+
+        Log.d(TAG, "onCreateOptionsMenu: end");
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(TAG, "onOptionsItemSelected: start");
+        switch (item.getItemId()) {
+            case R.id.refresh_post_list_menu:
+                makeServerRequest();
+                break;
+        }
+        Log.d(TAG, "onOptionsItemSelected: end");
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
@@ -110,6 +162,8 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     }
 
     private void iniViews() {
+        toolbar = (Toolbar) findViewById(R.id.toolbar_include);
+        progressBar = (ProgressBar) toolbar.findViewById(R.id.menu_progress_bar);
         postsRecyclerView = (RecyclerView) findViewById(R.id.posts_recycler_view);
     }
 
@@ -118,9 +172,11 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         Log.d(TAG, "onDownloadCompleteListener: start");
         Log.d(TAG, "onDownloadCompleteListener: Response Code ---> " + responseCode);
         Log.d(TAG, "onDownloadCompleteListener: Size of List ---> " + postsList.size());
+        hideOrShowTheProgressBar(false);
 
         switch (responseCode) {
             case Consts.RESPONSE_CODE_OK:
+                Log.d(TAG, "onDownloadCompleteListener: Response code is 200 now updating the Adapter");
                 setPostWrapperList(postsList); // setting the List field of the MainActivity
                 itemsAdapter.updateAdapter(postWrapperList); // sending the actual data which is downloaded and parsed by the Retrofit
                 Util.printList(postsList); // just for debug purpose printing the list

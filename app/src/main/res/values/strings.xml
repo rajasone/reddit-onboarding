@@ -4,4 +4,6 @@
     <string name="comments_text">%d Comments</string>
     <string name="base_link">https://www.reddit.com%s</string>
     <string name="thumb_up">Thumb up</string>
+    <string name="refresh_menu_text">Refresh</string>
+    <string name="progress_menu">Progress</string>
 </resources>

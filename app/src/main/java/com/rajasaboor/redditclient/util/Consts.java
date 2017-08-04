@@ -10,5 +10,6 @@ public class Consts {
     public static final String BASE_URI = "https://www.reddit.com/";
     public static final String SHARED_PREFS_NAME = "post_lists";
     public static final String SIZE_OF_POST_LIST = "list_size";
+    public static final String KEY_TO_CHECK_DATA = "1";
 
 }
