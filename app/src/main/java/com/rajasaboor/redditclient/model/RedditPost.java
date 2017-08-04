@@ -22,7 +22,10 @@ public class RedditPost implements Serializable {
     private String postAuthor;
 
     @SerializedName("permalink")
-    private String postLink;
+    private String commentsLink;
+
+    @SerializedName("url")
+    private String postURL;
 
     @SerializedName("is_self")
     private boolean isPostIsSelf;
@@ -39,10 +42,11 @@ public class RedditPost implements Serializable {
     public RedditPost() {
     }
 
-    public RedditPost(String postTitle, String postAuthor, String postLink, boolean isPostIsSelf, int postComments, int numberOfUps, boolean isVideo) {
+    public RedditPost(String postTitle, String postAuthor, String commentsLink, String postURL, boolean isPostIsSelf, int postComments, int numberOfUps, boolean isVideo) {
         this.postTitle = postTitle;
         this.postAuthor = postAuthor;
-        this.postLink = postLink;
+        this.commentsLink = commentsLink;
+        this.postURL = postURL;
         this.isPostIsSelf = isPostIsSelf;
         this.postComments = postComments;
         this.numberOfUps = numberOfUps;
@@ -65,12 +69,12 @@ public class RedditPost implements Serializable {
         this.postAuthor = postAuthor;
     }
 
-    public String getPostLink() {
-        return postLink;
+    public String getCommentsLink() {
+        return commentsLink;
     }
 
-    public void setPostLink(String postLink) {
-        this.postLink = postLink;
+    public void setCommentsLink(String commentsLink) {
+        this.commentsLink = commentsLink;
     }
 
     public boolean isPostIsSelf() {
@@ -105,12 +109,20 @@ public class RedditPost implements Serializable {
         isVideo = video;
     }
 
+    public String getPostURL() {
+        return postURL;
+    }
+
+    public void setPostURL(String postURL) {
+        this.postURL = postURL;
+    }
+
     @Override
     public String toString() {
         return "RedditPost{" +
                 "postTitle='" + postTitle + '\'' +
                 ", postAuthor='" + postAuthor + '\'' +
-                ", postLink='" + postLink + '\'' +
+                ", commentsLink='" + commentsLink + '\'' +
                 ", isPostIsSelf=" + isPostIsSelf +
                 ", postComments=" + postComments +
                 ", numberOfUps=" + numberOfUps +

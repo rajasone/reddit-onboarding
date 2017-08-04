@@ -43,7 +43,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsViewHolder> {
         // Getting a string from the XML strings file and placing the argument for a placeholder
         holder.getCommentsTextView().setText(holder.getUpsTextView().getContext().getString(R.string.comments_text, postWrapperList.get(position).getData().getPostComments()));
         // Getting a string from the XML strings file and placing the Link argument for a placeholder
-        holder.getLinkTextView().setText(holder.getUpsTextView().getContext().getString(R.string.base_link, postWrapperList.get(position).getData().getPostLink()));
+        holder.getLinkTextView().setText(holder.getUpsTextView().getContext().getString(R.string.base_link, postWrapperList.get(position).getData().getCommentsLink()));
     }
 
     @Override

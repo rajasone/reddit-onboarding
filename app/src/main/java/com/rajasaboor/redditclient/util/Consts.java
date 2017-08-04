@@ -11,5 +11,9 @@ public class Consts {
     public static final String SHARED_PREFS_NAME = "post_lists";
     public static final String SIZE_OF_POST_LIST = "list_size";
     public static final String KEY_TO_CHECK_DATA = "1";
+    public static final String[] TABS_NAMES = {"Posts", "Comments"};
+    public static final String INDIVIDUAL_POST_ITEM_KEY = "post_item";
+    public static final String POST_LOADING_STATUS = "post_loading";
+
 
 }

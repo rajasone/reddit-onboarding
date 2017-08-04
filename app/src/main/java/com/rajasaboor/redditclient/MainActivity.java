@@ -1,5 +1,6 @@
 package com.rajasaboor.redditclient;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -179,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
                 Log.d(TAG, "onDownloadCompleteListener: Response code is 200 now updating the Adapter");
                 setPostWrapperList(postsList); // setting the List field of the MainActivity
                 itemsAdapter.updateAdapter(postWrapperList); // sending the actual data which is downloaded and parsed by the Retrofit
+                savePostListInJSON();
                 Util.printList(postsList); // just for debug purpose printing the list
                 break;
             default:
@@ -202,6 +204,9 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         Log.d(TAG, "onPostTappedListener: start");
         Log.d(TAG, "onPostTappedListener: position ---> " + position);
         // TODO: 8/3/2017 will place the functionality for the detail screen
+        Intent detailActivityIntent = new Intent(this, DetailActivity.class);
+        detailActivityIntent.putExtra(Consts.INDIVIDUAL_POST_ITEM_KEY, getPostListFromSharedPrefs().get(position).getData());
+        startActivity(detailActivityIntent);
         Log.d(TAG, "onPostTappedListener: end");
     }
 }

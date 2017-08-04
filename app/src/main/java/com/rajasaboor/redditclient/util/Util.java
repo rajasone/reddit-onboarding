@@ -20,7 +20,8 @@ public class Util {
         for (RedditPostWrapper wrapper : postWrappers) {
             Log.d(TAG, "printList: Title ---> " + wrapper.getData().getPostTitle());
             Log.d(TAG, "printList: Author ---> " + wrapper.getData().getPostAuthor());
-            Log.d(TAG, "printList: Link ---> " + Uri.parse(Consts.BASE_URI).buildUpon().path(wrapper.getData().getPostLink()).build().toString());
+            Log.d(TAG, "printList: Comments Link ---> " + Uri.parse(Consts.BASE_URI).buildUpon().path(wrapper.getData().getCommentsLink()).build().toString());
+            Log.d(TAG, "printList: Post URL ---> " + wrapper.getData().getPostURL());
             Log.d(TAG, "printList: Is PostIsSelf ---> " + wrapper.getData().isPostIsSelf());
             Log.d(TAG, "printList: Comments ---> " + wrapper.getData().getPostComments());
             Log.d(TAG, "printList: Is Video ---> " + wrapper.getData().isVideo());
