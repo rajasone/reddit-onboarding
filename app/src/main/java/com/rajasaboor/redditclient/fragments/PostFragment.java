@@ -28,6 +28,9 @@ public class PostFragment extends Fragment {
     private ProgressBar postProgressBar; // an horizontal progress bar which show the progress of page to user
     private int postProgress = 0; // maintain the progress bar progress for the loading purpose
 
+    /*
+    * This static method is called from the {@link com.rajasaboor.redditclient.appbar_layout.DetailViewPager} getItem method and Reddit object is passed as an parameter
+     */
 
     public static PostFragment newInstance(RedditPost post) {
         Log.d(TAG, "newInstance: start");
@@ -71,6 +74,11 @@ public class PostFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_post, container, false);
         iniViews(view);
 
+        /*
+        * Check whether the bundle is NULL or not
+        * if bundle is NOT NULL just restore the web view and get the value of the progress bar from the bundle and set the progress bar value to the fetched value
+        * If bundle is NULL load the url in web view
+         */
         if (savedInstanceState != null) {
             Log.d(TAG, "onCreateView: Bundle have data ---> " + savedInstanceState.getInt(Consts.POST_LOADING_STATUS));
             postWebView.restoreState(savedInstanceState);
@@ -84,6 +92,9 @@ public class PostFragment extends Fragment {
         Log.d(TAG, "onCreateView: Bundle have data ---> " + postProgress);
 
 
+        /*
+        * If progress value is less than 100 only then call the progress checker method
+         */
         if (postProgress < 100) {
             progressChecker();
         }
@@ -91,12 +102,21 @@ public class PostFragment extends Fragment {
         return view;
     }
 
+    /*
+    * Get the references of the XML views
+    * Configure the web view
+     */
+
     private void iniViews(View view) {
         postWebView = view.findViewById(R.id.post_webview);
         postProgressBar = view.findViewById(R.id.post_progress_bar);
         postWebView.getSettings().setJavaScriptEnabled(true);
         postWebView.setWebViewClient(new WebViewClient());
     }
+
+    /*
+    * This method check the progress of the web view and updating the progress bar
+     */
 
     private void progressChecker() {
         final Handler ha = new Handler();
@@ -118,6 +138,10 @@ public class PostFragment extends Fragment {
         }, 10);
     }
 
+    /*
+    * Saving the state of the web view in this method
+    * Saving the value of progress in this method
+     */
     @Override
     public void onSaveInstanceState(Bundle outState) {
         Log.d(TAG, "onSaveInstanceState: start");

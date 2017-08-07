@@ -27,6 +27,10 @@ public class CommentsFragment extends Fragment {
     private ProgressBar commentsProgressBar; // progress bar which shows a user that how much the page is load
     private int commentsProgress; // store the progress value of the page
 
+    /*
+    * This static method is called from the {@link com.rajasaboor.redditclient.appbar_layout.DetailViewPager} getItem method and Reddit object is passed as an parameter
+     */
+
     public static CommentsFragment newInstance(RedditPost post) {
         Bundle args = new Bundle();
         CommentsFragment fragment = new CommentsFragment();
@@ -54,6 +58,12 @@ public class CommentsFragment extends Fragment {
         Log.d(TAG, "onCreate: end");
     }
 
+     /*
+        * Check whether the bundle is NULL or not
+        * if bundle is NOT NULL just restore the web view and get the value of the progress bar from the bundle and set the progress bar value to the fetched value
+        * If bundle is NULL load the url in web view
+         */
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -73,6 +83,11 @@ public class CommentsFragment extends Fragment {
             commentsWebView.loadUrl(Consts.BASE_URI + post.getCommentsLink()); // if bundle is NULL load the URL
         }
 
+
+        /*
+        * If progress value is less than 100 only then call the progress checker method
+         */
+
         if (commentsProgress < 100) {
             Log.d(TAG, "onCreateView: Progress is < 100 ===> " + commentsProgress);
             progressChecker();
@@ -82,12 +97,22 @@ public class CommentsFragment extends Fragment {
         return view;
     }
 
+    /*
+    * Get the references of the XML views
+    * Configure the web view
+     */
+
     private void iniViews(View view) {
         commentsWebView = view.findViewById(R.id.comments_webview);
         commentsProgressBar = view.findViewById(R.id.comments_progress_bar);
         commentsWebView.getSettings().setJavaScriptEnabled(true);
         commentsWebView.setWebViewClient(new WebViewClient());
     }
+
+    /*
+   * Saving the state of the web view in this method
+   * Saving the value of progress in this method
+    */
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
@@ -97,6 +122,10 @@ public class CommentsFragment extends Fragment {
         outState.putInt(Consts.COMMENTS_PAGE_PROGRESS, commentsProgress);
         Log.d(TAG, "onSaveInstanceState: end");
     }
+
+    /*
+    * This method check the progress of the web view and updating the progress bar
+     */
 
     private void progressChecker() {
         final Handler ha = new Handler();

@@ -19,10 +19,13 @@ import com.rajasaboor.redditclient.adapter.ItemsViewHolder;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.retrofit.RetrofitController;
 import com.rajasaboor.redditclient.util.Consts;
-import com.rajasaboor.redditclient.util.Util;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends AppCompatActivity implements RetrofitController.IOnDownloadComplete, ItemsViewHolder.IOnPostTapped {
@@ -32,6 +35,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     private ItemsAdapter itemsAdapter = null;
     private Toolbar toolbar; // custom toolbar with the progressbar
     private ProgressBar progressBar; // this custom bar will shown to user when the refresh request is made
+    private long lastUpdateTimeInMilliSeconds = 0L;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +78,9 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
      */
 
     private void makeServerRequest() {
+        setLastUpdateTimeInMilliSeconds(System.currentTimeMillis()); // set the current time when the list is updated
+        addDownloadTimeToSharedPrefs(); // save the current time in shared prefs
+
         hideOrShowTheProgressBar(true);
         RetrofitController controller = new RetrofitController(this);
         controller.start();
@@ -102,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         switch (item.getItemId()) {
             case R.id.refresh_post_list_menu:
                 makeServerRequest();
+                manageTheLastUpdate();
                 break;
         }
         Log.d(TAG, "onOptionsItemSelected: end");
@@ -152,6 +160,45 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         return temp;
     }
 
+    private void manageTheLastUpdate() {
+        setLastUpdateTimeInMilliSeconds(getSharedPreferences(Consts.LAST_DOWNLOAD_FILE_NAME, MODE_PRIVATE).getLong(Consts.LAST_DOWNLOAD_TIME_KEY, 0));
+        Log.d(TAG, "onResume: Fetched milli seconds ===> " + getLastUpdateTimeInMilliSeconds());
+        Log.d(TAG, "onResume: Current time - fetched time ===> " + (System.currentTimeMillis() - getLastUpdateTimeInMilliSeconds()));
+
+        long timeDifference = System.currentTimeMillis() - getLastUpdateTimeInMilliSeconds();
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeDifference);
+        Log.d(TAG, "onResume: Time in minutes ===> " + minutes);
+
+        if (TimeUnit.MILLISECONDS.toMinutes(timeDifference) >= 0 && TimeUnit.MILLISECONDS.toMinutes(timeDifference) < 1) {
+            toolbar.setSubtitle(R.string.update_message_less_then_minute);
+            Log.d(TAG, "onResume: less than a minute ago");
+        } else {
+            Log.d(TAG, "onResume: In ELSE");
+            toolbar.setSubtitle(String.format(getResources().getString(R.string.update_message_more_than_minute), minutes,
+                    (minutes >= 1 ? getResources().getString(R.string.minute) : getResources().getString(R.string.minutes))));
+
+            if (minutes >= 5) {
+                makeServerRequest();
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        Log.d(TAG, "onResume: start");
+        super.onResume();
+
+        SharedPreferences preferences = getSharedPreferences(Consts.LAST_DOWNLOAD_FILE_NAME, MODE_PRIVATE);
+
+        if (preferences.getLong(Consts.LAST_DOWNLOAD_TIME_KEY, 0) == 0) {
+            Log.d(TAG, "onResume: App is newly installed request server to update");
+        } else {
+            Log.d(TAG, "onResume: Check the time of last update if it is greater than or equal to 5 MINUTES request the server for update");
+            manageTheLastUpdate();
+        }
+        Log.d(TAG, "onResume: end");
+    }
+
     /*
     * Setting up the adapter and set the adapter with recycler view
      */
@@ -178,17 +225,26 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         switch (responseCode) {
             case Consts.RESPONSE_CODE_OK:
                 Log.d(TAG, "onDownloadCompleteListener: Response code is 200 now updating the Adapter");
+                Log.d(TAG, "onDownloadCompleteListener: Download data at ===> " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.US).format(new Date(System.currentTimeMillis())));
+//                setLastUpdateTimeInMilliSeconds(System.currentTimeMillis()); // set the current time when the list is updated
+//
+//                addDownloadTimeToSharedPrefs();
+
                 setPostWrapperList(postsList); // setting the List field of the MainActivity
                 itemsAdapter.updateAdapter(postWrapperList); // sending the actual data which is downloaded and parsed by the Retrofit
                 savePostListInJSON();
-                Util.printList(postsList); // just for debug purpose printing the list
+                //Util.printList(postsList); // just for debug purpose printing the list
                 break;
             default:
                 Log.e(TAG, "onDownloadCompleteListener: Something wrong with the response response code is ---> " + responseCode);
         }
-
-
         Log.d(TAG, "onDownloadCompleteListener: end");
+    }
+
+    private void addDownloadTimeToSharedPrefs() {
+        SharedPreferences.Editor editor = getSharedPreferences(Consts.LAST_DOWNLOAD_FILE_NAME, MODE_PRIVATE).edit();
+        editor.putLong(Consts.LAST_DOWNLOAD_TIME_KEY, getLastUpdateTimeInMilliSeconds());
+        editor.apply();
     }
 
     public void setPostWrapperList(List<RedditPostWrapper> postWrapperList) {
@@ -207,5 +263,13 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         detailActivityIntent.putExtra(Consts.INDIVIDUAL_POST_ITEM_KEY, getPostListFromSharedPrefs().get(position).getData());
         startActivity(detailActivityIntent);
         Log.d(TAG, "onPostTappedListener: end");
+    }
+
+    public long getLastUpdateTimeInMilliSeconds() {
+        return lastUpdateTimeInMilliSeconds;
+    }
+
+    public void setLastUpdateTimeInMilliSeconds(long lastUpdateTimeInMilliSeconds) {
+        this.lastUpdateTimeInMilliSeconds = lastUpdateTimeInMilliSeconds;
     }
 }
