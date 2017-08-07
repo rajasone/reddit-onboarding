@@ -10,6 +10,7 @@
     <string name="comments_tab">Comments</string>
 
     <!-- TODO: Remove or change this placeholder text -->
+
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="update_message_less_then_minute">Last update less than a minute ago</string>
     <string name="update_message_more_than_minute">Last update %1$d %2$s ago</string>
