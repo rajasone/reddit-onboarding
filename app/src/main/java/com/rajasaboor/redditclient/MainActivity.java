@@ -109,7 +109,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         switch (item.getItemId()) {
             case R.id.refresh_post_list_menu:
                 makeServerRequest();
-                manageTheLastUpdate();
+//                manageTheLastUpdate();
                 break;
         }
         Log.d(TAG, "onOptionsItemSelected: end");
@@ -178,6 +178,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
                     (minutes >= 1 ? getResources().getString(R.string.minute) : getResources().getString(R.string.minutes))));
 
             if (minutes >= 5) {
+                Log.d(TAG, "manageTheLastUpdate: making server request");
                 makeServerRequest();
             }
         }
@@ -230,6 +231,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
 //
 //                addDownloadTimeToSharedPrefs();
 
+                manageTheLastUpdate();
                 setPostWrapperList(postsList); // setting the List field of the MainActivity
                 itemsAdapter.updateAdapter(postWrapperList); // sending the actual data which is downloaded and parsed by the Retrofit
                 savePostListInJSON();
