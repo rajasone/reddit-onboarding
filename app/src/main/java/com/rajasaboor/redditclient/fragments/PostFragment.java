@@ -58,7 +58,7 @@ public class PostFragment extends Fragment {
             post = (RedditPost) getArguments().getSerializable(KEY_URL_STRING);
             Log.d(TAG, "onCreate: Port URL is ---> " + ((RedditPost) getArguments().getSerializable(KEY_URL_STRING)).getPostURL());
         } else {
-            Log.d(TAG, "onCreate: Bundle is empty");
+            Log.e(TAG, "onCreate: Bundle is empty");
         }
         Log.d(TAG, "onCreate: end");
     }

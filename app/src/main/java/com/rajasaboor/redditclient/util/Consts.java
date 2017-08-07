@@ -14,6 +14,6 @@ public class Consts {
     public static final String[] TABS_NAMES = {"Posts", "Comments"};
     public static final String INDIVIDUAL_POST_ITEM_KEY = "post_item";
     public static final String POST_LOADING_STATUS = "post_loading";
-
-
+    public static final String COMMENTS_KEY = "comments_key";
+    public static final String COMMENTS_PAGE_PROGRESS = "comments_progress";
 }
