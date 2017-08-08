@@ -3,7 +3,9 @@ package com.rajasaboor.redditclient;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -226,6 +228,9 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         postsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         itemsAdapter = new ItemsAdapter(R.layout.post_layout, new ArrayList<RedditPostWrapper>(), this);
         postsRecyclerView.setAdapter(itemsAdapter);
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, new LinearLayoutManager(this).getOrientation());
+        postsRecyclerView.addItemDecoration(dividerItemDecoration);
     }
 
     private void iniViews() {
@@ -253,15 +258,12 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
             case Consts.RESPONSE_CODE_OK:
                 Log.d(TAG, "onDownloadCompleteListener: Response code is 200 now updating the Adapter");
                 Log.d(TAG, "onDownloadCompleteListener: Download data at ===> " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.US).format(new Date(System.currentTimeMillis())));
-//                setLastUpdateTimeInMilliSeconds(System.currentTimeMillis()); // set the current time when the list is updated
-//
-//                addDownloadTimeToSharedPrefs();
 
                 setPostWrapperList(postsList); // setting the List field of the MainActivity
                 itemsAdapter.updateAdapter(postWrapperList); // sending the actual data which is downloaded and parsed by the Retrofit
                 savePostListInJSON();
                 manageTheLastUpdate();
-                //Util.printList(postsList); // just for debug purpose printing the list
+                Util.printList(postsList); // just for debug purpose printing the list
                 break;
             default:
                 Log.e(TAG, "onDownloadCompleteListener: Something wrong with the response response code is ---> " + responseCode);

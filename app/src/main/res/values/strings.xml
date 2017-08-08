@@ -8,15 +8,12 @@
     <string name="progress_menu">Progress</string>
     <string name="post_tab_text">Post</string>
     <string name="comments_tab">Comments</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="update_message_less_then_minute">Last update less than a minute ago</string>
     <string name="update_message_more_than_minute">Last update %1$d %2$s ago</string>
     <string name="minutes">minutes</string>
     <string name="minute">minute</string>
     <string name="no_internet_connection">No internet connection</string>
-
     <string name="error_alert_dialog_title">Failed to update</string>
     <string name="error_dialog_button">Ok</string>
     <string name="info_when_internet_is_not_connected">Connect to the internet and press the refresh button</string>

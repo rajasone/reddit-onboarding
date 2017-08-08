@@ -33,7 +33,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsViewHolder> {
      */
     @Override
     public ItemsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new ItemsViewHolder(LayoutInflater.from(parent.getContext()).inflate(layoutResource, parent, false), onPostTapped);
+        return new ItemsViewHolder(LayoutInflater.from(parent.getContext()).inflate(layoutResource, parent, false), onPostTapped, postWrapperList.size());
     }
 
     private void hideOrShowTheViews(ItemsViewHolder holder, boolean hideOrShow) {

@@ -25,10 +25,12 @@ public class ItemsViewHolder extends RecyclerView.ViewHolder implements View.OnC
     private TextView commentsTextView;
     private TextView linkTextView;
     private final IOnPostTapped onPostTapped;
+    private int listSize = 0; // check the list size if size is less than 1 don't call the interface method
 
-    ItemsViewHolder(View itemView, IOnPostTapped onPostTapped) {
+    ItemsViewHolder(View itemView, IOnPostTapped onPostTapped, int listSize) {
         super(itemView);
         this.onPostTapped = onPostTapped;
+        this.listSize = listSize;
 
         upsImageView = itemView.findViewById(R.id.ups_image_view);
         postParentLayout = (ConstraintLayout) itemView.findViewById(R.id.post_parent_layout);
@@ -77,10 +79,13 @@ public class ItemsViewHolder extends RecyclerView.ViewHolder implements View.OnC
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.post_parent_layout:
-                if ((onPostTapped != null) && (ConnectionStatusChecker.checkConnection(view.getContext()))) {
+                if ((onPostTapped != null) && (ConnectionStatusChecker.checkConnection(view.getContext())) && (listSize > 0)) {
                     Log.d(TAG, "onClick: Sending the call to the interface");
                     onPostTapped.onPostTappedListener(getAdapterPosition());
                 } else {
+                    if (listSize == 0) {
+                        return;
+                    }
                     Util.showToast(view.getContext(), view.getContext().getResources().getString(R.string.no_internet_connection));
                     Log.e(TAG, "onClick: No internet connection");
                 }

@@ -97,6 +97,8 @@ public class PostFragment extends Fragment {
          */
         if (postProgress < 100) {
             progressChecker();
+        } else {
+            postProgressBar.setVisibility(View.GONE);
         }
         Log.d(TAG, "onCreateView: end");
         return view;
@@ -120,6 +122,7 @@ public class PostFragment extends Fragment {
 
     private void progressChecker() {
         final Handler ha = new Handler();
+        postProgressBar.setVisibility(View.VISIBLE);
         ha.postDelayed(new Runnable() {
 
             @Override
@@ -129,6 +132,7 @@ public class PostFragment extends Fragment {
                 if (postProgress == 100) {
                     Log.d(TAG, "run: now off the thread");
                     postProgressBar.setProgress(postProgress);
+                    postProgressBar.setVisibility(View.GONE);
                 } else {
                     postProgressBar.setProgress(postProgress);
                     ha.postDelayed(this, 10);
