@@ -3,7 +3,6 @@ package com.rajasaboor.redditclient;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -148,8 +147,8 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     }
 
     /*
-    * An utility method to perform the save operation for the list of the posts
-     */
+        * An utility method to perform the save operation for the list of the posts
+         */
     private void savePostListInJSON() {
         Log.d(TAG, "savePostListInJSON: start");
         SharedPreferences.Editor editor = getSharedPreferences(Consts.SHARED_PREFS_NAME, MODE_PRIVATE).edit();
