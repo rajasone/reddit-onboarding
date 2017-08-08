@@ -2,10 +2,13 @@ package com.rajasaboor.redditclient.adapter;
 
 import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.rajasaboor.redditclient.R;
+import com.rajasaboor.redditclient.connection_manager.ConnectionStatusChecker;
 
 /**
  * Created by default on 8/3/2017.
@@ -65,8 +68,12 @@ public class ItemsViewHolder extends RecyclerView.ViewHolder implements View.OnC
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.post_parent_layout:
-                if (onPostTapped != null) {
+                if ((onPostTapped != null) && (ConnectionStatusChecker.checkConnection(view.getContext()))) {
+                    Log.d(TAG, "onClick: Sending the call to the interface");
                     onPostTapped.onPostTappedListener(getAdapterPosition());
+                } else {
+                    Toast.makeText(view.getContext(), "You are not connected to the internet", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "onClick: No internet connection");
                 }
                 break;
         }

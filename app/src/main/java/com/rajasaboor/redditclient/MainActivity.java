@@ -16,6 +16,7 @@ import android.widget.ProgressBar;
 import com.google.gson.Gson;
 import com.rajasaboor.redditclient.adapter.ItemsAdapter;
 import com.rajasaboor.redditclient.adapter.ItemsViewHolder;
+import com.rajasaboor.redditclient.connection_manager.ConnectionStatusChecker;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.retrofit.RetrofitController;
 import com.rajasaboor.redditclient.util.Consts;
@@ -162,20 +163,20 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
 
     private void manageTheLastUpdate() {
         setLastUpdateTimeInMilliSeconds(getSharedPreferences(Consts.LAST_DOWNLOAD_FILE_NAME, MODE_PRIVATE).getLong(Consts.LAST_DOWNLOAD_TIME_KEY, 0));
-        Log.d(TAG, "onResume: Fetched milli seconds ===> " + getLastUpdateTimeInMilliSeconds());
-        Log.d(TAG, "onResume: Current time - fetched time ===> " + (System.currentTimeMillis() - getLastUpdateTimeInMilliSeconds()));
+        Log.d(TAG, "manageTheLastUpdate: Fetched milli seconds ===> " + getLastUpdateTimeInMilliSeconds());
+        Log.d(TAG, "manageTheLastUpdate: Current time - fetched time ===> " + (System.currentTimeMillis() - getLastUpdateTimeInMilliSeconds()));
 
         long timeDifference = System.currentTimeMillis() - getLastUpdateTimeInMilliSeconds();
         long minutes = TimeUnit.MILLISECONDS.toMinutes(timeDifference);
-        Log.d(TAG, "onResume: Time in minutes ===> " + minutes);
+        Log.d(TAG, "manageTheLastUpdate: Time in minutes ===> " + minutes);
 
         if (TimeUnit.MILLISECONDS.toMinutes(timeDifference) >= 0 && TimeUnit.MILLISECONDS.toMinutes(timeDifference) < 1) {
             toolbar.setSubtitle(R.string.update_message_less_then_minute);
-            Log.d(TAG, "onResume: less than a minute ago");
+            Log.d(TAG, "manageTheLastUpdate: less than a minute ago");
         } else {
-            Log.d(TAG, "onResume: In ELSE");
+            Log.d(TAG, "manageTheLastUpdate: In ELSE");
             toolbar.setSubtitle(String.format(getResources().getString(R.string.update_message_more_than_minute), minutes,
-                    (minutes >= 1 ? getResources().getString(R.string.minute) : getResources().getString(R.string.minutes))));
+                    (minutes == 1 ? getResources().getString(R.string.minute) : getResources().getString(R.string.minutes))));
 
             if (minutes >= 5) {
                 makeServerRequest();
@@ -188,10 +189,13 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         Log.d(TAG, "onResume: start");
         super.onResume();
 
+        boolean res = ConnectionStatusChecker.checkConnection(this);
+        Log.d(TAG, "onResume: Result of connection is ===> " + res);
+
         SharedPreferences preferences = getSharedPreferences(Consts.LAST_DOWNLOAD_FILE_NAME, MODE_PRIVATE);
 
         if (preferences.getLong(Consts.LAST_DOWNLOAD_TIME_KEY, 0) == 0) {
-            Log.d(TAG, "onResume: App is newly installed request server to update");R
+            Log.d(TAG, "onResume: App is newly installed request server to update");
         } else {
             Log.d(TAG, "onResume: Check the time of last update if it is greater than or equal to 5 MINUTES request the server for update");
             manageTheLastUpdate();
@@ -233,6 +237,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
                 setPostWrapperList(postsList); // setting the List field of the MainActivity
                 itemsAdapter.updateAdapter(postWrapperList); // sending the actual data which is downloaded and parsed by the Retrofit
                 savePostListInJSON();
+                manageTheLastUpdate();
                 //Util.printList(postsList); // just for debug purpose printing the list
                 break;
             default:
