@@ -2,6 +2,7 @@ package com.rajasaboor.redditclient;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
@@ -18,6 +19,7 @@ import com.google.gson.Gson;
 import com.rajasaboor.redditclient.adapter.ItemsAdapter;
 import com.rajasaboor.redditclient.adapter.ItemsViewHolder;
 import com.rajasaboor.redditclient.connection_manager.ConnectionStatusChecker;
+import com.rajasaboor.redditclient.fragments.DetailsFragment;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.retrofit.RetrofitController;
 import com.rajasaboor.redditclient.util.Consts;
@@ -82,6 +84,33 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         }
         Log.d(TAG, "onCreate: end");
     }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        Log.d(TAG, "onConfigurationChanged: start");
+        super.onConfigurationChanged(newConfig);
+
+        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Log.d(TAG, "onConfigurationChanged: Inside the landscape mode");
+
+            DetailsFragment detailFragment = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
+            if (detailFragment != null) {
+                Log.d(TAG, "onConfigurationChanged: Fragment is NOT NULL");
+                detailFragment.hideTheToolbar();
+            }else{
+                Log.e(TAG, "onConfigurationChanged: Fragment is NULL");
+            }
+
+        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            Log.d(TAG, "onConfigurationChanged: Inside the portrait mode");
+        }
+        Log.d(TAG, "onConfigurationChanged: end");
+    }
+
+
+
+
+
 
     /*
        *An utility method to make a server request
