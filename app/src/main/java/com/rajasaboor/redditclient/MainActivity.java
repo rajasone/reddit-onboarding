@@ -191,7 +191,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         SharedPreferences preferences = getSharedPreferences(Consts.LAST_DOWNLOAD_FILE_NAME, MODE_PRIVATE);
 
         if (preferences.getLong(Consts.LAST_DOWNLOAD_TIME_KEY, 0) == 0) {
-            Log.d(TAG, "onResume: App is newly installed request server to update");
+            Log.d(TAG, "onResume: App is newly installed request server to update");R
         } else {
             Log.d(TAG, "onResume: Check the time of last update if it is greater than or equal to 5 MINUTES request the server for update");
             manageTheLastUpdate();
