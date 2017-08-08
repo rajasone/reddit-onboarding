@@ -1,12 +1,16 @@
 package com.rajasaboor.redditclient.retrofit;
 
+import android.app.Dialog;
+import android.content.Context;
 import android.util.Log;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.model.RedditRespone;
 import com.rajasaboor.redditclient.util.Consts;
+import com.rajasaboor.redditclient.util.Util;
 
 import java.util.List;
 
@@ -67,6 +71,9 @@ public class RetrofitController implements Callback<RedditRespone> {
     public void onFailure(Call<RedditRespone> call, Throwable t) {
         Log.d(TAG, "onFailure: start");
         t.printStackTrace();
+        if (onDownloadComplete != null) {
+            Util.displayErrorDialog((Context) onDownloadComplete, (((Context) onDownloadComplete).getResources().getString(R.string.no_internet_connection)), false);
+        }
         Log.d(TAG, "onFailure: end");
     }
 

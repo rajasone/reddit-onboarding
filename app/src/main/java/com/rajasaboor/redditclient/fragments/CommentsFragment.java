@@ -91,6 +91,8 @@ public class CommentsFragment extends Fragment {
         if (commentsProgress < 100) {
             Log.d(TAG, "onCreateView: Progress is < 100 ===> " + commentsProgress);
             progressChecker();
+        } else {
+            commentsProgressBar.setVisibility(View.GONE);
         }
         Log.d(TAG, "onCreateView: end");
 
@@ -138,6 +140,7 @@ public class CommentsFragment extends Fragment {
                 if (commentsProgress == 100) {
                     Log.d(TAG, "progressChecker: now off the thread");
                     commentsProgressBar.setProgress(commentsProgress);
+                    commentsProgressBar.setVisibility(View.GONE);
                 } else {
                     commentsProgressBar.setProgress(commentsProgress);
                     ha.postDelayed(this, 10);

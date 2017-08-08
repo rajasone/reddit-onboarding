@@ -33,6 +33,7 @@ public class DetailViewPager extends FragmentPagerAdapter {
     public DetailViewPager(FragmentManager fm, RedditPost post) {
         super(fm);
         this.post = post;
+        //post.setPostIsSelf(true);
         Log.d(TAG, "DetailViewPager: start/end");
     }
 
@@ -42,7 +43,7 @@ public class DetailViewPager extends FragmentPagerAdapter {
         switch (position) {
             case 0:
                 Log.d(TAG, "getItem: Case 0");
-                return PostFragment.newInstance(post);
+                return (!post.isPostIsSelf() ? PostFragment.newInstance(post) : CommentsFragment.newInstance(post));
             case 1:
                 Log.d(TAG, "getItem: Case 1");
                 return CommentsFragment.newInstance(post);
@@ -53,7 +54,7 @@ public class DetailViewPager extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return 2;
+        return (post.isPostIsSelf() ? 1 : 2);
     }
 
     @Override

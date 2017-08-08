@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -16,9 +17,11 @@ import android.widget.ProgressBar;
 import com.google.gson.Gson;
 import com.rajasaboor.redditclient.adapter.ItemsAdapter;
 import com.rajasaboor.redditclient.adapter.ItemsViewHolder;
+import com.rajasaboor.redditclient.connection_manager.ConnectionStatusChecker;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.retrofit.RetrofitController;
 import com.rajasaboor.redditclient.util.Consts;
+import com.rajasaboor.redditclient.util.Util;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -36,6 +39,8 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     private Toolbar toolbar; // custom toolbar with the progressbar
     private ProgressBar progressBar; // this custom bar will shown to user when the refresh request is made
     private long lastUpdateTimeInMilliSeconds = 0L;
+    private Menu menu = null; // this will hold the reference of the menu and will be used to hide or display the refresh menu icon
+    private boolean isRefreshTapped = false; // to get to know that whether the refresh is tapped or not
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,13 +67,18 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
             Log.d(TAG, "onCreate: Data is inside the preferences");
             postWrapperList = getPostListFromSharedPrefs();
             itemsAdapter.updateAdapter(postWrapperList);
-        } else {
+        } else if ((preferences.getString(Consts.KEY_TO_CHECK_DATA, null) == null) && (ConnectionStatusChecker.checkConnection(this))) {
                /*
             * Initiate the call to the base URI and VISIBLE the progress bar
             */
 
-            Log.d(TAG, "onCreate: Preference is empty");
+            Log.d(TAG, "onCreate: Preference is empty but connection is available");
             makeServerRequest();
+        } else {
+            /*
+            * No data is in the shared prefs and no internet connection as well
+             */
+            Log.d(TAG, "onCreate: No data available and no internet connection");
         }
         Log.d(TAG, "onCreate: end");
     }
@@ -80,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     private void makeServerRequest() {
         setLastUpdateTimeInMilliSeconds(System.currentTimeMillis()); // set the current time when the list is updated
         addDownloadTimeToSharedPrefs(); // save the current time in shared prefs
+
 
         hideOrShowTheProgressBar(true);
         RetrofitController controller = new RetrofitController(this);
@@ -98,6 +109,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     public boolean onCreateOptionsMenu(Menu menu) {
         Log.d(TAG, "onCreateOptionsMenu: start");
         getMenuInflater().inflate(R.menu.main_menu, menu);
+        this.menu = menu;
 
         Log.d(TAG, "onCreateOptionsMenu: end");
         return super.onCreateOptionsMenu(menu);
@@ -108,9 +120,14 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         Log.d(TAG, "onOptionsItemSelected: start");
         switch (item.getItemId()) {
             case R.id.refresh_post_list_menu:
-                makeServerRequest();
-//                manageTheLastUpdate();
-                break;
+                if (ConnectionStatusChecker.checkConnection(this)) {
+                    setRefreshTapped(true);
+                    showOrHideTheRefreshIcon(false);
+                    makeServerRequest();
+                } else {
+                    Util.showToast(this, getResources().getString(R.string.no_internet_connection));
+                }
+                return true;
         }
         Log.d(TAG, "onOptionsItemSelected: end");
         return super.onOptionsItemSelected(item);
@@ -130,8 +147,8 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     }
 
     /*
-    * An utility method to perform the save operation for the list of the posts
-     */
+        * An utility method to perform the save operation for the list of the posts
+         */
     private void savePostListInJSON() {
         Log.d(TAG, "savePostListInJSON: start");
         SharedPreferences.Editor editor = getSharedPreferences(Consts.SHARED_PREFS_NAME, MODE_PRIVATE).edit();
@@ -162,23 +179,25 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
 
     private void manageTheLastUpdate() {
         setLastUpdateTimeInMilliSeconds(getSharedPreferences(Consts.LAST_DOWNLOAD_FILE_NAME, MODE_PRIVATE).getLong(Consts.LAST_DOWNLOAD_TIME_KEY, 0));
-        Log.d(TAG, "onResume: Fetched milli seconds ===> " + getLastUpdateTimeInMilliSeconds());
-        Log.d(TAG, "onResume: Current time - fetched time ===> " + (System.currentTimeMillis() - getLastUpdateTimeInMilliSeconds()));
+        Log.d(TAG, "manageTheLastUpdate: Fetched milli seconds ===> " + getLastUpdateTimeInMilliSeconds());
+        Log.d(TAG, "manageTheLastUpdate: Current time - fetched time ===> " + (System.currentTimeMillis() - getLastUpdateTimeInMilliSeconds()));
 
         long timeDifference = System.currentTimeMillis() - getLastUpdateTimeInMilliSeconds();
         long minutes = TimeUnit.MILLISECONDS.toMinutes(timeDifference);
-        Log.d(TAG, "onResume: Time in minutes ===> " + minutes);
+        Log.d(TAG, "manageTheLastUpdate: Time in minutes ===> " + minutes);
 
         if (TimeUnit.MILLISECONDS.toMinutes(timeDifference) >= 0 && TimeUnit.MILLISECONDS.toMinutes(timeDifference) < 1) {
             toolbar.setSubtitle(R.string.update_message_less_then_minute);
-            Log.d(TAG, "onResume: less than a minute ago");
+            Log.d(TAG, "manageTheLastUpdate: less than a minute ago");
         } else {
-            Log.d(TAG, "onResume: In ELSE");
+            Log.d(TAG, "manageTheLastUpdate: In ELSE");
             toolbar.setSubtitle(String.format(getResources().getString(R.string.update_message_more_than_minute), minutes,
-                    (minutes >= 1 ? getResources().getString(R.string.minute) : getResources().getString(R.string.minutes))));
+                    (minutes == 1 ? getResources().getString(R.string.minute) : getResources().getString(R.string.minutes))));
 
-            if (minutes >= 5) {
+
+            if (minutes >= 5 && ConnectionStatusChecker.checkConnection(this)) {
                 Log.d(TAG, "manageTheLastUpdate: making server request");
+
                 makeServerRequest();
             }
         }
@@ -188,6 +207,9 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     protected void onResume() {
         Log.d(TAG, "onResume: start");
         super.onResume();
+
+        boolean res = ConnectionStatusChecker.checkConnection(this);
+        Log.d(TAG, "onResume: Result of connection is ===> " + res);
 
         SharedPreferences preferences = getSharedPreferences(Consts.LAST_DOWNLOAD_FILE_NAME, MODE_PRIVATE);
 
@@ -208,6 +230,9 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         postsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         itemsAdapter = new ItemsAdapter(R.layout.post_layout, new ArrayList<RedditPostWrapper>(), this);
         postsRecyclerView.setAdapter(itemsAdapter);
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, new LinearLayoutManager(this).getOrientation());
+        postsRecyclerView.addItemDecoration(dividerItemDecoration);
     }
 
     private void iniViews() {
@@ -216,26 +241,32 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         postsRecyclerView = (RecyclerView) findViewById(R.id.posts_recycler_view);
     }
 
+    private void showOrHideTheRefreshIcon(boolean command) {
+        if ((menu != null) && (isRefreshTapped())) {
+            menu.findItem(R.id.refresh_post_list_menu).setVisible(command);
+        }
+    }
+
     @Override
     public void onDownloadCompleteListener(int responseCode, List<RedditPostWrapper> postsList) {
         Log.d(TAG, "onDownloadCompleteListener: start");
         Log.d(TAG, "onDownloadCompleteListener: Response Code ---> " + responseCode);
         Log.d(TAG, "onDownloadCompleteListener: Size of List ---> " + postsList.size());
+
         hideOrShowTheProgressBar(false);
+        showOrHideTheRefreshIcon(true);
 
         switch (responseCode) {
             case Consts.RESPONSE_CODE_OK:
                 Log.d(TAG, "onDownloadCompleteListener: Response code is 200 now updating the Adapter");
                 Log.d(TAG, "onDownloadCompleteListener: Download data at ===> " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.US).format(new Date(System.currentTimeMillis())));
-//                setLastUpdateTimeInMilliSeconds(System.currentTimeMillis()); // set the current time when the list is updated
-//
-//                addDownloadTimeToSharedPrefs();
 
                 manageTheLastUpdate();
                 setPostWrapperList(postsList); // setting the List field of the MainActivity
                 itemsAdapter.updateAdapter(postWrapperList); // sending the actual data which is downloaded and parsed by the Retrofit
                 savePostListInJSON();
-                //Util.printList(postsList); // just for debug purpose printing the list
+                manageTheLastUpdate();
+                Util.printList(postsList); // just for debug purpose printing the list
                 break;
             default:
                 Log.e(TAG, "onDownloadCompleteListener: Something wrong with the response response code is ---> " + responseCode);
@@ -273,5 +304,13 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
 
     public void setLastUpdateTimeInMilliSeconds(long lastUpdateTimeInMilliSeconds) {
         this.lastUpdateTimeInMilliSeconds = lastUpdateTimeInMilliSeconds;
+    }
+
+    public boolean isRefreshTapped() {
+        return isRefreshTapped;
+    }
+
+    public void setRefreshTapped(boolean refreshTapped) {
+        isRefreshTapped = refreshTapped;
     }
 }
