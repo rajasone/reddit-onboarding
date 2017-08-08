@@ -4,11 +4,13 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.connection_manager.ConnectionStatusChecker;
+import com.rajasaboor.redditclient.util.Util;
 
 /**
  * Created by default on 8/3/2017.
@@ -16,6 +18,7 @@ import com.rajasaboor.redditclient.connection_manager.ConnectionStatusChecker;
 public class ItemsViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
     private final String TAG = ItemsViewHolder.class.getSimpleName(); // Tag for the debug purposes
     private ConstraintLayout postParentLayout;
+    private ImageView upsImageView;
     private TextView upsTextView;
     private TextView titleTextView;
     private TextView userNameTextView;
@@ -26,6 +29,8 @@ public class ItemsViewHolder extends RecyclerView.ViewHolder implements View.OnC
     ItemsViewHolder(View itemView, IOnPostTapped onPostTapped) {
         super(itemView);
         this.onPostTapped = onPostTapped;
+
+        upsImageView = itemView.findViewById(R.id.ups_image_view);
         postParentLayout = (ConstraintLayout) itemView.findViewById(R.id.post_parent_layout);
         upsTextView = (TextView) itemView.findViewById(R.id.ups_text_view);
         titleTextView = (TextView) itemView.findViewById(R.id.title_text_view);
@@ -42,6 +47,10 @@ public class ItemsViewHolder extends RecyclerView.ViewHolder implements View.OnC
 
     void setPostParentLayout(ConstraintLayout postParentLayout) {
         this.postParentLayout = postParentLayout;
+    }
+
+    public ImageView getUpsImageView() {
+        return upsImageView;
     }
 
     TextView getUpsTextView() {
@@ -72,7 +81,7 @@ public class ItemsViewHolder extends RecyclerView.ViewHolder implements View.OnC
                     Log.d(TAG, "onClick: Sending the call to the interface");
                     onPostTapped.onPostTappedListener(getAdapterPosition());
                 } else {
-                    Toast.makeText(view.getContext(), "You are not connected to the internet", Toast.LENGTH_SHORT).show();
+                    Util.showToast(view.getContext(), view.getContext().getResources().getString(R.string.no_internet_connection));
                     Log.e(TAG, "onClick: No internet connection");
                 }
                 break;

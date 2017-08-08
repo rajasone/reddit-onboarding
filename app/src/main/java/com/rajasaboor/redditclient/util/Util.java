@@ -1,8 +1,14 @@
 package com.rajasaboor.redditclient.util;
 
+import android.app.Dialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.net.Uri;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.widget.Toast;
 
+import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 
 import java.util.List;
@@ -30,5 +36,27 @@ public class Util {
         }
 
         Log.d(TAG, "printList: end");
+    }
+
+    public static void showToast(Context context, String message) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    }
+
+    public static void displayErrorDialog(Context context, String errorMessage, boolean isCancelAble) {
+        Log.d(TAG, "displayErrorDialog: start");
+        AlertDialog.Builder errorDialog = new AlertDialog.Builder(context)
+                .setTitle(context.getResources().getString(R.string.error_alert_dialog_title))
+                .setCancelable(isCancelAble)
+                .setMessage(errorMessage)
+                .setNegativeButton(context.getResources().getString(R.string.error_dialog_button), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Log.d(TAG, "onClick: Dismiss the dialog");
+                        dialogInterface.dismiss();
+                    }
+                });
+
+        errorDialog.show();
+        Log.d(TAG, "displayErrorDialog: end");
     }
 }

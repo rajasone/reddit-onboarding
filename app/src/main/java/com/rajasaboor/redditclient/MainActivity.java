@@ -20,6 +20,7 @@ import com.rajasaboor.redditclient.connection_manager.ConnectionStatusChecker;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.retrofit.RetrofitController;
 import com.rajasaboor.redditclient.util.Consts;
+import com.rajasaboor.redditclient.util.Util;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -37,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     private Toolbar toolbar; // custom toolbar with the progressbar
     private ProgressBar progressBar; // this custom bar will shown to user when the refresh request is made
     private long lastUpdateTimeInMilliSeconds = 0L;
+    private Menu menu = null; // this will hold the reference of the menu and will be used to hide or display the refresh menu icon
+    private boolean isRefreshTapped = false; // to get to know that whether the refresh is tapped or not
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,13 +66,18 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
             Log.d(TAG, "onCreate: Data is inside the preferences");
             postWrapperList = getPostListFromSharedPrefs();
             itemsAdapter.updateAdapter(postWrapperList);
-        } else {
+        } else if ((preferences.getString(Consts.KEY_TO_CHECK_DATA, null) == null) && (ConnectionStatusChecker.checkConnection(this))) {
                /*
             * Initiate the call to the base URI and VISIBLE the progress bar
             */
 
-            Log.d(TAG, "onCreate: Preference is empty");
+            Log.d(TAG, "onCreate: Preference is empty but connection is available");
             makeServerRequest();
+        } else {
+            /*
+            * No data is in the shared prefs and no internet connection as well
+             */
+            Log.d(TAG, "onCreate: No data available and no internet connection");
         }
         Log.d(TAG, "onCreate: end");
     }
@@ -81,6 +89,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     private void makeServerRequest() {
         setLastUpdateTimeInMilliSeconds(System.currentTimeMillis()); // set the current time when the list is updated
         addDownloadTimeToSharedPrefs(); // save the current time in shared prefs
+
 
         hideOrShowTheProgressBar(true);
         RetrofitController controller = new RetrofitController(this);
@@ -99,6 +108,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     public boolean onCreateOptionsMenu(Menu menu) {
         Log.d(TAG, "onCreateOptionsMenu: start");
         getMenuInflater().inflate(R.menu.main_menu, menu);
+        this.menu = menu;
 
         Log.d(TAG, "onCreateOptionsMenu: end");
         return super.onCreateOptionsMenu(menu);
@@ -109,9 +119,14 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         Log.d(TAG, "onOptionsItemSelected: start");
         switch (item.getItemId()) {
             case R.id.refresh_post_list_menu:
-                makeServerRequest();
-                manageTheLastUpdate();
-                break;
+                if (ConnectionStatusChecker.checkConnection(this)) {
+                    setRefreshTapped(true);
+                    showOrHideTheRefreshIcon(false);
+                    makeServerRequest();
+                } else {
+                    Util.showToast(this, getResources().getString(R.string.no_internet_connection));
+                }
+                return true;
         }
         Log.d(TAG, "onOptionsItemSelected: end");
         return super.onOptionsItemSelected(item);
@@ -178,7 +193,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
             toolbar.setSubtitle(String.format(getResources().getString(R.string.update_message_more_than_minute), minutes,
                     (minutes == 1 ? getResources().getString(R.string.minute) : getResources().getString(R.string.minutes))));
 
-            if (minutes >= 5) {
+            if (minutes >= 5 && ConnectionStatusChecker.checkConnection(this)) {
                 makeServerRequest();
             }
         }
@@ -219,12 +234,20 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         postsRecyclerView = (RecyclerView) findViewById(R.id.posts_recycler_view);
     }
 
+    private void showOrHideTheRefreshIcon(boolean command) {
+        if ((menu != null) && (isRefreshTapped())) {
+            menu.findItem(R.id.refresh_post_list_menu).setVisible(command);
+        }
+    }
+
     @Override
     public void onDownloadCompleteListener(int responseCode, List<RedditPostWrapper> postsList) {
         Log.d(TAG, "onDownloadCompleteListener: start");
         Log.d(TAG, "onDownloadCompleteListener: Response Code ---> " + responseCode);
         Log.d(TAG, "onDownloadCompleteListener: Size of List ---> " + postsList.size());
+
         hideOrShowTheProgressBar(false);
+        showOrHideTheRefreshIcon(true);
 
         switch (responseCode) {
             case Consts.RESPONSE_CODE_OK:
@@ -276,5 +299,13 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
 
     public void setLastUpdateTimeInMilliSeconds(long lastUpdateTimeInMilliSeconds) {
         this.lastUpdateTimeInMilliSeconds = lastUpdateTimeInMilliSeconds;
+    }
+
+    public boolean isRefreshTapped() {
+        return isRefreshTapped;
+    }
+
+    public void setRefreshTapped(boolean refreshTapped) {
+        isRefreshTapped = refreshTapped;
     }
 }
