@@ -3,6 +3,7 @@ package com.rajasaboor.redditclient.appbar_layout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentStatePagerAdapter;
 import android.util.Log;
 
 import com.rajasaboor.redditclient.fragments.CommentsFragment;
@@ -17,7 +18,7 @@ import java.util.List;
  * Created by default on 8/4/2017.
  */
 
-public class DetailViewPager extends FragmentPagerAdapter {
+public class DetailViewPager extends FragmentStatePagerAdapter {
     private static final String TAG = DetailViewPager.class.getSimpleName();
     //// TODO: 8/4/2017 Add the fragments in the fragment list
     private List<Fragment> fragmentList = new ArrayList<>();
@@ -33,13 +34,13 @@ public class DetailViewPager extends FragmentPagerAdapter {
     public DetailViewPager(FragmentManager fm, RedditPost post) {
         super(fm);
         this.post = post;
-        //post.setPostIsSelf(true);
         Log.d(TAG, "DetailViewPager: start/end");
     }
 
     @Override
     public Fragment getItem(int position) {
         Log.d(TAG, "getItem: start/end");
+        Log.d(TAG, "getItem: Post Title ====> " + post.getPostTitle());
         switch (position) {
             case 0:
                 Log.d(TAG, "getItem: Case 0");
@@ -60,6 +61,14 @@ public class DetailViewPager extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         Log.d(TAG, "getPageTitle: start/end");
-        return Consts.TABS_NAMES[position];
+        return (post.isPostIsSelf() ? Consts.TABS_NAMES[Consts.COMMENT_TAB_POSITION] : Consts.TABS_NAMES[position]);
+    }
+
+    public RedditPost getPost() {
+        return post;
+    }
+
+    public void setPost(RedditPost post) {
+        this.post = post;
     }
 }

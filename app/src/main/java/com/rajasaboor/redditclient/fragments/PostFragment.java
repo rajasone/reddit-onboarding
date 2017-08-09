@@ -74,6 +74,10 @@ public class PostFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_post, container, false);
         iniViews(view);
 
+        if (post != null && post.isPostIsSelf()){
+
+        }
+
         /*
         * Check whether the bundle is NULL or not
         * if bundle is NOT NULL just restore the web view and get the value of the progress bar from the bundle and set the progress bar value to the fetched value

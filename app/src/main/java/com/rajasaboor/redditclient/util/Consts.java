@@ -18,4 +18,7 @@ public class Consts {
     public static final String COMMENTS_PAGE_PROGRESS = "comments_progress";
     public static final String LAST_DOWNLOAD_FILE_NAME = "last_download_file";
     public static final String LAST_DOWNLOAD_TIME_KEY = "last_download";
+
+    public static final int COMMENT_TAB_POSITION = 1;
+    public static String CURRENT_SELECTED_OBJECT = "current_object";
 }

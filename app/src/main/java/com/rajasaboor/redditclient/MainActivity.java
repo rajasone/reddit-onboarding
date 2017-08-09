@@ -20,6 +20,7 @@ import com.rajasaboor.redditclient.adapter.ItemsAdapter;
 import com.rajasaboor.redditclient.adapter.ItemsViewHolder;
 import com.rajasaboor.redditclient.connection_manager.ConnectionStatusChecker;
 import com.rajasaboor.redditclient.fragments.DetailsFragment;
+import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.retrofit.RetrofitController;
 import com.rajasaboor.redditclient.util.Consts;
@@ -43,6 +44,10 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     private long lastUpdateTimeInMilliSeconds = 0L;
     private Menu menu = null; // this will hold the reference of the menu and will be used to hide or display the refresh menu icon
     private boolean isRefreshTapped = false; // to get to know that whether the refresh is tapped or not
+    private DetailsFragment detailsFragment;
+    private boolean isAnyPostSelectedInLandscapeMode = false;
+    private RedditPost selectedPost;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,32 +89,6 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         }
         Log.d(TAG, "onCreate: end");
     }
-
-    @Override
-    public void onConfigurationChanged(Configuration newConfig) {
-        Log.d(TAG, "onConfigurationChanged: start");
-        super.onConfigurationChanged(newConfig);
-
-        if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            Log.d(TAG, "onConfigurationChanged: Inside the landscape mode");
-
-            DetailsFragment detailFragment = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
-            if (detailFragment != null) {
-                Log.d(TAG, "onConfigurationChanged: Fragment is NOT NULL");
-                detailFragment.hideTheToolbar();
-            }else{
-                Log.e(TAG, "onConfigurationChanged: Fragment is NULL");
-            }
-
-        } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            Log.d(TAG, "onConfigurationChanged: Inside the portrait mode");
-        }
-        Log.d(TAG, "onConfigurationChanged: end");
-    }
-
-
-
-
 
 
     /*
@@ -175,9 +154,10 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         Log.d(TAG, "onSaveInstanceState: end");
     }
 
+
     /*
-        * An utility method to perform the save operation for the list of the posts
-         */
+            * An utility method to perform the save operation for the list of the posts
+             */
     private void savePostListInJSON() {
         Log.d(TAG, "savePostListInJSON: start");
         SharedPreferences.Editor editor = getSharedPreferences(Consts.SHARED_PREFS_NAME, MODE_PRIVATE).edit();
@@ -234,6 +214,17 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         Log.d(TAG, "onResume: start");
         super.onResume();
 
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            detailsFragment.hideOrShowTheTabsToolbar(true);
+        }
+
+        if (getCurrentPostFromSharedPrefs() != null && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            setSelectedPost(getCurrentPostFromSharedPrefs());
+            Log.d(TAG, "onResume: Yes post is selected");
+            callTheDetailViewPagerMethod();
+        } else {
+            Log.d(TAG, "onResume: NO post is selected");
+        }
         boolean res = ConnectionStatusChecker.checkConnection(this);
         Log.d(TAG, "onResume: Result of connection is ===> " + res);
 
@@ -265,6 +256,8 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         toolbar = (Toolbar) findViewById(R.id.toolbar_include);
         progressBar = (ProgressBar) toolbar.findViewById(R.id.menu_progress_bar);
         postsRecyclerView = (RecyclerView) findViewById(R.id.posts_recycler_view);
+
+        detailsFragment = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
     }
 
     private void showOrHideTheRefreshIcon(boolean command) {
@@ -317,9 +310,24 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     public void onPostTappedListener(int position) {
         Log.d(TAG, "onPostTappedListener: start");
         Log.d(TAG, "onPostTappedListener: position ---> " + position);
-        Intent detailActivityIntent = new Intent(this, DetailActivity.class);
-        detailActivityIntent.putExtra(Consts.INDIVIDUAL_POST_ITEM_KEY, getPostListFromSharedPrefs().get(position).getData());
-        startActivity(detailActivityIntent);
+
+        switch ((getResources().getConfiguration().orientation)) {
+            case Configuration.ORIENTATION_PORTRAIT:
+                Log.d(TAG, "onPostTappedListener: Inside the portrait mode so open a DetailActivity");
+                Intent detailActivityIntent = new Intent(this, DetailActivity.class);
+                detailActivityIntent.putExtra(Consts.INDIVIDUAL_POST_ITEM_KEY, getPostWrapperList().get(position).getData());
+                startActivity(detailActivityIntent);
+                break;
+            case Configuration.ORIENTATION_LANDSCAPE:
+                setAnyPostSelectedInLandscapeMode(true);
+                setSelectedPost(getPostWrapperList().get(position).getData());
+                saveTheCurrentPostInSharedPrefs();
+                Log.d(TAG, "onPostTappedListener: Status of post selected field ===> " + isAnyPostSelectedInLandscapeMode());
+                Log.d(TAG, "onPostTappedListener: Inside the Landscape mode so display the result in DetailsFragment");
+                callTheDetailViewPagerMethod();
+                break;
+
+        }
         Log.d(TAG, "onPostTappedListener: end");
     }
 
@@ -337,5 +345,43 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
 
     public void setRefreshTapped(boolean refreshTapped) {
         isRefreshTapped = refreshTapped;
+    }
+
+    public boolean isAnyPostSelectedInLandscapeMode() {
+        return isAnyPostSelectedInLandscapeMode;
+    }
+
+    public void setAnyPostSelectedInLandscapeMode(boolean anyPostSelectedInLandscapeMode) {
+        isAnyPostSelectedInLandscapeMode = anyPostSelectedInLandscapeMode;
+    }
+
+    public RedditPost getSelectedPost() {
+        return selectedPost;
+    }
+
+    public void setSelectedPost(RedditPost selectedPost) {
+        this.selectedPost = selectedPost;
+    }
+
+    private void callTheDetailViewPagerMethod() {
+        detailsFragment.setPost(getSelectedPost());
+        if (detailsFragment.getPost().isPostIsSelf()) {
+            detailsFragment.hideOrShowTheTabsToolbar(true);
+        } else {
+            detailsFragment.hideOrShowTheTabsToolbar(false);
+        }
+        detailsFragment.setUpTheViewPager();
+    }
+
+    private void saveTheCurrentPostInSharedPrefs() {
+        if (getSelectedPost() != null) {
+            getSharedPreferences(Consts.CURRENT_SELECTED_OBJECT, MODE_PRIVATE).edit().putString(Consts.CURRENT_SELECTED_OBJECT, new Gson().toJson(getSelectedPost())).apply();
+        } else {
+            Log.e(TAG, "saveTheCurrentPostInSharedPrefs: Post is NULL");
+        }
+    }
+
+    private RedditPost getCurrentPostFromSharedPrefs() {
+        return new Gson().fromJson(getSharedPreferences(Consts.CURRENT_SELECTED_OBJECT, MODE_PRIVATE).getString(Consts.CURRENT_SELECTED_OBJECT, null), RedditPost.class);
     }
 }
