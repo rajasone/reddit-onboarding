@@ -44,9 +44,9 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     private long lastUpdateTimeInMilliSeconds = 0L;
     private Menu menu = null; // this will hold the reference of the menu and will be used to hide or display the refresh menu icon
     private boolean isRefreshTapped = false; // to get to know that whether the refresh is tapped or not
-    private DetailsFragment detailsFragment;
+    private DetailsFragment detailsFragment; // instance of detail fragment to hide or show the toolbar and set view pager adapter
     private boolean isAnyPostSelectedInLandscapeMode = false;
-    private RedditPost selectedPost;
+    private RedditPost selectedPost; // A post which is selected in the landscape layout
 
 
     @Override
@@ -206,9 +206,40 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
 
             if (minutes >= 5 && ConnectionStatusChecker.checkConnection(this)) {
                 Log.d(TAG, "manageTheLastUpdate: making server request");
-
                 makeServerRequest();
             }
+        }
+    }
+
+    /*
+    * Check the orientation of the activity if it is landscape and no post is selected yet the tab bar is hide by default
+     */
+    private void hideTheTabsInLandscapeLayout() {
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            detailsFragment.hideOrShowTheTabsToolbar(true);
+        }
+    }
+
+    /*
+    * An utility function which is used to check whether the orientation is LANDSCAPE or not
+    * True returns if Orientation is LANDSCAPE
+     */
+    private boolean isOrientationIsLandscape() {
+        return getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+    }
+
+    /*
+    * If user selected post is available in shared prefs and orientation is landscape
+    * set the current post to the shared prefs post
+    * then call the callTheDetailViewPagerMethod() which sets up the view pager and hide/show the tabs
+     */
+    private void actionsPerformIfPostIsSelectedInLandscape() {
+        if (getCurrentPostFromSharedPrefs() != null && isOrientationIsLandscape()) {
+            setSelectedPost(getCurrentPostFromSharedPrefs());
+            Log.d(TAG, "onResume: Yes post is selected");
+            callTheDetailViewPagerMethod();
+        } else {
+            Log.d(TAG, "onResume: NO post is selected");
         }
     }
 
@@ -217,20 +248,8 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         Log.d(TAG, "onResume: start");
         super.onResume();
 
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            detailsFragment.hideOrShowTheTabsToolbar(true);
-        }
-
-        if (getCurrentPostFromSharedPrefs() != null && getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            setSelectedPost(getCurrentPostFromSharedPrefs());
-            Log.d(TAG, "onResume: Yes post is selected");
-            callTheDetailViewPagerMethod();
-        } else {
-            Log.d(TAG, "onResume: NO post is selected");
-        }
-        boolean res = ConnectionStatusChecker.checkConnection(this);
-        Log.d(TAG, "onResume: Result of connection is ===> " + res);
-
+        hideTheTabsInLandscapeLayout();
+        actionsPerformIfPostIsSelectedInLandscape();
         SharedPreferences preferences = getSharedPreferences(Consts.LAST_DOWNLOAD_FILE_NAME, MODE_PRIVATE);
 
         if (preferences.getLong(Consts.LAST_DOWNLOAD_TIME_KEY, 0) == 0) {
@@ -283,7 +302,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
                 Log.d(TAG, "onDownloadCompleteListener: Response code is 200 now updating the Adapter");
                 Log.d(TAG, "onDownloadCompleteListener: Download data at ===> " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.US).format(new Date(System.currentTimeMillis())));
 
-                manageTheLastUpdate();
+                manageTheLastUpdate(); // this method is responsible to manage the last update time etc
                 setPostWrapperList(postsList); // setting the List field of the MainActivity
                 itemsAdapter.updateAdapter(postWrapperList); // sending the actual data which is downloaded and parsed by the Retrofit
                 savePostListInJSON();
@@ -367,6 +386,10 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         this.selectedPost = selectedPost;
     }
 
+    /*
+    * Set up the current post and also set up the view pager
+     */
+
     private void callTheDetailViewPagerMethod() {
         detailsFragment.setPost(getSelectedPost());
         if (detailsFragment.getPost().isPostIsSelf()) {
@@ -377,6 +400,10 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         detailsFragment.setUpTheViewPager();
     }
 
+    /*
+    * Save the current post in shared prefs
+    * Current post means post which is selected by the user in the LANDSCAPE
+     */
     private void saveTheCurrentPostInSharedPrefs() {
         if (getSelectedPost() != null) {
             getSharedPreferences(Consts.CURRENT_SELECTED_OBJECT, MODE_PRIVATE).edit().putString(Consts.CURRENT_SELECTED_OBJECT, new Gson().toJson(getSelectedPost())).apply();
@@ -385,6 +412,9 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         }
     }
 
+    /*
+    * Get the post which is selected by the user in landscape mode from the shared prefs IF ANY EXISTS
+     */
     private RedditPost getCurrentPostFromSharedPrefs() {
         return new Gson().fromJson(getSharedPreferences(Consts.CURRENT_SELECTED_OBJECT, MODE_PRIVATE).getString(Consts.CURRENT_SELECTED_OBJECT, null), RedditPost.class);
     }

@@ -50,7 +50,8 @@
         app:layout_constraintRight_toLeftOf="@+id/comments_text_view"
         android:layout_marginLeft="0dp"
         android:layout_marginRight="8dp"
-        app:layout_constraintHorizontal_bias="0.0" />
+        app:layout_constraintHorizontal_bias="0.0"
+        tools:ignore="RtlHardcoded" />
 
     <TextView
         android:id="@+id/link_text_view"
