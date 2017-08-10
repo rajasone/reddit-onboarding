@@ -51,7 +51,7 @@ public class ItemsViewHolder extends RecyclerView.ViewHolder implements View.OnC
         this.postParentLayout = postParentLayout;
     }
 
-    public ImageView getUpsImageView() {
+    ImageView getUpsImageView() {
         return upsImageView;
     }
 

@@ -143,11 +143,11 @@ public class CommentsFragment extends Fragment {
                     commentsProgressBar.setVisibility(View.GONE);
                 } else {
                     commentsProgressBar.setProgress(commentsProgress);
-                    ha.postDelayed(this, 10);
+                    ha.postDelayed(this, 300);
                 }
 
             }
-        }, 10);
+        }, 300);
     }
 
 

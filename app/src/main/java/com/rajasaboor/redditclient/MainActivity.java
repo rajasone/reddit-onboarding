@@ -310,7 +310,6 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
                 setPostWrapperList(postsList); // setting the List field of the MainActivity
                 itemsAdapter.updateAdapter(postWrapperList); // sending the actual data which is downloaded and parsed by the Retrofit
                 savePostListInJSON();
-//                manageTheLastUpdate();
                 Util.printList(postsList); // just for debug purpose printing the list
                 break;
             default:

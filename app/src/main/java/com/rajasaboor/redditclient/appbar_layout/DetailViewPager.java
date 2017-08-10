@@ -20,15 +20,7 @@ import java.util.List;
 
 public class DetailViewPager extends FragmentStatePagerAdapter {
     private static final String TAG = DetailViewPager.class.getSimpleName();
-    //// TODO: 8/4/2017 Add the fragments in the fragment list
-    private List<Fragment> fragmentList = new ArrayList<>();
     private RedditPost post;
-
-    public void addFragmentsInList(Fragment fragment) {
-        Log.d(TAG, "addFragmentsInList: start");
-        fragmentList.add(fragment);
-        Log.d(TAG, "addFragmentsInList: end");
-    }
 
 
     public DetailViewPager(FragmentManager fm, RedditPost post) {

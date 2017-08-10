@@ -139,11 +139,11 @@ public class PostFragment extends Fragment {
                     postProgressBar.setVisibility(View.GONE);
                 } else {
                     postProgressBar.setProgress(postProgress);
-                    ha.postDelayed(this, 10);
+                    ha.postDelayed(this, 300);
                 }
 
             }
-        }, 10);
+        }, 300);
     }
 
     /*

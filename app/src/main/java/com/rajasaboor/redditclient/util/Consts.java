@@ -2,7 +2,7 @@ package com.rajasaboor.redditclient.util;
 
 /**
  * Created by default on 8/3/2017.
- * This class contains all the constants fields in it e.g base_uri, response code etc
+ * This class contains all the constants fields in it e.g base_uri, response code, bundle keys etc
  */
 
 public class Consts {
