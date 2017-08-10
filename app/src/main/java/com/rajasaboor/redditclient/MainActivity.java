@@ -44,9 +44,8 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     private long lastUpdateTimeInMilliSeconds = 0L;
     private Menu menu = null; // this will hold the reference of the menu and will be used to hide or display the refresh menu icon
     private boolean isRefreshTapped = false; // to get to know that whether the refresh is tapped or not
-    private DetailsFragment detailsFragment; // instance of detail fragment to hide or show the toolbar and set view pager adapter
-    private boolean isAnyPostSelectedInLandscapeMode = false;
     private RedditPost selectedPost; // A post which is selected in the landscape layout
+    private DetailsFragment detailsFragmentInTablet;  // instance of detail fragment to hide or show the toolbar and set view pager adapter and used to know the current mode either Tablet/Phone
 
 
     @Override
@@ -212,11 +211,11 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     }
 
     /*
-    * Check the orientation of the activity if it is landscape and no post is selected yet the tab bar is hide by default
+    * Check the details fragment if it is not null and it is visible set the tab bar is hide by default
      */
     private void hideTheTabsInLandscapeLayout() {
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            detailsFragment.hideOrShowTheTabsToolbar(true);
+        if (detailsFragmentInTablet != null) {
+            detailsFragmentInTablet.hideOrShowTheTabsToolbar(true);
         }
     }
 
@@ -228,18 +227,23 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         return getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
     }
 
+    private boolean isTableLayoutIsActive() {
+        return (detailsFragmentInTablet != null);
+//        return (detailsFragment != null && detailsFragment.isVisible());
+    }
+
     /*
     * If user selected post is available in shared prefs and orientation is landscape
     * set the current post to the shared prefs post
     * then call the callTheDetailViewPagerMethod() which sets up the view pager and hide/show the tabs
      */
     private void actionsPerformIfPostIsSelectedInLandscape() {
-        if (getCurrentPostFromSharedPrefs() != null && isOrientationIsLandscape()) {
+        if (getCurrentPostFromSharedPrefs() != null && isTableLayoutIsActive()) {
             setSelectedPost(getCurrentPostFromSharedPrefs());
-            Log.d(TAG, "onResume: Yes post is selected");
+            Log.d(TAG, "actionsPerformIfPostIsSelectedInLandscape: Yes post is selected");
             callTheDetailViewPagerMethod();
         } else {
-            Log.d(TAG, "onResume: NO post is selected");
+            Log.d(TAG, "actionsPerformIfPostIsSelectedInLandscape: NO post is selected");
         }
     }
 
@@ -279,7 +283,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         progressBar = (ProgressBar) toolbar.findViewById(R.id.menu_progress_bar);
         postsRecyclerView = (RecyclerView) findViewById(R.id.posts_recycler_view);
 
-        detailsFragment = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
+        detailsFragmentInTablet = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
     }
 
     private void showOrHideTheRefreshIcon(boolean command) {
@@ -306,7 +310,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
                 setPostWrapperList(postsList); // setting the List field of the MainActivity
                 itemsAdapter.updateAdapter(postWrapperList); // sending the actual data which is downloaded and parsed by the Retrofit
                 savePostListInJSON();
-                manageTheLastUpdate();
+//                manageTheLastUpdate();
                 Util.printList(postsList); // just for debug purpose printing the list
                 break;
             default:
@@ -334,22 +338,17 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         Log.d(TAG, "onPostTappedListener: start");
         Log.d(TAG, "onPostTappedListener: position ---> " + position);
 
-        switch ((getResources().getConfiguration().orientation)) {
-            case Configuration.ORIENTATION_PORTRAIT:
-                Log.d(TAG, "onPostTappedListener: Inside the portrait mode so open a DetailActivity");
-                Intent detailActivityIntent = new Intent(this, DetailActivity.class);
-                detailActivityIntent.putExtra(Consts.INDIVIDUAL_POST_ITEM_KEY, getPostWrapperList().get(position).getData());
-                startActivity(detailActivityIntent);
-                break;
-            case Configuration.ORIENTATION_LANDSCAPE:
-                setAnyPostSelectedInLandscapeMode(true);
-                setSelectedPost(getPostWrapperList().get(position).getData());
-                saveTheCurrentPostInSharedPrefs();
-                Log.d(TAG, "onPostTappedListener: Status of post selected field ===> " + isAnyPostSelectedInLandscapeMode());
-                Log.d(TAG, "onPostTappedListener: Inside the Landscape mode so display the result in DetailsFragment");
-                callTheDetailViewPagerMethod();
-                break;
-
+        if (!isTableLayoutIsActive()) {
+            Log.d(TAG, "onPostTappedListener: Inside the portrait mode so open a DetailActivity");
+            Intent detailActivityIntent = new Intent(this, DetailActivity.class);
+            detailActivityIntent.putExtra(Consts.INDIVIDUAL_POST_ITEM_KEY, getPostWrapperList().get(position).getData());
+            startActivity(detailActivityIntent);
+        } else {
+            Log.d(TAG, "onPostTappedListener: !!!!!!!!!!!!!!!!!!Tablet layout is ACTIVE!!!!!!!!!!!!!!!!!!");
+            setSelectedPost(getPostWrapperList().get(position).getData());
+            saveTheCurrentPostInSharedPrefs();
+            Log.d(TAG, "onPostTappedListener: Inside the Landscape mode so display the result in DetailsFragment");
+            callTheDetailViewPagerMethod();
         }
         Log.d(TAG, "onPostTappedListener: end");
     }
@@ -370,13 +369,6 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         isRefreshTapped = refreshTapped;
     }
 
-    public boolean isAnyPostSelectedInLandscapeMode() {
-        return isAnyPostSelectedInLandscapeMode;
-    }
-
-    public void setAnyPostSelectedInLandscapeMode(boolean anyPostSelectedInLandscapeMode) {
-        isAnyPostSelectedInLandscapeMode = anyPostSelectedInLandscapeMode;
-    }
 
     public RedditPost getSelectedPost() {
         return selectedPost;
@@ -391,13 +383,13 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
      */
 
     private void callTheDetailViewPagerMethod() {
-        detailsFragment.setPost(getSelectedPost());
-        if (detailsFragment.getPost().isPostIsSelf()) {
-            detailsFragment.hideOrShowTheTabsToolbar(true);
+        detailsFragmentInTablet.setPost(getSelectedPost());
+        if (detailsFragmentInTablet.getPost().isPostIsSelf()) {
+            detailsFragmentInTablet.hideOrShowTheTabsToolbar(true);
         } else {
-            detailsFragment.hideOrShowTheTabsToolbar(false);
+            detailsFragmentInTablet.hideOrShowTheTabsToolbar(false);
         }
-        detailsFragment.setUpTheViewPager();
+        detailsFragmentInTablet.setUpTheViewPager();
     }
 
     /*
