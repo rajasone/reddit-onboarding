@@ -8,9 +8,12 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.rajasaboor.redditclient.MainActivity;
 import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.connection_manager.ConnectionStatusChecker;
 import com.rajasaboor.redditclient.util.Util;
+
+import org.w3c.dom.Text;
 
 /**
  * Created by default on 8/3/2017.
@@ -26,6 +29,8 @@ public class ItemsViewHolder extends RecyclerView.ViewHolder implements View.OnC
     private TextView linkTextView;
     private final IOnPostTapped onPostTapped;
     private int listSize = 0; // check the list size if size is less than 1 don't call the interface method
+    private TextView noOfflineDataTextView;
+
 
     ItemsViewHolder(View itemView, IOnPostTapped onPostTapped, int listSize) {
         super(itemView);
@@ -39,6 +44,8 @@ public class ItemsViewHolder extends RecyclerView.ViewHolder implements View.OnC
         userNameTextView = (TextView) itemView.findViewById(R.id.user_name_text_view);
         commentsTextView = (TextView) itemView.findViewById(R.id.comments_text_view);
         linkTextView = (TextView) itemView.findViewById(R.id.link_text_view);
+        noOfflineDataTextView = itemView.findViewById(R.id.no_offline_data_message_text_view);
+
 
         postParentLayout.setOnClickListener(this); // listener is attach to detect when user tap on the post
     }
@@ -73,6 +80,10 @@ public class ItemsViewHolder extends RecyclerView.ViewHolder implements View.OnC
 
     TextView getLinkTextView() {
         return linkTextView;
+    }
+
+    public TextView getNoOfflineDataTextView() {
+        return noOfflineDataTextView;
     }
 
     @Override

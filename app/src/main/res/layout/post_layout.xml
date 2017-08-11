@@ -7,8 +7,8 @@
     android:layout_height="wrap_content"
     android:background="?android:attr/selectableItemBackground"
     android:clickable="true"
-    android:focusable="true"
-    android:orientation="vertical">
+    android:focusable="true">
+
 
     <TextView
         android:id="@+id/ups_text_view"
@@ -46,33 +46,35 @@
         android:id="@+id/user_name_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="0dp"
+        android:layout_marginLeft="8dp"
         android:layout_marginTop="4dp"
         android:ellipsize="end"
         android:maxLength="6"
-        app:layout_constraintLeft_toLeftOf="@+id/title_text_view"
+        app:layout_constraintLeft_toRightOf="@+id/ups_image_view"
         app:layout_constraintTop_toBottomOf="@+id/title_text_view"
         tools:ignore="MissingPrefix,RtlHardcoded"
-        tools:text="Username" />
+        tools:text="Username"
+        android:layout_marginStart="8dp" />
 
     <TextView
         android:id="@+id/link_text_view"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginLeft="8dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="6dp"
         android:ellipsize="end"
         android:maxLines="1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toLeftOf="@+id/title_text_view"
+        app:layout_constraintLeft_toRightOf="@+id/ups_image_view"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/user_name_text_view"
-        app:layout_constraintVertical_bias="1.0"
         tools:ignore="RtlHardcoded"
-        tools:text="Link" />
+        tools:text="Link"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        android:layout_marginBottom="8dp"
+        app:layout_constraintVertical_bias="0.0" />
 
     <TextView
         android:id="@+id/comments_text_view"
@@ -101,4 +103,25 @@
         app:layout_constraintTop_toTopOf="parent"
         app:srcCompat="@drawable/thumb_up"
         tools:ignore="ContentDescription,RtlHardcoded" />
+
+    <TextView
+        android:id="@+id/no_offline_data_message_text_view"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/no_offline_data"
+        android:textColor="@android:color/holo_red_light"
+        android:textSize="24sp"
+        android:textStyle="italic"
+        android:layout_marginTop="-1dp"
+        app:layout_constraintTop_toBottomOf="@+id/link_text_view"
+        android:layout_marginLeft="8dp"
+        app:layout_constraintLeft_toLeftOf="parent"
+        android:layout_marginRight="8dp"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        android:layout_marginBottom="8dp" />
+
+
+
 </android.support.constraint.ConstraintLayout>
