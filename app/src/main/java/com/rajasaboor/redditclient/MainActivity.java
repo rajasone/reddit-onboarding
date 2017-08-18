@@ -172,7 +172,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     /*
     * An utility method which is use to fetch the post list from the shared prefs and convert the json string into the object
      */
-    private List<RedditPostWrapper> getPostListFromSharedPrefs() {
+    public List<RedditPostWrapper> getPostListFromSharedPrefs() {
         Log.d(TAG, "getPostListFromSharedPrefs: start");
         Gson gson = new Gson();
         List<RedditPostWrapper> temp = new ArrayList<>();
@@ -326,6 +326,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
 
     public void setPostWrapperList(List<RedditPostWrapper> postWrapperList) {
         this.postWrapperList = postWrapperList;
+
     }
 
     public List<RedditPostWrapper> getPostWrapperList() {
