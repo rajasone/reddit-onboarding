@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -14,6 +15,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.rajasaboor.redditclient.adapter.ItemsAdapter;
@@ -23,7 +26,6 @@ import com.rajasaboor.redditclient.fragments.DetailsFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.retrofit.RetrofitController;
-import com.rajasaboor.redditclient.util.Consts;
 import com.rajasaboor.redditclient.util.Util;
 
 import java.text.SimpleDateFormat;
@@ -34,18 +36,29 @@ import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 
-public class MainActivity extends AppCompatActivity implements RetrofitController.IOnDownloadComplete, ItemsViewHolder.IOnPostTapped {
+public class MainActivity extends AppCompatActivity implements RetrofitController.IOnDownloadComplete, ItemsViewHolder.IOnPostTapped, RetrofitController.IPublishLastDownloadTimeInToolbar {
     private static final String TAG = MainActivity.class.getSimpleName(); // Tag name for the Debug purposes
     private List<RedditPostWrapper> postWrapperList = new ArrayList<>();
     private RecyclerView postsRecyclerView = null;
     private ItemsAdapter itemsAdapter = null;
     private Toolbar toolbar; // custom toolbar with the progressbar
     private ProgressBar progressBar; // this custom bar will shown to user when the refresh request is made
-    private long lastUpdateTimeInMilliSeconds = 0L;
+    //private long lastUpdateTimeInMilliSeconds = 0L;
     private Menu menu = null; // this will hold the reference of the menu and will be used to hide or display the refresh menu icon
     private boolean isRefreshTapped = false; // to get to know that whether the refresh is tapped or not
     private RedditPost selectedPost; // A post which is selected in the landscape layout
     private DetailsFragment detailsFragmentInTablet;  // instance of detail fragment to hide or show the toolbar and set view pager adapter and used to know the current mode either Tablet/Phone
+    private TextView noOfflineDataAvailable = null;
+    private RetrofitController controller = null;
+
+    // Some Global constants which are used by the MainActivity ONLY
+    public static final String SHARED_PREFS_NAME = "post_lists";
+    public static final String SIZE_OF_POST_LIST = "list_size";
+    private static final String KEY_TO_CHECK_DATA = "1";
+    private static String CURRENT_SELECTED_OBJECT = "current_object";
+    public static final String LAST_DOWNLOAD_FILE_NAME = "last_download_file";
+    public static final String LAST_DOWNLOAD_TIME_KEY = "last_download";
+    private static final int RESPONSE_CODE_OK = 200;
 
 
     @Override
@@ -54,14 +67,15 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        controller = new RetrofitController(this, this);
         /*
         * Ini views get the reference of the XML views
          */
-        iniViews();
+        initViews();
         setSupportActionBar(toolbar); // setting up the custom toolbar as the action bar
         setUpRecyclerView();
 
-        SharedPreferences preferences = getSharedPreferences(Consts.SHARED_PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(MainActivity.SHARED_PREFS_NAME, MODE_PRIVATE);
 
         /*
         * Following if and else condition is used to check whether data is inside the shared prefs or not and also check for the orientation change
@@ -69,11 +83,11 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         * if data is found dont make the request call to the server
         * if data is not found OR the savedInstanceState is empty then make a request call
          */
-        if (preferences.getString(Consts.KEY_TO_CHECK_DATA, null) != null || savedInstanceState != null) {
+        if (preferences.getString(MainActivity.KEY_TO_CHECK_DATA, null) != null || savedInstanceState != null) {
             Log.d(TAG, "onCreate: Data is inside the preferences");
-            postWrapperList = getPostListFromSharedPrefs();
+            postWrapperList = controller.getCacheDataFromSharedPrefs(this);
             itemsAdapter.updateAdapter(postWrapperList);
-        } else if ((preferences.getString(Consts.KEY_TO_CHECK_DATA, null) == null) && (ConnectionStatusChecker.checkConnection(this))) {
+        } else if ((preferences.getString(MainActivity.KEY_TO_CHECK_DATA, null) == null) && (ConnectionStatusChecker.checkConnection(this))) {
                /*
             * Initiate the call to the base URI and VISIBLE the progress bar
             */
@@ -95,12 +109,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
      */
 
     private void makeServerRequest() {
-        setLastUpdateTimeInMilliSeconds(System.currentTimeMillis()); // set the current time when the list is updated
-        addDownloadTimeToSharedPrefs(); // save the current time in shared prefs
-
-
-        hideOrShowTheProgressBar(true);
-        RetrofitController controller = new RetrofitController(this);
+        hideTheProgressBar(false);
         controller.start();
     }
 
@@ -108,8 +117,8 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     * An utility method to Hide Or Visible the Progress bar
      */
 
-    private void hideOrShowTheProgressBar(boolean command) {
-        progressBar.setVisibility(command ? View.VISIBLE : View.GONE);
+    private void hideTheProgressBar(boolean hide) {
+        progressBar.setVisibility(hide ? View.GONE : View.VISIBLE);
     }
 
     @Override
@@ -132,7 +141,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
                     showOrHideTheRefreshIcon(false);
                     makeServerRequest();
                 } else {
-                    Util.showToast(this, getResources().getString(R.string.no_internet_connection));
+                    Toast.makeText(this, getResources().getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
                 }
                 return true;
         }
@@ -144,78 +153,16 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     protected void onSaveInstanceState(Bundle outState) {
         Log.d(TAG, "onSaveInstanceState: start");
         super.onSaveInstanceState(outState);
-        if (postWrapperList.size() > 0) {
-            Log.d(TAG, "onSaveInstanceState: data is inside the list");
-            savePostListInJSON();
-        } else {
-            Log.d(TAG, "onSaveInstanceState: Post list is empty");
-        }
         Log.d(TAG, "onSaveInstanceState: end");
     }
 
-
-    /*
-            * An utility method to perform the save operation for the list of the posts
-             */
-    private void savePostListInJSON() {
-        Log.d(TAG, "savePostListInJSON: start");
-        SharedPreferences.Editor editor = getSharedPreferences(Consts.SHARED_PREFS_NAME, MODE_PRIVATE).edit();
-        editor.putInt(Consts.SIZE_OF_POST_LIST, postWrapperList.size());
-        Gson gson = new Gson();
-        for (int i = 0; i < postWrapperList.size(); i++) {
-            editor.putString(Integer.toString(i), gson.toJson(postWrapperList.get(i)));
-        }
-        editor.apply();
-        Log.d(TAG, "savePostListInJSON: end");
-    }
-
-    /*
-    * An utility method which is use to fetch the post list from the shared prefs and convert the json string into the object
-     */
-    public List<RedditPostWrapper> getPostListFromSharedPrefs() {
-        Log.d(TAG, "getPostListFromSharedPrefs: start");
-        Gson gson = new Gson();
-        List<RedditPostWrapper> temp = new ArrayList<>();
-        SharedPreferences sharedPreferences = getSharedPreferences(Consts.SHARED_PREFS_NAME, MODE_PRIVATE);
-        for (int i = 0; i < sharedPreferences.getInt(Consts.SIZE_OF_POST_LIST, 0); i++)
-            temp.add(gson.fromJson(sharedPreferences.getString(String.valueOf(i), ""), RedditPostWrapper.class));
-
-        Log.d(TAG, "getPostListFromSharedPrefs: size of temp ---> " + temp.size());
-        Log.d(TAG, "getPostListFromSharedPrefs: end");
-        return temp;
-    }
-
-    private void manageTheLastUpdate() {
-        setLastUpdateTimeInMilliSeconds(getSharedPreferences(Consts.LAST_DOWNLOAD_FILE_NAME, MODE_PRIVATE).getLong(Consts.LAST_DOWNLOAD_TIME_KEY, 0));
-        Log.d(TAG, "manageTheLastUpdate: Fetched milli seconds ===> " + getLastUpdateTimeInMilliSeconds());
-        Log.d(TAG, "manageTheLastUpdate: Current time - fetched time ===> " + (System.currentTimeMillis() - getLastUpdateTimeInMilliSeconds()));
-
-        long timeDifference = System.currentTimeMillis() - getLastUpdateTimeInMilliSeconds();
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(timeDifference);
-        Log.d(TAG, "manageTheLastUpdate: Time in minutes ===> " + minutes);
-
-        if (TimeUnit.MILLISECONDS.toMinutes(timeDifference) >= 0 && TimeUnit.MILLISECONDS.toMinutes(timeDifference) < 1) {
-            toolbar.setSubtitle(R.string.update_message_less_then_minute);
-            Log.d(TAG, "manageTheLastUpdate: less than a minute ago");
-        } else {
-            Log.d(TAG, "manageTheLastUpdate: In ELSE");
-            toolbar.setSubtitle(String.format(getResources().getString(R.string.update_message_more_than_minute), minutes,
-                    (minutes == 1 ? getResources().getString(R.string.minute) : getResources().getString(R.string.minutes))));
-
-
-            if (minutes >= 5 && ConnectionStatusChecker.checkConnection(this)) {
-                Log.d(TAG, "manageTheLastUpdate: making server request");
-                makeServerRequest();
-            }
-        }
-    }
 
     /*
     * Check the details fragment if it is not null and it is visible set the tab bar is hide by default
      */
     private void hideTheTabsInLandscapeLayout() {
         if (detailsFragmentInTablet != null) {
-            detailsFragmentInTablet.hideOrShowTheTabsToolbar(true);
+            detailsFragmentInTablet.hideTheToolbar(true);
         }
     }
 
@@ -251,17 +198,33 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     protected void onResume() {
         Log.d(TAG, "onResume: start");
         super.onResume();
+        long timeDiff = controller.getTimeDifferenceInMinutes();
+        Log.d(TAG, "onResume: Time Difference ===> " + timeDiff);
+
+        if (timeDiff == 0) {
+            Log.d(TAG, "onResume: In 0");
+            toolbar.setSubtitle(getString(R.string.update_message_less_then_minute));
+        } else if (timeDiff > 0 && timeDiff < 5) {
+            Log.d(TAG, "onResume: > 0 AND < 5");
+            toolbar.setSubtitle(String.format(getResources().getString(R.string.update_message_more_than_minute), timeDiff,
+                    (timeDiff == 1 ? getResources().getString(R.string.minute) : getResources().getString(R.string.minutes))));
+        } else if (timeDiff >= 5) {
+            Log.d(TAG, "onResume: >=5");
+            makeServerRequest();
+        } else {
+            Log.d(TAG, "onResume: ELSE");
+        }
+
 
         hideTheTabsInLandscapeLayout();
         actionsPerformIfPostIsSelectedInLandscape();
-        SharedPreferences preferences = getSharedPreferences(Consts.LAST_DOWNLOAD_FILE_NAME, MODE_PRIVATE);
 
-        if (preferences.getLong(Consts.LAST_DOWNLOAD_TIME_KEY, 0) == 0) {
-            Log.d(TAG, "onResume: App is newly installed request server to update");
+        if (controller.getCacheDataFromSharedPrefs(this).size() < 1) {
+            showNoOfflineDataTextView(true);
         } else {
-            Log.d(TAG, "onResume: Check the time of last update if it is greater than or equal to 5 MINUTES request the server for update");
-            manageTheLastUpdate();
+            showNoOfflineDataTextView(false);
         }
+
         Log.d(TAG, "onResume: end");
     }
 
@@ -278,10 +241,16 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         postsRecyclerView.addItemDecoration(dividerItemDecoration);
     }
 
-    private void iniViews() {
+    private void showNoOfflineDataTextView(boolean show) {
+        noOfflineDataAvailable.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    private void initViews() {
         toolbar = (Toolbar) findViewById(R.id.toolbar_include);
         progressBar = (ProgressBar) toolbar.findViewById(R.id.menu_progress_bar);
         postsRecyclerView = (RecyclerView) findViewById(R.id.posts_recycler_view);
+        postsRecyclerView.setHasFixedSize(true);
+        noOfflineDataAvailable = (TextView) findViewById(R.id.no_offline_data_text_view);
 
         detailsFragmentInTablet = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
     }
@@ -298,30 +267,27 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         Log.d(TAG, "onDownloadCompleteListener: Response Code ---> " + responseCode);
         Log.d(TAG, "onDownloadCompleteListener: Size of List ---> " + postsList.size());
 
-        hideOrShowTheProgressBar(false);
+        hideTheProgressBar(true);
         showOrHideTheRefreshIcon(true);
 
         switch (responseCode) {
-            case Consts.RESPONSE_CODE_OK:
+            case MainActivity.RESPONSE_CODE_OK:
                 Log.d(TAG, "onDownloadCompleteListener: Response code is 200 now updating the Adapter");
-                Log.d(TAG, "onDownloadCompleteListener: Download data at ===> " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss z", Locale.US).format(new Date(System.currentTimeMillis())));
-
-                manageTheLastUpdate(); // this method is responsible to manage the last update time etc
                 setPostWrapperList(postsList); // setting the List field of the MainActivity
                 itemsAdapter.updateAdapter(postWrapperList); // sending the actual data which is downloaded and parsed by the Retrofit
-                savePostListInJSON();
-                Util.printList(postsList); // just for debug purpose printing the list
+                // Util.printList(postsList); // just for debug purpose printing the list
+
+                if (controller.getCacheDataFromSharedPrefs(this).size() < 1) {
+                    showNoOfflineDataTextView(true);
+                } else {
+                    showNoOfflineDataTextView(false);
+                }
+
                 break;
             default:
                 Log.e(TAG, "onDownloadCompleteListener: Something wrong with the response response code is ---> " + responseCode);
         }
         Log.d(TAG, "onDownloadCompleteListener: end");
-    }
-
-    private void addDownloadTimeToSharedPrefs() {
-        SharedPreferences.Editor editor = getSharedPreferences(Consts.LAST_DOWNLOAD_FILE_NAME, MODE_PRIVATE).edit();
-        editor.putLong(Consts.LAST_DOWNLOAD_TIME_KEY, getLastUpdateTimeInMilliSeconds());
-        editor.apply();
     }
 
     public void setPostWrapperList(List<RedditPostWrapper> postWrapperList) {
@@ -341,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         if (!isTableLayoutIsActive()) {
             Log.d(TAG, "onPostTappedListener: Inside the portrait mode so open a DetailActivity");
             Intent detailActivityIntent = new Intent(this, DetailActivity.class);
-            detailActivityIntent.putExtra(Consts.INDIVIDUAL_POST_ITEM_KEY, getPostWrapperList().get(position).getData());
+            detailActivityIntent.putExtra(BuildConfig.INDIVIDUAL_POST_ITEM_KEY, getPostWrapperList().get(position).getData());
             startActivity(detailActivityIntent);
         } else {
             Log.d(TAG, "onPostTappedListener: !!!!!!!!!!!!!!!!!!Tablet layout is ACTIVE!!!!!!!!!!!!!!!!!!");
@@ -351,14 +317,6 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
             callTheDetailViewPagerMethod();
         }
         Log.d(TAG, "onPostTappedListener: end");
-    }
-
-    public long getLastUpdateTimeInMilliSeconds() {
-        return lastUpdateTimeInMilliSeconds;
-    }
-
-    public void setLastUpdateTimeInMilliSeconds(long lastUpdateTimeInMilliSeconds) {
-        this.lastUpdateTimeInMilliSeconds = lastUpdateTimeInMilliSeconds;
     }
 
     public boolean isRefreshTapped() {
@@ -385,9 +343,9 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     private void callTheDetailViewPagerMethod() {
         detailsFragmentInTablet.setPost(getSelectedPost());
         if (detailsFragmentInTablet.getPost().isPostIsSelf()) {
-            detailsFragmentInTablet.hideOrShowTheTabsToolbar(true);
+            detailsFragmentInTablet.hideTheToolbar(true);
         } else {
-            detailsFragmentInTablet.hideOrShowTheTabsToolbar(false);
+            detailsFragmentInTablet.hideTheToolbar(false);
         }
         detailsFragmentInTablet.setUpTheViewPager();
     }
@@ -398,7 +356,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
      */
     private void saveTheCurrentPostInSharedPrefs() {
         if (getSelectedPost() != null) {
-            getSharedPreferences(Consts.CURRENT_SELECTED_OBJECT, MODE_PRIVATE).edit().putString(Consts.CURRENT_SELECTED_OBJECT, new Gson().toJson(getSelectedPost())).apply();
+            getSharedPreferences(MainActivity.CURRENT_SELECTED_OBJECT, MODE_PRIVATE).edit().putString(MainActivity.CURRENT_SELECTED_OBJECT, new Gson().toJson(getSelectedPost())).apply();
         } else {
             Log.e(TAG, "saveTheCurrentPostInSharedPrefs: Post is NULL");
         }
@@ -408,6 +366,24 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     * Get the post which is selected by the user in landscape mode from the shared prefs IF ANY EXISTS
      */
     private RedditPost getCurrentPostFromSharedPrefs() {
-        return new Gson().fromJson(getSharedPreferences(Consts.CURRENT_SELECTED_OBJECT, MODE_PRIVATE).getString(Consts.CURRENT_SELECTED_OBJECT, null), RedditPost.class);
+        return new Gson().fromJson(getSharedPreferences(MainActivity.CURRENT_SELECTED_OBJECT, MODE_PRIVATE).getString(MainActivity.CURRENT_SELECTED_OBJECT, null), RedditPost.class);
+    }
+
+    @Override
+    public void setMessageToToolbar(String message) {
+        if (toolbar != null) {
+            toolbar.setSubtitle(message);
+        } else {
+            Log.e(TAG, "setMessageToToolbar: Toolbar is NULL");
+        }
+    }
+
+    @Override
+    public void setMessageToToolbar(@StringRes int message) {
+        if (toolbar != null) {
+            toolbar.setSubtitle(message);
+        } else {
+            Log.e(TAG, "setMessageToToolbar: Toolbar is NULL");
+        }
     }
 }

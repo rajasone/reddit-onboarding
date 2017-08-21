@@ -5,7 +5,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,7 +13,6 @@ import android.view.ViewGroup;
 import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.appbar_layout.DetailViewPager;
 import com.rajasaboor.redditclient.model.RedditPost;
-import com.rajasaboor.redditclient.util.Consts;
 
 /**
  * Created by default on 8/8/2017.
@@ -43,7 +41,7 @@ public class DetailsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView: start");
         view = inflater.inflate(R.layout.detail_fragment_layout, container, false);
-        iniViews(view);
+        initViews(view);
         Log.d(TAG, "onCreateView: end");
         return view;
     }
@@ -65,15 +63,11 @@ public class DetailsFragment extends Fragment {
         Log.d(TAG, "setUpTheViewPager: end");
     }
 
-    private void iniViews(View view) {
-        Log.d(TAG, "iniViews: start");
-        if (view != null) {
-            viewPager = view.findViewById(R.id.details_view_pager);
-            tabLayout = view.findViewById(R.id.details_tabs_layout);
-        } else {
-            Log.e(TAG, "iniViews: View is NULL");
-        }
-        Log.d(TAG, "iniViews: end");
+    private void initViews(View view) {
+        Log.d(TAG, "initViews: start");
+        viewPager = view.findViewById(R.id.details_view_pager);
+        tabLayout = view.findViewById(R.id.details_tabs_layout);
+        Log.d(TAG, "initViews: end");
     }
 
 
@@ -91,12 +85,12 @@ public class DetailsFragment extends Fragment {
     * True means Hide the toolbar
     * False means show the toolbar
      */
-    public void hideOrShowTheTabsToolbar(boolean command) {
+    public void hideTheToolbar(boolean hide) {
         if (tabLayout != null) {
-            tabLayout.setVisibility(command ? View.GONE : View.VISIBLE);
-            Log.d(TAG, "hideOrShowTheTabsToolbar: Hiding the tab layout");
+            tabLayout.setVisibility(hide ? View.GONE : View.VISIBLE);
+            Log.d(TAG, "hideTheToolbar: Hiding the tab layout");
         } else {
-            Log.e(TAG, "hideOrShowTheTabsToolbar: Tab layout is NULL");
+            Log.e(TAG, "hideTheToolbar: Tab layout is NULL");
         }
     }
 

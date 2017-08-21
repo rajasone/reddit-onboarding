@@ -13,9 +13,10 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
+import com.rajasaboor.redditclient.BuildConfig;
 import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.model.RedditPost;
-import com.rajasaboor.redditclient.util.Consts;
+import com.rajasaboor.redditclient.util.Util;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -26,7 +27,8 @@ public class CommentsFragment extends Fragment {
     private WebView commentsWebView; // WebView is responsible to load the URL
     private ProgressBar commentsProgressBar; // progress bar which shows a user that how much the page is load
     private int commentsProgress; // store the progress value of the page
-
+    private static final String COMMENTS_KEY = "comments_key";
+    private static final String COMMENTS_PAGE_PROGRESS = "comments_progress";
     /*
     * This static method is called from the {@link com.rajasaboor.redditclient.appbar_layout.DetailViewPager} getItem method and Reddit object is passed as an parameter
      */
@@ -34,7 +36,7 @@ public class CommentsFragment extends Fragment {
     public static CommentsFragment newInstance(RedditPost post) {
         Bundle args = new Bundle();
         CommentsFragment fragment = new CommentsFragment();
-        args.putSerializable(Consts.COMMENTS_KEY, post);
+        args.putParcelable(CommentsFragment.COMMENTS_KEY, post);
         fragment.setArguments(args);
         return fragment;
     }
@@ -47,7 +49,7 @@ public class CommentsFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         Log.d(TAG, "onCreate: start");
         super.onCreate(savedInstanceState);
-        this.post = (RedditPost) getArguments().getSerializable(Consts.COMMENTS_KEY);
+        this.post = (RedditPost) getArguments().getParcelable(CommentsFragment.COMMENTS_KEY);
 
         if (post != null) {
             Log.d(TAG, "onCreate: comments bundle have data");
@@ -69,18 +71,18 @@ public class CommentsFragment extends Fragment {
                              Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView: start");
         View view = inflater.inflate(R.layout.fragment_comments, container, false);
-        iniViews(view);
+        initViews(view);
 
 
         if (savedInstanceState != null) {
             Log.d(TAG, "onCreateView: Restoring the state of the bundle");
             commentsWebView.restoreState(savedInstanceState); // if bundle is not null then restore the state of the webview
-            commentsProgress = savedInstanceState.getInt(Consts.COMMENTS_PAGE_PROGRESS);
+            commentsProgress = savedInstanceState.getInt(CommentsFragment.COMMENTS_PAGE_PROGRESS);
             commentsProgressBar.setProgress(commentsProgress);
             Log.d(TAG, "onCreateView: Comments progress fetch from the bundle is ===> " + commentsProgress);
         } else {
             Log.d(TAG, "onCreateView: Loading the URL in webview");
-            commentsWebView.loadUrl(Consts.BASE_URI + post.getCommentsLink()); // if bundle is NULL load the URL
+            commentsWebView.loadUrl(BuildConfig.BASE_URI + post.getCommentsLink()); // if bundle is NULL load the URL
         }
 
 
@@ -90,7 +92,7 @@ public class CommentsFragment extends Fragment {
 
         if (commentsProgress < 100) {
             Log.d(TAG, "onCreateView: Progress is < 100 ===> " + commentsProgress);
-            progressChecker();
+            Util.downloadProgressCheck(commentsProgressBar, commentsWebView);
         } else {
             commentsProgressBar.setVisibility(View.GONE);
         }
@@ -104,7 +106,7 @@ public class CommentsFragment extends Fragment {
     * Configure the web view
      */
 
-    private void iniViews(View view) {
+    private void initViews(View view) {
         commentsWebView = view.findViewById(R.id.comments_webview);
         commentsProgressBar = view.findViewById(R.id.comments_progress_bar);
         commentsWebView.getSettings().setJavaScriptEnabled(true);
@@ -121,34 +123,7 @@ public class CommentsFragment extends Fragment {
         Log.d(TAG, "onSaveInstanceState: start");
         super.onSaveInstanceState(outState);
         commentsWebView.saveState(outState);
-        outState.putInt(Consts.COMMENTS_PAGE_PROGRESS, commentsProgress);
+        outState.putInt(CommentsFragment.COMMENTS_PAGE_PROGRESS, commentsProgress);
         Log.d(TAG, "onSaveInstanceState: end");
     }
-
-    /*
-    * This method check the progress of the web view and updating the progress bar
-     */
-
-    private void progressChecker() {
-        final Handler ha = new Handler();
-        ha.postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                Log.d(TAG, "progressChecker: Progress ---> " + commentsWebView.getProgress());
-                commentsProgress = commentsWebView.getProgress();
-                if (commentsProgress == 100) {
-                    Log.d(TAG, "progressChecker: now off the thread");
-                    commentsProgressBar.setProgress(commentsProgress);
-                    commentsProgressBar.setVisibility(View.GONE);
-                } else {
-                    commentsProgressBar.setProgress(commentsProgress);
-                    ha.postDelayed(this, 500);
-                }
-
-            }
-        }, 500);
-    }
-
-
 }

@@ -10,7 +10,6 @@ import android.util.Log;
 
 import com.rajasaboor.redditclient.appbar_layout.DetailViewPager;
 import com.rajasaboor.redditclient.model.RedditPost;
-import com.rajasaboor.redditclient.util.Consts;
 
 public class DetailActivity extends AppCompatActivity {
     private static final String TAG = DetailActivity.class.getSimpleName();
@@ -28,7 +27,7 @@ public class DetailActivity extends AppCompatActivity {
 
         if (getIntent().getExtras() != null) {
             Log.d(TAG, "onCreate: Bundle have data");
-            redditPost = (RedditPost) getIntent().getExtras().getSerializable(Consts.INDIVIDUAL_POST_ITEM_KEY);
+            redditPost = (RedditPost) getIntent().getExtras().getParcelable(BuildConfig.INDIVIDUAL_POST_ITEM_KEY);
         } else {
             Log.d(TAG, "onCreate: Bundle is empty");
         }
@@ -36,7 +35,7 @@ public class DetailActivity extends AppCompatActivity {
         /*
         * Getting the references of Views
          */
-        iniViews();
+        initViews();
         setUpTheToolbar();
         setUpThePager();
 
@@ -63,7 +62,7 @@ public class DetailActivity extends AppCompatActivity {
         Log.d(TAG, "onSaveInstanceState: end");
     }
 
-    private void iniViews() {
+    private void initViews() {
         toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
         viewPager = (ViewPager) findViewById(R.id.view_pager);
         tabLayout = (TabLayout) findViewById(R.id.appbar_parent_tab);

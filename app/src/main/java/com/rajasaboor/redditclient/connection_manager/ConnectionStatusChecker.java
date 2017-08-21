@@ -19,25 +19,14 @@ public class ConnectionStatusChecker {
             ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = manager.getActiveNetworkInfo();
 
-            if (networkInfo != null) {
-                switch (networkInfo.getType()) {
-                    case ConnectivityManager.TYPE_WIFI:
-                        Log.d(TAG, "checkConnection: Connected to the WIFI named as ===> " + networkInfo.getTypeName());
-                        result = true;
-                        break;
-                    case ConnectivityManager.TYPE_MOBILE:
-                        Log.d(TAG, "checkConnection: Connected to the MOBILE named as ===> " + networkInfo.getTypeName());
-                        result = true;
-                        break;
-                }
-            } else {
-                Log.e(TAG, "checkConnection: Not connected to the INTERNET");
-            }
+            if (networkInfo != null)
+                result = networkInfo.isConnected();
         } catch (Exception e) {
             Log.e(TAG, "checkConnection: An error happen ===> " + e.getMessage());
             e.printStackTrace();
         }
 
+        Log.d(TAG, "checkConnection: Result ===> " + result);
         return result;
     }
 }

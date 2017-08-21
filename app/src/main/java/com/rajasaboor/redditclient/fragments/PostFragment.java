@@ -15,7 +15,7 @@ import android.widget.ProgressBar;
 
 import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.model.RedditPost;
-import com.rajasaboor.redditclient.util.Consts;
+import com.rajasaboor.redditclient.util.Util;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -27,6 +27,7 @@ public class PostFragment extends Fragment {
     private WebView postWebView; // webview which contains the post webview
     private ProgressBar postProgressBar; // an horizontal progress bar which show the progress of page to user
     private int postProgress = 0; // maintain the progress bar progress for the loading purpose
+    public static final String POST_LOADING_STATUS = "post_loading";
 
     /*
     * This static method is called from the {@link com.rajasaboor.redditclient.appbar_layout.DetailViewPager} getItem method and Reddit object is passed as an parameter
@@ -37,11 +38,11 @@ public class PostFragment extends Fragment {
         Log.d(TAG, "newInstance: Url of post ---> " + post.getPostURL());
 
         Bundle args = new Bundle();
-        args.putSerializable(KEY_URL_STRING, post);
+        args.putParcelable(KEY_URL_STRING, post);
         PostFragment fragment = new PostFragment();
         fragment.setArguments(args);
 
-        Log.d(TAG, "newInstance: Args check URL ---> " + ((RedditPost) fragment.getArguments().getSerializable(KEY_URL_STRING)).getPostURL());
+        Log.d(TAG, "newInstance: Args check URL ---> " + ((RedditPost) fragment.getArguments().getParcelable(KEY_URL_STRING)).getPostURL());
         Log.d(TAG, "newInstance: end");
         return fragment;
     }
@@ -56,10 +57,10 @@ public class PostFragment extends Fragment {
         super.onCreate(savedInstanceState);
 
 
-        if (getArguments().getSerializable(KEY_URL_STRING) != null) {
+        if (getArguments().getParcelable(KEY_URL_STRING) != null) {
             Log.d(TAG, "onCreate: Bundle have data");
-            post = (RedditPost) getArguments().getSerializable(KEY_URL_STRING);
-            Log.d(TAG, "onCreate: Port URL is ---> " + ((RedditPost) getArguments().getSerializable(KEY_URL_STRING)).getPostURL());
+            post = (RedditPost) getArguments().getParcelable(KEY_URL_STRING);
+            Log.d(TAG, "onCreate: Port URL is ---> " + ((RedditPost) getArguments().getParcelable(KEY_URL_STRING)).getPostURL());
         } else {
             Log.e(TAG, "onCreate: Bundle is empty");
         }
@@ -72,11 +73,7 @@ public class PostFragment extends Fragment {
                              Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView: start");
         View view = inflater.inflate(R.layout.fragment_post, container, false);
-        iniViews(view);
-
-        if (post != null && post.isPostIsSelf()){
-
-        }
+        initViews(view);
 
         /*
         * Check whether the bundle is NULL or not
@@ -84,9 +81,9 @@ public class PostFragment extends Fragment {
         * If bundle is NULL load the url in web view
          */
         if (savedInstanceState != null) {
-            Log.d(TAG, "onCreateView: Bundle have data ---> " + savedInstanceState.getInt(Consts.POST_LOADING_STATUS));
+            Log.d(TAG, "onCreateView: Bundle have data ---> " + savedInstanceState.getInt(PostFragment.POST_LOADING_STATUS));
             postWebView.restoreState(savedInstanceState);
-            postProgress = savedInstanceState.getInt(Consts.POST_LOADING_STATUS);
+            postProgress = savedInstanceState.getInt(PostFragment.POST_LOADING_STATUS);
         } else {
             Log.d(TAG, "onCreateView: Bundle is empty");
             postWebView.loadUrl(post.getPostURL());
@@ -100,7 +97,8 @@ public class PostFragment extends Fragment {
         * If progress value is less than 100 only then call the progress checker method
          */
         if (postProgress < 100) {
-            progressChecker();
+//            progressChecker();
+            Util.downloadProgressCheck(postProgressBar, postWebView);
         } else {
             postProgressBar.setVisibility(View.GONE);
         }
@@ -113,37 +111,11 @@ public class PostFragment extends Fragment {
     * Configure the web view
      */
 
-    private void iniViews(View view) {
+    private void initViews(View view) {
         postWebView = view.findViewById(R.id.post_webview);
         postProgressBar = view.findViewById(R.id.post_progress_bar);
         postWebView.getSettings().setJavaScriptEnabled(true);
         postWebView.setWebViewClient(new WebViewClient());
-    }
-
-    /*
-    * This method check the progress of the web view and updating the progress bar
-     */
-
-    private void progressChecker() {
-        final Handler ha = new Handler();
-        postProgressBar.setVisibility(View.VISIBLE);
-        ha.postDelayed(new Runnable() {
-
-            @Override
-            public void run() {
-                Log.d(TAG, "onCreateView: Progress ---> " + postWebView.getProgress());
-                postProgress = postWebView.getProgress();
-                if (postProgress == 100) {
-                    Log.d(TAG, "run: now off the thread");
-                    postProgressBar.setProgress(postProgress);
-                    postProgressBar.setVisibility(View.GONE);
-                } else {
-                    postProgressBar.setProgress(postProgress);
-                    ha.postDelayed(this, 500);
-                }
-
-            }
-        }, 500);
     }
 
     /*
@@ -154,10 +126,10 @@ public class PostFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         Log.d(TAG, "onSaveInstanceState: start");
         super.onSaveInstanceState(outState);
-        outState.putInt(Consts.POST_LOADING_STATUS, postProgress);
+        outState.putInt(PostFragment.POST_LOADING_STATUS, postProgress);
         postWebView.saveState(outState);
 
-        Log.d(TAG, "onSaveInstanceState: Progress from bundle ---> " + outState.getInt(Consts.POST_LOADING_STATUS));
+        Log.d(TAG, "onSaveInstanceState: Progress from bundle ---> " + outState.getInt(PostFragment.POST_LOADING_STATUS));
         Log.d(TAG, "onSaveInstanceState: end");
     }
 

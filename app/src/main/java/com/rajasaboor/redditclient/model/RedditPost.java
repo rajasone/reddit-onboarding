@@ -1,5 +1,8 @@
 package com.rajasaboor.redditclient.model;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
@@ -9,11 +12,10 @@ import java.io.Serializable;
  * The Reddit Model which contains the post attributes e.g Title, username, comments etc
  */
 
-public class RedditPost implements Serializable {
+public class RedditPost implements Parcelable {
     /*
     Tag is used for the logging/debug purposes
      */
-    private static final long serialVersionUID = 1L; // to make sure that serializable interface work on all devices
     private static final String TAG = RedditPost.class.getSimpleName();
     @SerializedName("title")
     private String postTitle;
@@ -129,4 +131,45 @@ public class RedditPost implements Serializable {
                 ", isVideo=" + isVideo +
                 '}';
     }
+
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(this.postTitle);
+        dest.writeString(this.postAuthor);
+        dest.writeString(this.commentsLink);
+        dest.writeString(this.postURL);
+        dest.writeByte(this.isPostIsSelf ? (byte) 1 : (byte) 0);
+        dest.writeInt(this.postComments);
+        dest.writeInt(this.numberOfUps);
+        dest.writeByte(this.isVideo ? (byte) 1 : (byte) 0);
+    }
+
+    protected RedditPost(Parcel in) {
+        this.postTitle = in.readString();
+        this.postAuthor = in.readString();
+        this.commentsLink = in.readString();
+        this.postURL = in.readString();
+        this.isPostIsSelf = in.readByte() != 0;
+        this.postComments = in.readInt();
+        this.numberOfUps = in.readInt();
+        this.isVideo = in.readByte() != 0;
+    }
+
+    public static final Creator<RedditPost> CREATOR = new Creator<RedditPost>() {
+        @Override
+        public RedditPost createFromParcel(Parcel source) {
+            return new RedditPost(source);
+        }
+
+        @Override
+        public RedditPost[] newArray(int size) {
+            return new RedditPost[size];
+        }
+    };
 }

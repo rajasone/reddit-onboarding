@@ -4,10 +4,15 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.View;
+import android.webkit.WebView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
+import com.rajasaboor.redditclient.BuildConfig;
 import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 
@@ -26,7 +31,7 @@ public class Util {
         for (RedditPostWrapper wrapper : postWrappers) {
             Log.d(TAG, "printList: Title ---> " + wrapper.getData().getPostTitle());
             Log.d(TAG, "printList: Author ---> " + wrapper.getData().getPostAuthor());
-            Log.d(TAG, "printList: Comments Link ---> " + Uri.parse(Consts.BASE_URI).buildUpon().path(wrapper.getData().getCommentsLink()).build().toString());
+            Log.d(TAG, "printList: Comments Link ---> " + Uri.parse(BuildConfig.BASE_URI).buildUpon().path(wrapper.getData().getCommentsLink()).build().toString());
             Log.d(TAG, "printList: Post URL ---> " + wrapper.getData().getPostURL());
             Log.d(TAG, "printList: Is PostIsSelf ---> " + wrapper.getData().isPostIsSelf());
             Log.d(TAG, "printList: Comments ---> " + wrapper.getData().getPostComments());
@@ -36,10 +41,6 @@ public class Util {
         }
 
         Log.d(TAG, "printList: end");
-    }
-
-    public static void showToast(Context context, String message) {
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
     }
 
     public static void displayErrorDialog(Context context, String errorMessage, boolean isCancelAble) {
@@ -59,4 +60,31 @@ public class Util {
         errorDialog.show();
         Log.d(TAG, "displayErrorDialog: end");
     }
+     /*
+    * This method check the progress of the web view and updating the progress bar
+     */
+
+    public static void downloadProgressCheck(final ProgressBar postProgressBar, final WebView postWebView) {
+        final Handler ha = new Handler();
+        postProgressBar.setVisibility(View.VISIBLE);
+        ha.postDelayed(new Runnable() {
+            int postProgress = 0;
+
+            @Override
+            public void run() {
+                Log.d(TAG, "onCreateView: Progress ---> " + postWebView.getProgress());
+                postProgress = postWebView.getProgress();
+                if (postProgress == 100) {
+                    Log.d(TAG, "run: now off the thread");
+                    postProgressBar.setProgress(postProgress);
+                    postProgressBar.setVisibility(View.GONE);
+                } else {
+                    postProgressBar.setProgress(postProgress);
+                    ha.postDelayed(this, 500);
+                }
+
+            }
+        }, 500);
+    }
+
 }
