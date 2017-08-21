@@ -1,9 +1,8 @@
 package com.rajasaboor.redditclient;
 
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.os.Looper;
 import android.support.test.espresso.ViewInteraction;
+import android.support.test.espresso.assertion.ViewAssertions;
 import android.support.test.espresso.contrib.RecyclerViewActions;
 import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
@@ -13,42 +12,52 @@ import android.util.Log;
 import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
-import static android.support.test.espresso.matcher.ViewMatchers.withParent;
 import static org.junit.Assert.*;
 
 
-import static android.support.test.espresso.Espresso.onData;
 import static android.support.test.espresso.Espresso.onView;
-import static android.support.test.espresso.Espresso.pressBack;
+import static android.support.test.espresso.Espresso.*;
 import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
-import static android.support.test.espresso.action.ViewActions.swipeUp;
-import static android.support.test.espresso.action.ViewActions.typeText;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
-import static android.support.test.espresso.matcher.ViewMatchers.isEnabled;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.action.ViewActions.scrollTo;
-import static android.support.test.espresso.action.ViewActions.doubleClick;
 import static org.hamcrest.Matchers.allOf;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.hamcrest.Matchers.anything;
-import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.hasEntry;
-import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
-import static android.support.test.espresso.action.ViewActions.closeSoftKeyboard;
-import static android.support.test.espresso.action.ViewActions.typeText;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
+
+import android.support.test.espresso.ViewInteraction;
+import android.support.test.rule.ActivityTestRule;
+import android.support.test.runner.AndroidJUnit4;
+import android.test.suitebuilder.annotation.LargeTest;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewParent;
+
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+
+import static android.support.test.espresso.Espresso.onView;
+import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.assertion.ViewAssertions.matches;
+import static android.support.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition;
+import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static android.support.test.espresso.matcher.ViewMatchers.withContentDescription;
+import static android.support.test.espresso.matcher.ViewMatchers.withId;
+import static android.support.test.espresso.matcher.ViewMatchers.withText;
+import static org.hamcrest.Matchers.allOf;
 
 import org.junit.After;
 import org.junit.Before;
@@ -64,8 +73,8 @@ import java.util.List;
  * Created by rajaSaboor on 8/17/2017.
  */
 @RunWith(AndroidJUnit4.class)
-public class Testing {
-    private static final String TAG = Testing.class.getSimpleName();
+public class MainActivityTesting {
+    private static final String TAG = MainActivityTesting.class.getSimpleName();
     static List<RedditPostWrapper> mockData = new ArrayList<>();
 
     static {
@@ -98,66 +107,96 @@ public class Testing {
     public void beforeMethod() {
         Log.d(TAG, "beforeMethod: Start");
         mainActivity = myRule.getActivity();
+        callingTheCallBackToSetTheMockData();
         Log.d(TAG, "beforeMethod: end");
     }
 
 
+    private void callingTheCallBackToSetTheMockData() {
+        try {
+            myRule.runOnUiThread(new Runnable() {
+
+                @Override
+                public void run() {
+                    mainActivity.onDownloadCompleteListener(200, MainActivityTesting.mockData);
+                }
+            });
+        } catch (Throwable throwable) {
+            throwable.printStackTrace();
+        }
+    }
+
+    private void checkTheTitleWithTheMockTitle() {
+        ViewInteraction textView = onView(
+                allOf(withId(R.id.title_text_view), withText("The real MVP (Deutschland Edition)"),
+                        childAtPosition(
+                                allOf(withId(R.id.post_parent_layout),
+                                        childAtPosition(
+                                                withId(R.id.posts_recycler_view),
+                                                0)),
+                                0),
+                        isDisplayed()));
+//        textView.check(matches(withText("I want to match this text")));
+        textView.check(matches(withText("The real MVP (Deutschland Edition)")));
+    }
+
     @Test
-    public void testMethod() throws Throwable {
-        Log.d(TAG, "testMethod: start");
+    public void testLoadsDataAndCheckIfShown() throws Throwable {
+        Log.d(TAG, "testLoadsDataAndCheckIfShown: start");
         assertNotNull(mainActivity);
 
-        // when
-        myRule.runOnUiThread(new Runnable() {
-
-            @Override
-            public void run() {
-                mainActivity.onDownloadCompleteListener(200, Testing.mockData);
-            }
-        });
-
-        Thread.sleep(5000);
+        checkTheTitleWithTheMockTitle();
 
         onView(withId(R.id.posts_recycler_view))
                 .perform(RecyclerViewActions.actionOnItem(hasDescendant(withText(mainActivity.getPostWrapperList().get(0).getData().getPostTitle())), click()));
-        Thread.sleep(5000);
-        // Then.
-        assertEquals("hello", "hello");
 
-        Log.d(TAG, "testMethod: Obj at 0 position " + mainActivity.getPostWrapperList().get(0).getData().getPostTitle());
-        Log.d(TAG, "testMethod: Size of adapter ===> " + mainActivity.getPostWrapperList().size());
-        Log.d(TAG, "testMethod: end");
+        Log.d(TAG, "testLoadsDataAndCheckIfShown: Obj at 0 position " + mainActivity.getPostWrapperList().get(0).getData().getPostTitle());
+        Log.d(TAG, "testLoadsDataAndCheckIfShown: Size of adapter ===> " + mainActivity.getPostWrapperList().size());
+        Log.d(TAG, "testLoadsDataAndCheckIfShown: end");
     }
+
+    private static Matcher<View> childAtPosition(
+            final Matcher<View> parentMatcher, final int position) {
+
+        return new TypeSafeMatcher<View>() {
+            @Override
+            public void describeTo(Description description) {
+                description.appendText("Child at position " + position + " in parent ");
+                parentMatcher.describeTo(description);
+            }
+
+            @Override
+            public boolean matchesSafely(View view) {
+                ViewParent parent = view.getParent();
+                return parent instanceof ViewGroup && parentMatcher.matches(parent)
+                        && view.equals(((ViewGroup) parent).getChildAt(position));
+            }
+        };
+    }
+
 
     @Ignore
     @Test
     public void noInternetAndNoSavedData() {
         Log.d(TAG, "noInternetAndNoSavedData: start");
         Log.d(TAG, "noInternetAndNoSavedData: Size ===> " + mainActivity.getPostListFromSharedPrefs().size());
-        assertTrue(mainActivity.getPostListFromSharedPrefs().size() >= 1);
+        assertFalse(mainActivity.getPostListFromSharedPrefs().size() == 0);
         Log.d(TAG, "noInternetAndNoSavedData: end");
     }
 
     //@Test
     public void rotationTest() {
         try {
-            // Put on sleep the current thread to get to know the current state of the view
-            Thread.sleep(3000);
-
             // changing the orientation
             myRule.getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
             // moving the scroll to the bottom
             onView(withId(R.id.posts_recycler_view)).perform(RecyclerViewActions.scrollToPosition(mainActivity.getPostListFromSharedPrefs().size() - 1));
 
-            // Put on sleep a thread to see the orientation and the scroll changes
-            Thread.sleep(3000);
-
             // changing the orientation
             myRule.getActivity().setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
             // moving the scroll to the bottom
             onView(withId(R.id.posts_recycler_view)).perform(RecyclerViewActions.scrollToPosition(mainActivity.getPostListFromSharedPrefs().size() - 1));
-            Thread.sleep(3000);
         } catch (Exception e) {
             e.printStackTrace();
         }
