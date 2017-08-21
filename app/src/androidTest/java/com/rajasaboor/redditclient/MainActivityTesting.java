@@ -52,6 +52,7 @@ import static android.support.test.espresso.matcher.ViewMatchers.withText;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -100,7 +101,8 @@ public class Testing {
         Log.d(TAG, "beforeMethod: end");
     }
 
-    //            @Test
+
+    @Test
     public void testMethod() throws Throwable {
         Log.d(TAG, "testMethod: start");
         assertNotNull(mainActivity);
@@ -127,7 +129,8 @@ public class Testing {
         Log.d(TAG, "testMethod: end");
     }
 
-    //    @Test
+    @Ignore
+    @Test
     public void noInternetAndNoSavedData() {
         Log.d(TAG, "noInternetAndNoSavedData: start");
         Log.d(TAG, "noInternetAndNoSavedData: Size ===> " + mainActivity.getPostListFromSharedPrefs().size());
@@ -135,7 +138,7 @@ public class Testing {
         Log.d(TAG, "noInternetAndNoSavedData: end");
     }
 
-    @Test
+    //@Test
     public void rotationTest() {
         try {
             // Put on sleep the current thread to get to know the current state of the view
