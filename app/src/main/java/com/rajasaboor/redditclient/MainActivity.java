@@ -164,14 +164,6 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         }
     }
 
-    /*
-    * An utility function which is used to check whether the orientation is LANDSCAPE or not
-    * True returns if Orientation is LANDSCAPE
-     */
-    private boolean isOrientationIsLandscape() {
-        return getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-    }
-
     private boolean isTableLayoutIsActive() {
         return (detailsFragmentInTablet != null);
 //        return (detailsFragment != null && detailsFragment.isVisible());
@@ -248,12 +240,12 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         progressBar = (ProgressBar) toolbar.findViewById(R.id.menu_progress_bar);
         postsRecyclerView = (RecyclerView) findViewById(R.id.posts_recycler_view);
         postsRecyclerView.setHasFixedSize(true);
-        noOfflineDataAvailable = (TextView) findViewById(R.id.no_offline_data_text_view);
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout);
+        noOfflineDataAvailable = (TextView) findViewById(R.id.no_offline_data_text_view);
 
-        refreshLayout.setColorSchemeResources(R.color.colorRedHundred, R.color.colorGreen,
-                R.color.colorParrot, R.color.colorYellow,
-                R.color.colorCustom, R.color.colorCustomTwo);
+        refreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.colorRedHundred), ContextCompat.getColor(this, R.color.colorGreen),
+                ContextCompat.getColor(this, R.color.colorParrot), ContextCompat.getColor(this, R.color.colorYellow),
+                ContextCompat.getColor(this, R.color.colorCustom), ContextCompat.getColor(this, R.color.colorCustomTwo));
 
         detailsFragmentInTablet = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
 

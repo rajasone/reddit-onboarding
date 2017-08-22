@@ -1,13 +1,15 @@
 package com.rajasaboor.redditclient.appbar_layout;
 
+import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.util.Log;
 
-import com.rajasaboor.redditclient.fragments.CommentsFragment;
 import com.rajasaboor.redditclient.fragments.PostFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
+
+import static com.rajasaboor.redditclient.fragments.PostFragment.KEY_URL_STRING;
 
 /**
  * Created by default on 8/4/2017.
@@ -30,16 +32,26 @@ public class DetailViewPager extends FragmentStatePagerAdapter {
     public Fragment getItem(int position) {
         Log.d(TAG, "getItem: start/end");
         Log.d(TAG, "getItem: Post Title ====> " + post.getPostTitle());
+
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(KEY_URL_STRING, post);
+        PostFragment postFragment = new PostFragment();
+
         switch (position) {
             case 0:
                 Log.d(TAG, "getItem: Case 0");
-                return (!post.isPostIsSelf() ? PostFragment.newInstance(post) : CommentsFragment.newInstance(post));
+                bundle.putInt("key", 0);
+                postFragment.setArguments(bundle);
+                return postFragment;
             case 1:
                 Log.d(TAG, "getItem: Case 1");
-                return CommentsFragment.newInstance(post);
+                bundle.putInt("key", 1);
+                postFragment.setArguments(bundle);
+                return postFragment;
             default:
                 throw new IllegalArgumentException("Unknown position ---> " + position);
         }
+
     }
 
     @Override

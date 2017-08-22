@@ -13,6 +13,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ProgressBar;
 
+import com.rajasaboor.redditclient.BuildConfig;
 import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.util.Util;
@@ -21,31 +22,13 @@ import com.rajasaboor.redditclient.util.Util;
  * A simple {@link Fragment} subclass.
  */
 public class PostFragment extends Fragment {
-    private static final String KEY_URL_STRING = "URL_STRING";
+    public static final String KEY_URL_STRING = "URL_STRING";
     private static final String TAG = PostFragment.class.getSimpleName();
     private RedditPost post;
     private WebView postWebView; // webview which contains the post webview
     private ProgressBar postProgressBar; // an horizontal progress bar which show the progress of page to user
     private int postProgress = 0; // maintain the progress bar progress for the loading purpose
     public static final String POST_LOADING_STATUS = "post_loading";
-
-    /*
-    * This static method is called from the {@link com.rajasaboor.redditclient.appbar_layout.DetailViewPager} getItem method and Reddit object is passed as an parameter
-     */
-
-    public static PostFragment newInstance(RedditPost post) {
-        Log.d(TAG, "newInstance: start");
-        Log.d(TAG, "newInstance: Url of post ---> " + post.getPostURL());
-
-        Bundle args = new Bundle();
-        args.putParcelable(KEY_URL_STRING, post);
-        PostFragment fragment = new PostFragment();
-        fragment.setArguments(args);
-
-        Log.d(TAG, "newInstance: Args check URL ---> " + ((RedditPost) fragment.getArguments().getParcelable(KEY_URL_STRING)).getPostURL());
-        Log.d(TAG, "newInstance: end");
-        return fragment;
-    }
 
     public PostFragment() {
         // Required empty public constructor
@@ -56,11 +39,11 @@ public class PostFragment extends Fragment {
         Log.d(TAG, "onCreate: start");
         super.onCreate(savedInstanceState);
 
-
         if (getArguments().getParcelable(KEY_URL_STRING) != null) {
             Log.d(TAG, "onCreate: Bundle have data");
             post = (RedditPost) getArguments().getParcelable(KEY_URL_STRING);
             Log.d(TAG, "onCreate: Port URL is ---> " + ((RedditPost) getArguments().getParcelable(KEY_URL_STRING)).getPostURL());
+            Log.d(TAG, "onCreate: Flag ===> " + getArguments().getInt("key"));
         } else {
             Log.e(TAG, "onCreate: Bundle is empty");
         }
@@ -75,6 +58,9 @@ public class PostFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_post, container, false);
         initViews(view);
 
+        // If key == 0 Post URI will be loaded otherwise Comments URI will be loaded
+        boolean isPost = getArguments().getInt("key") == 0;
+
         /*
         * Check whether the bundle is NULL or not
         * if bundle is NOT NULL just restore the web view and get the value of the progress bar from the bundle and set the progress bar value to the fetched value
@@ -86,7 +72,15 @@ public class PostFragment extends Fragment {
             postProgress = savedInstanceState.getInt(PostFragment.POST_LOADING_STATUS);
         } else {
             Log.d(TAG, "onCreateView: Bundle is empty");
-            postWebView.loadUrl(post.getPostURL());
+            Log.d(TAG, "onCreateView: Flag ===> " + getArguments().getInt("key"));
+
+            if (isPost) {
+                Log.d(TAG, "onCreateView: Loading the POST");
+                postWebView.loadUrl(post.getPostURL());
+            } else {
+                Log.d(TAG, "onCreateView: Loading the Comments");
+                postWebView.loadUrl(BuildConfig.BASE_URI + post.getCommentsLink());
+            }
         }
         postProgressBar.setProgress(postProgress);
         Log.d(TAG, "onCreateView: Progress ---> " + postWebView.getProgress());
@@ -97,7 +91,6 @@ public class PostFragment extends Fragment {
         * If progress value is less than 100 only then call the progress checker method
          */
         if (postProgress < 100) {
-//            progressChecker();
             Util.downloadProgressCheck(postProgressBar, postWebView);
         } else {
             postProgressBar.setVisibility(View.GONE);
