@@ -25,6 +25,7 @@ import com.rajasaboor.redditclient.adapter.ItemsAdapter;
 import com.rajasaboor.redditclient.adapter.ItemsViewHolder;
 import com.rajasaboor.redditclient.connection_manager.ConnectionStatusChecker;
 import com.rajasaboor.redditclient.fragments.DetailsFragment;
+import com.rajasaboor.redditclient.fragments.PostFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.retrofit.RetrofitController;
@@ -164,6 +165,12 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
                     setRefreshTapped(true);
                     showOrHideTheRefreshIcon(false);
                     makeServerRequest();
+
+                    if (isTableLayoutIsActive()) {
+                        Log.d(TAG, "onOptionsItemSelected: Lansdscape is active also refresh the web page");
+                        DetailsFragment detailsFragment = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
+                        detailsFragment.setPost(getCurrentPostFromSharedPrefs());
+                        }
                 } else {
                     Toast.makeText(this, getResources().getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
                 }
@@ -203,7 +210,6 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
 
     private boolean isTableLayoutIsActive() {
         return (detailsFragmentInTablet != null);
-//        return (detailsFragment != null && detailsFragment.isVisible());
     }
 
     /*
