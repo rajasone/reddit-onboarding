@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
+import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -31,7 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements RetrofitController.IOnDownloadComplete, ItemsViewHolder.IOnPostTapped, RetrofitController.IPublishLastDownloadTimeInToolbar {
+public class MainActivity extends AppCompatActivity implements RetrofitController.IOnDownloadComplete, ItemsViewHolder.IOnPostTapped, RetrofitController.IPublishLastDownloadTimeInToolbar, SwipeRefreshLayout.OnRefreshListener {
     private static final String TAG = MainActivity.class.getSimpleName(); // Tag name for the Debug purposes
     private List<RedditPostWrapper> postWrapperList = new ArrayList<>();
     private RecyclerView postsRecyclerView = null;
@@ -45,6 +47,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     private DetailsFragment detailsFragmentInTablet;  // instance of detail fragment to hide or show the toolbar and set view pager adapter and used to know the current mode either Tablet/Phone
     private TextView noOfflineDataAvailable = null;
     private RetrofitController controller = null;
+    private SwipeRefreshLayout refreshLayout = null;
 
     // Some Global constants which are used by the MainActivity ONLY
     public static final String SHARED_PREFS_NAME = "post_lists";
@@ -196,10 +199,10 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         long timeDiff = controller.getTimeDifferenceInMinutes();
         Log.d(TAG, "onResume: Time Difference ===> " + timeDiff);
 
-        if (timeDiff == 0) {
+        if (timeDiff == 0 && controller.getCacheDataFromSharedPrefs(this).size() > 1) {
             Log.d(TAG, "onResume: In 0");
             toolbar.setSubtitle(getString(R.string.update_message_less_then_minute));
-        } else if (timeDiff > 0 && timeDiff < 5) {
+        } else if (timeDiff > 0 && timeDiff < 5 && controller.getCacheDataFromSharedPrefs(this).size() > 1) {
             Log.d(TAG, "onResume: > 0 AND < 5");
             toolbar.setSubtitle(String.format(getResources().getString(R.string.update_message_more_than_minute), timeDiff,
                     (timeDiff == 1 ? getResources().getString(R.string.minute) : getResources().getString(R.string.minutes))));
@@ -246,8 +249,15 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         postsRecyclerView = (RecyclerView) findViewById(R.id.posts_recycler_view);
         postsRecyclerView.setHasFixedSize(true);
         noOfflineDataAvailable = (TextView) findViewById(R.id.no_offline_data_text_view);
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout);
+
+        refreshLayout.setColorSchemeResources(R.color.colorRedHundred, R.color.colorGreen,
+                R.color.colorParrot, R.color.colorYellow,
+                R.color.colorCustom, R.color.colorCustomTwo);
 
         detailsFragmentInTablet = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
+
+        refreshLayout.setOnRefreshListener(this);
     }
 
     private void showOrHideTheRefreshIcon(boolean command) {
@@ -364,6 +374,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         return new Gson().fromJson(getSharedPreferences(MainActivity.CURRENT_SELECTED_OBJECT, MODE_PRIVATE).getString(MainActivity.CURRENT_SELECTED_OBJECT, null), RedditPost.class);
     }
 
+    // Call back method to set the subtitles of the toolbar from the Retrofit class
     @Override
     public void setMessageToToolbar(String message) {
         if (toolbar != null) {
@@ -373,6 +384,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         }
     }
 
+    // Call back method to set the subtitles of the toolbar from the Retrofit class
     @Override
     public void setMessageToToolbar(@StringRes int message) {
         if (toolbar != null) {
@@ -380,5 +392,20 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         } else {
             Log.e(TAG, "setMessageToToolbar: Toolbar is NULL");
         }
+    }
+
+    // Call back method for the Swipe to refresh layout
+
+    @Override
+    public void onRefresh() {
+        Log.d(TAG, "onRefresh: start");
+        makeServerRequest();
+        onDownloadComplete();
+        Log.d(TAG, "onRefresh: end");
+    }
+
+    // This method will hide the refresh animation of swipe layout
+    private void onDownloadComplete() {
+        refreshLayout.setRefreshing(false);
     }
 }
