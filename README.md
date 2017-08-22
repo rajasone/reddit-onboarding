@@ -16,4 +16,6 @@ Following are the some highlights of tools which are used in this app
     - View pager
     - Tab layout
     
+    
+    [](https://github.com/rajasone/reddit-onboarding/blob/master/tab-1.png)![](https://github.com/rajasone/reddit-onboarding/blob/master/tab-2.png)![](https://github.com/rajasone/reddit-onboarding/blob/master/phone-1.png)![](https://github.com/rajasone/reddit-onboarding/blob/master/phone-2.png)![](https://github.com/rajasone/reddit-onboarding/blob/master/phone-3.png)
 
