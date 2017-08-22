@@ -43,6 +43,13 @@ public class DetailActivity extends AppCompatActivity {
         Log.d(TAG, "onCreate: end");
     }
 
+    private void initViews() {
+        toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
+        viewPager = (ViewPager) findViewById(R.id.view_pager);
+        tabLayout = (TabLayout) findViewById(R.id.appbar_parent_tab);
+    }
+
+
     private void setUpTheToolbar() {
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -62,9 +69,4 @@ public class DetailActivity extends AppCompatActivity {
         Log.d(TAG, "onSaveInstanceState: end");
     }
 
-    private void initViews() {
-        toolbar = (Toolbar) findViewById(R.id.detail_toolbar);
-        viewPager = (ViewPager) findViewById(R.id.view_pager);
-        tabLayout = (TabLayout) findViewById(R.id.appbar_parent_tab);
-    }
 }

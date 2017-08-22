@@ -6,10 +6,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.util.Log;
 
+import com.rajasaboor.redditclient.BuildConfig;
 import com.rajasaboor.redditclient.fragments.PostFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
 
-import static com.rajasaboor.redditclient.fragments.PostFragment.KEY_URL_STRING;
 
 /**
  * Created by default on 8/4/2017.
@@ -19,7 +19,9 @@ public class DetailViewPager extends FragmentStatePagerAdapter {
     private static final String TAG = DetailViewPager.class.getSimpleName();
     private RedditPost post;
     private static final int COMMENT_TAB_POSITION = 1;
-    public static final String[] TABS_NAMES = {"Posts", "Comments"};
+    private static final String[] TABS_NAMES = {"Posts", "Comments"};
+    private static final int POST_TAB_VALUE = 0;
+    private static final int COMMENTS_TAB_VALUE = 1;
 
 
     public DetailViewPager(FragmentManager fm, RedditPost post) {
@@ -34,18 +36,18 @@ public class DetailViewPager extends FragmentStatePagerAdapter {
         Log.d(TAG, "getItem: Post Title ====> " + post.getPostTitle());
 
         Bundle bundle = new Bundle();
-        bundle.putParcelable(KEY_URL_STRING, post);
+        bundle.putParcelable(BuildConfig.KEY_URL_STRING, post);
         PostFragment postFragment = new PostFragment();
 
         switch (position) {
             case 0:
                 Log.d(TAG, "getItem: Case 0");
-                bundle.putInt("key", 0);
+                bundle.putInt(BuildConfig.POST_TAB_KEY, POST_TAB_VALUE);
                 postFragment.setArguments(bundle);
                 return postFragment;
             case 1:
                 Log.d(TAG, "getItem: Case 1");
-                bundle.putInt("key", 1);
+                bundle.putInt(BuildConfig.POST_TAB_KEY, COMMENTS_TAB_VALUE);
                 postFragment.setArguments(bundle);
                 return postFragment;
             default:

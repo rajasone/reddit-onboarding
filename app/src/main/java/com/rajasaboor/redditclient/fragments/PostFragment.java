@@ -22,13 +22,12 @@ import com.rajasaboor.redditclient.util.Util;
  * A simple {@link Fragment} subclass.
  */
 public class PostFragment extends Fragment {
-    public static final String KEY_URL_STRING = "URL_STRING";
     private static final String TAG = PostFragment.class.getSimpleName();
     private RedditPost post;
     private WebView postWebView; // webview which contains the post webview
     private ProgressBar postProgressBar; // an horizontal progress bar which show the progress of page to user
     private int postProgress = 0; // maintain the progress bar progress for the loading purpose
-    public static final String POST_LOADING_STATUS = "post_loading";
+
 
     public PostFragment() {
         // Required empty public constructor
@@ -39,11 +38,11 @@ public class PostFragment extends Fragment {
         Log.d(TAG, "onCreate: start");
         super.onCreate(savedInstanceState);
 
-        if (getArguments().getParcelable(KEY_URL_STRING) != null) {
+        if (getArguments().getParcelable(BuildConfig.KEY_URL_STRING) != null) {
             Log.d(TAG, "onCreate: Bundle have data");
-            post = (RedditPost) getArguments().getParcelable(KEY_URL_STRING);
-            Log.d(TAG, "onCreate: Port URL is ---> " + ((RedditPost) getArguments().getParcelable(KEY_URL_STRING)).getPostURL());
-            Log.d(TAG, "onCreate: Flag ===> " + getArguments().getInt("key"));
+            post = (RedditPost) getArguments().getParcelable(BuildConfig.KEY_URL_STRING);
+            Log.d(TAG, "onCreate: Port URL is ---> " + ((RedditPost) getArguments().getParcelable(BuildConfig.KEY_URL_STRING)).getPostURL());
+            Log.d(TAG, "onCreate: Flag ===> " + getArguments().getInt(BuildConfig.POST_TAB_KEY));
         } else {
             Log.e(TAG, "onCreate: Bundle is empty");
         }
@@ -59,7 +58,7 @@ public class PostFragment extends Fragment {
         initViews(view);
 
         // If key == 0 Post URI will be loaded otherwise Comments URI will be loaded
-        boolean isPost = getArguments().getInt("key") == 0;
+        boolean isPost = getArguments().getInt(BuildConfig.POST_TAB_KEY) == 0;
 
         /*
         * Check whether the bundle is NULL or not
@@ -67,12 +66,12 @@ public class PostFragment extends Fragment {
         * If bundle is NULL load the url in web view
          */
         if (savedInstanceState != null) {
-            Log.d(TAG, "onCreateView: Bundle have data ---> " + savedInstanceState.getInt(PostFragment.POST_LOADING_STATUS));
+            Log.d(TAG, "onCreateView: Bundle have data ---> " + savedInstanceState.getInt(BuildConfig.POST_LOADING_STATUS));
             postWebView.restoreState(savedInstanceState);
-            postProgress = savedInstanceState.getInt(PostFragment.POST_LOADING_STATUS);
+            postProgress = savedInstanceState.getInt(BuildConfig.POST_LOADING_STATUS);
         } else {
             Log.d(TAG, "onCreateView: Bundle is empty");
-            Log.d(TAG, "onCreateView: Flag ===> " + getArguments().getInt("key"));
+            Log.d(TAG, "onCreateView: Flag ===> " + getArguments().getInt(BuildConfig.POST_TAB_KEY));
 
             if (isPost) {
                 Log.d(TAG, "onCreateView: Loading the POST");
@@ -119,10 +118,10 @@ public class PostFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         Log.d(TAG, "onSaveInstanceState: start");
         super.onSaveInstanceState(outState);
-        outState.putInt(PostFragment.POST_LOADING_STATUS, postProgress);
+        outState.putInt(BuildConfig.POST_LOADING_STATUS, postProgress);
         postWebView.saveState(outState);
 
-        Log.d(TAG, "onSaveInstanceState: Progress from bundle ---> " + outState.getInt(PostFragment.POST_LOADING_STATUS));
+        Log.d(TAG, "onSaveInstanceState: Progress from bundle ---> " + outState.getInt(BuildConfig.POST_LOADING_STATUS));
         Log.d(TAG, "onSaveInstanceState: end");
     }
 

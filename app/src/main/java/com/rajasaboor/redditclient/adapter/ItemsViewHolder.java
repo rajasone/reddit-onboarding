@@ -48,17 +48,6 @@ public class ItemsViewHolder extends RecyclerView.ViewHolder implements View.OnC
         postParentLayout.setOnClickListener(this); // listener is attach to detect when user tap on the post
     }
 
-    ConstraintLayout getPostParentLayout() {
-        return postParentLayout;
-    }
-
-    void setPostParentLayout(ConstraintLayout postParentLayout) {
-        this.postParentLayout = postParentLayout;
-    }
-
-    ImageView getUpsImageView() {
-        return upsImageView;
-    }
 
     TextView getUpsTextView() {
         return upsTextView;

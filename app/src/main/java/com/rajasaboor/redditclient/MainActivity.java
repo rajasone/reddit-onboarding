@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     private ItemsAdapter itemsAdapter = null;
     private Toolbar toolbar; // custom toolbar with the progressbar
     private ProgressBar progressBar; // this custom bar will shown to user when the refresh request is made
-    //private long lastUpdateTimeInMilliSeconds = 0L;
     private Menu menu = null; // this will hold the reference of the menu and will be used to hide or display the refresh menu icon
     private boolean isRefreshTapped = false; // to get to know that whether the refresh is tapped or not
     private RedditPost selectedPost; // A post which is selected in the landscape layout
@@ -50,12 +49,8 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     private SwipeRefreshLayout refreshLayout = null;
 
     // Some Global constants which are used by the MainActivity ONLY
-    public static final String SHARED_PREFS_NAME = "post_lists";
-    public static final String SIZE_OF_POST_LIST = "list_size";
     private static final String KEY_TO_CHECK_DATA = "1";
     private static String CURRENT_SELECTED_OBJECT = "current_object";
-    public static final String LAST_DOWNLOAD_FILE_NAME = "last_download_file";
-    public static final String LAST_DOWNLOAD_TIME_KEY = "last_download";
     private static final int RESPONSE_CODE_OK = 200;
 
 
@@ -73,7 +68,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         setSupportActionBar(toolbar); // setting up the custom toolbar as the action bar
         setUpRecyclerView();
 
-        SharedPreferences preferences = getSharedPreferences(MainActivity.SHARED_PREFS_NAME, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE);
 
         /*
         * Following if and else condition is used to check whether data is inside the shared prefs or not and also check for the orientation change
@@ -100,6 +95,37 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         }
         Log.d(TAG, "onCreate: end");
     }
+
+    private void initViews() {
+        toolbar = (Toolbar) findViewById(R.id.toolbar_include);
+        progressBar = (ProgressBar) toolbar.findViewById(R.id.menu_progress_bar);
+        postsRecyclerView = (RecyclerView) findViewById(R.id.posts_recycler_view);
+        postsRecyclerView.setHasFixedSize(true);
+        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout);
+        noOfflineDataAvailable = (TextView) findViewById(R.id.no_offline_data_text_view);
+
+        refreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.colorRedHundred), ContextCompat.getColor(this, R.color.colorGreen),
+                ContextCompat.getColor(this, R.color.colorParrot), ContextCompat.getColor(this, R.color.colorYellow),
+                ContextCompat.getColor(this, R.color.colorCustom), ContextCompat.getColor(this, R.color.colorCustomTwo));
+
+        detailsFragmentInTablet = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
+
+        refreshLayout.setOnRefreshListener(this);
+    }
+
+     /*
+    * Setting up the adapter and set the adapter with recycler view
+     */
+
+    private void setUpRecyclerView() {
+        postsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        itemsAdapter = new ItemsAdapter(R.layout.post_layout, new ArrayList<RedditPostWrapper>(), this);
+        postsRecyclerView.setAdapter(itemsAdapter);
+
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, new LinearLayoutManager(this).getOrientation());
+        postsRecyclerView.addItemDecoration(dividerItemDecoration);
+    }
+
 
 
     /*
@@ -147,6 +173,17 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         return super.onOptionsItemSelected(item);
     }
 
+    public void setRefreshTapped(boolean refreshTapped) {
+        isRefreshTapped = refreshTapped;
+    }
+
+    private void showOrHideTheRefreshIcon(boolean command) {
+        if ((menu != null) && (isRefreshTapped())) {
+            menu.findItem(R.id.refresh_post_list_menu).setVisible(command);
+        }
+    }
+
+
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         Log.d(TAG, "onSaveInstanceState: start");
@@ -184,6 +221,25 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         }
     }
 
+    public void setSelectedPost(RedditPost selectedPost) {
+        this.selectedPost = selectedPost;
+    }
+
+
+     /*
+    * Set up the current post and hide the toolbar if selected post is is self otherwise show the toolbar
+     */
+
+    private void callTheDetailViewPagerMethod() {
+        detailsFragmentInTablet.setPost(getSelectedPost());
+        if (detailsFragmentInTablet.getPost().isPostIsSelf()) {
+            detailsFragmentInTablet.hideTheToolbar(true);
+        } else {
+            detailsFragmentInTablet.hideTheToolbar(false);
+        }
+    }
+
+
     @Override
     protected void onResume() {
         Log.d(TAG, "onResume: start");
@@ -218,51 +274,16 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         Log.d(TAG, "onResume: end");
     }
 
-    /*
-    * Setting up the adapter and set the adapter with recycler view
-     */
-
-    private void setUpRecyclerView() {
-        postsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        itemsAdapter = new ItemsAdapter(R.layout.post_layout, new ArrayList<RedditPostWrapper>(), this);
-        postsRecyclerView.setAdapter(itemsAdapter);
-
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, new LinearLayoutManager(this).getOrientation());
-        postsRecyclerView.addItemDecoration(dividerItemDecoration);
-    }
 
     private void showNoOfflineDataTextView(boolean show) {
         noOfflineDataAvailable.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
-    private void initViews() {
-        toolbar = (Toolbar) findViewById(R.id.toolbar_include);
-        progressBar = (ProgressBar) toolbar.findViewById(R.id.menu_progress_bar);
-        postsRecyclerView = (RecyclerView) findViewById(R.id.posts_recycler_view);
-        postsRecyclerView.setHasFixedSize(true);
-        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout);
-        noOfflineDataAvailable = (TextView) findViewById(R.id.no_offline_data_text_view);
-
-        refreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.colorRedHundred), ContextCompat.getColor(this, R.color.colorGreen),
-                ContextCompat.getColor(this, R.color.colorParrot), ContextCompat.getColor(this, R.color.colorYellow),
-                ContextCompat.getColor(this, R.color.colorCustom), ContextCompat.getColor(this, R.color.colorCustomTwo));
-
-        detailsFragmentInTablet = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
-
-        refreshLayout.setOnRefreshListener(this);
-    }
-
-    private void showOrHideTheRefreshIcon(boolean command) {
-        if ((menu != null) && (isRefreshTapped())) {
-            menu.findItem(R.id.refresh_post_list_menu).setVisible(command);
-        }
-    }
 
     @Override
     public void onDownloadCompleteListener(int responseCode, List<RedditPostWrapper> postsList) {
         Log.d(TAG, "onDownloadCompleteListener: start");
         Log.d(TAG, "onDownloadCompleteListener: Response Code ---> " + responseCode);
-        Log.d(TAG, "onDownloadCompleteListener: Size of List ---> " + postsList.size());
 
         hideTheProgressBar(true);
         showOrHideTheRefreshIcon(true);
@@ -320,32 +341,11 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         return isRefreshTapped;
     }
 
-    public void setRefreshTapped(boolean refreshTapped) {
-        isRefreshTapped = refreshTapped;
-    }
-
 
     public RedditPost getSelectedPost() {
         return selectedPost;
     }
 
-    public void setSelectedPost(RedditPost selectedPost) {
-        this.selectedPost = selectedPost;
-    }
-
-    /*
-    * Set up the current post and also set up the view pager
-     */
-
-    private void callTheDetailViewPagerMethod() {
-        detailsFragmentInTablet.setPost(getSelectedPost());
-        if (detailsFragmentInTablet.getPost().isPostIsSelf()) {
-            detailsFragmentInTablet.hideTheToolbar(true);
-        } else {
-            detailsFragmentInTablet.hideTheToolbar(false);
-        }
-        detailsFragmentInTablet.setUpTheViewPager();
-    }
 
     /*
     * Save the current post in shared prefs
