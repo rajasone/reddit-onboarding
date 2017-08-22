@@ -26,14 +26,9 @@ import com.rajasaboor.redditclient.fragments.DetailsFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.retrofit.RetrofitController;
-import com.rajasaboor.redditclient.util.Util;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
-import java.util.concurrent.TimeUnit;
 
 
 public class MainActivity extends AppCompatActivity implements RetrofitController.IOnDownloadComplete, ItemsViewHolder.IOnPostTapped, RetrofitController.IPublishLastDownloadTimeInToolbar {
@@ -208,7 +203,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
             Log.d(TAG, "onResume: > 0 AND < 5");
             toolbar.setSubtitle(String.format(getResources().getString(R.string.update_message_more_than_minute), timeDiff,
                     (timeDiff == 1 ? getResources().getString(R.string.minute) : getResources().getString(R.string.minutes))));
-        } else if (timeDiff >= 5) {
+        } else if (timeDiff >= 5 && ConnectionStatusChecker.checkConnection(this)) {
             Log.d(TAG, "onResume: >=5");
             makeServerRequest();
         } else {

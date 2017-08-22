@@ -13,6 +13,9 @@ import android.util.Log;
 public class ConnectionStatusChecker {
     private static final String TAG = ConnectionStatusChecker.class.getSimpleName();
 
+    /*
+    * This method return TRUE if there is a connection with the internet
+     */
     public static boolean checkConnection(Context context) {
         boolean result = false;
         try {
