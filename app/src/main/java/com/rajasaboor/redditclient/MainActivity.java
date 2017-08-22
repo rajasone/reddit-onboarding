@@ -166,7 +166,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
                     showOrHideTheRefreshIcon(false);
                     makeServerRequest();
 
-                    if (isTableLayoutIsActive()) {
+                    if (isTableLayoutIsActive()  && getCurrentPostFromSharedPrefs() != null) {
                         Log.d(TAG, "onOptionsItemSelected: Lansdscape is active also refresh the web page");
                         DetailsFragment detailsFragment = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
                         detailsFragment.setPost(getCurrentPostFromSharedPrefs());
