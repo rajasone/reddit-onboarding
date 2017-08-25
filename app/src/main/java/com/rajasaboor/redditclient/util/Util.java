@@ -3,8 +3,10 @@ package com.rajasaboor.redditclient.util;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
+import android.support.design.widget.TabLayout;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
@@ -14,6 +16,7 @@ import android.widget.Toast;
 
 import com.rajasaboor.redditclient.BuildConfig;
 import com.rajasaboor.redditclient.R;
+import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 
 import java.util.List;
@@ -86,5 +89,17 @@ public class Util {
             }
         }, 500);
     }
+
+    public static void shareThisPostWithFriends(Context context, TabLayout tabLayout, RedditPost redditPost) {
+        Log.d(TAG, "shareThisPostWithFriends: Selected tab position ===> " + tabLayout.getSelectedTabPosition());
+        Log.d(TAG, "shareThisPostWithFriends: Comment url ===> " + redditPost.getCommentsLink());
+        String urlToShare = tabLayout.getSelectedTabPosition() == 0 ? redditPost.getPostURL() : BuildConfig.BASE_URI + redditPost.getCommentsLink();
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, context.getString(R.string.share_message) + urlToShare);
+        shareIntent.setType("text/plain");
+        context.startActivity(shareIntent);
+    }
+
 
 }

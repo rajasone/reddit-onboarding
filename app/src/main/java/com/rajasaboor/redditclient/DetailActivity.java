@@ -1,5 +1,6 @@
 package com.rajasaboor.redditclient;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.design.widget.TabLayout;
@@ -7,9 +8,13 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.rajasaboor.redditclient.appbar_layout.DetailViewPager;
+import com.rajasaboor.redditclient.fragments.PostFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
+import com.rajasaboor.redditclient.util.Util;
 
 public class DetailActivity extends AppCompatActivity {
     private static final String TAG = DetailActivity.class.getSimpleName();
@@ -67,6 +72,27 @@ public class DetailActivity extends AppCompatActivity {
         Log.d(TAG, "onSaveInstanceState: start");
         super.onSaveInstanceState(outState, outPersistentState);
         Log.d(TAG, "onSaveInstanceState: end");
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        Log.d(TAG, "onCreateOptionsMenu: start");
+        getMenuInflater().inflate(R.menu.share_menu, menu);
+        Log.d(TAG, "onCreateOptionsMenu: end");
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Log.d(TAG, "onOptionsItemSelected: start");
+
+        switch (item.getItemId()) {
+            case R.id.share_menu:
+                Util.shareThisPostWithFriends(this, tabLayout, redditPost);
+                return true;
+        }
+        Log.d(TAG, "onOptionsItemSelected: end");
+        return false;
     }
 
 }

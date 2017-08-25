@@ -97,5 +97,7 @@ public class DetailsFragment extends Fragment {
         }
     }
 
-
+    public TabLayout getTabLayout() {
+        return tabLayout;
+    }
 }

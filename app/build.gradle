@@ -10,7 +10,7 @@ android {
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        buildConfigField "String", "BASE_URI", '"https://www.reddit.com/"'
+        buildConfigField "String", "BASE_URI", '"https://www.reddit.com"'
         buildConfigField "String", "INDIVIDUAL_POST_ITEM_KEY", '"post_item"'
 
 

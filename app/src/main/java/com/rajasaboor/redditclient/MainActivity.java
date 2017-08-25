@@ -29,6 +29,7 @@ import com.rajasaboor.redditclient.fragments.PostFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.retrofit.RetrofitController;
+import com.rajasaboor.redditclient.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -152,6 +153,11 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         getMenuInflater().inflate(R.menu.main_menu, menu);
         this.menu = menu;
 
+        // If tab layout is active ONLY then show the share icon
+        if (isTableLayoutIsActive()) {
+            menu.findItem(R.id.share_menu).setVisible(true);
+        }
+
         Log.d(TAG, "onCreateOptionsMenu: end");
         return super.onCreateOptionsMenu(menu);
     }
@@ -174,6 +180,19 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
                 } else {
                     Toast.makeText(this, getResources().getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
                 }
+                return true;
+            case R.id.share_menu:
+                /*
+                * If tab layout is active and user selected some post then the share button will work otherwise user get the toast message "No post selected"
+                 */
+                if (isTableLayoutIsActive() && getSelectedPost() != null) {
+                    Log.d(TAG, "onOptionsItemSelected: Yes do allow the share");
+                    Util.shareThisPostWithFriends(this, detailsFragmentInTablet.getTabLayout(), getSelectedPost());
+                } else {
+                    Toast.makeText(this, getString(R.string.no_post_selected), Toast.LENGTH_SHORT).show();
+                    Log.d(TAG, "onOptionsItemSelected: No post is selected so not able to share");
+                }
+
                 return true;
         }
         Log.d(TAG, "onOptionsItemSelected: end");
