@@ -3,6 +3,7 @@ package com.rajasaboor.redditclient;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.v4.content.ContextCompat;
@@ -31,6 +32,7 @@ import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.retrofit.RetrofitController;
 import com.rajasaboor.redditclient.util.Util;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,6 +64,15 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        if (getIntent() != null && getIntent().getData() != null) {
+            String action = getIntent().getAction();
+            Uri uri = getIntent().getData();
+
+            Log.d(TAG, "onCreate: Action ===> " + action);
+            Log.d(TAG, "onCreate: Uri ===> " + uri.toString());
+        } else {
+            Log.e(TAG, "onCreate: Intent is NULL");
+        }
         controller = new RetrofitController(this, this);
         /*
         * Ini views get the reference of the XML views
