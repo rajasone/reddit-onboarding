@@ -166,11 +166,11 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
                     showOrHideTheRefreshIcon(false);
                     makeServerRequest();
 
-                    if (isTableLayoutIsActive()  && getCurrentPostFromSharedPrefs() != null) {
+                    if (isTableLayoutIsActive() && getCurrentPostFromSharedPrefs() != null) {
                         Log.d(TAG, "onOptionsItemSelected: Lansdscape is active also refresh the web page");
                         DetailsFragment detailsFragment = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
                         detailsFragment.setPost(getCurrentPostFromSharedPrefs());
-                        }
+                    }
                 } else {
                     Toast.makeText(this, getResources().getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
                 }
@@ -315,7 +315,9 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     }
 
     public void setPostWrapperList(List<RedditPostWrapper> postWrapperList) {
+        Log.d(TAG, "setPostWrapperList: start");
         this.postWrapperList = postWrapperList;
+        Log.d(TAG, "setPostWrapperList: end");
 
     }
 

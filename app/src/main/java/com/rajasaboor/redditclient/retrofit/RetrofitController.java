@@ -110,7 +110,7 @@ public class RetrofitController implements Callback<RedditRespone> {
         }
     }
 
-    private void saveTheDataInSharedPrefs(List<RedditPostWrapper> postWrapperList) {
+    public void saveTheDataInSharedPrefs(List<RedditPostWrapper> postWrapperList) {
         Context context = (Context) onDownloadComplete;
         SharedPreferences.Editor editor = context.getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE).edit();
         editor.putInt(BuildConfig.SIZE_OF_POST_LIST, postWrapperList.size());
@@ -168,6 +168,12 @@ public class RetrofitController implements Callback<RedditRespone> {
     public long getTimeDifferenceInMinutes() {
         long timeDifference = System.currentTimeMillis() - getTheDownloadTimeFromSharedPrefs();
         return TimeUnit.MILLISECONDS.toMinutes(timeDifference);
+    }
+
+    public void removeTheCacheData(Context context) {
+        if (getCacheDataFromSharedPrefs(context).size() > 0) {
+            context.getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE).edit().clear().apply();
+        }
     }
 
     /*
