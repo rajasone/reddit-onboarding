@@ -329,7 +329,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
                 Log.d(TAG, "onDownloadCompleteListener: Response code is 200 now updating the Adapter");
                 setPostWrapperList(postsList); // setting the List field of the MainActivity
                 itemsAdapter.updateAdapter(postWrapperList); // sending the actual data which is downloaded and parsed by the Retrofit
-                // Util.printList(postsList); // just for debug purpose printing the list
+                Util.printList(postsList); // just for debug purpose printing the list
 
                 if (controller.getCacheDataFromSharedPrefs(this).size() < 1) {
                     showNoOfflineDataTextView(true);

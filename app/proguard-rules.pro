@@ -32,3 +32,4 @@
 -dontwarn okio.**
 -dontwarn retrofit2.Platform$Java8
 -dontwarn java.lang.management.**
+-keep class com.rajasaboor.redditclient.RedditPost
