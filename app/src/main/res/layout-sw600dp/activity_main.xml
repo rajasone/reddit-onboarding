@@ -1,53 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:weightSum="10"
-    tools:context="com.rajasaboor.redditclient.MainActivity">
+<layout>
 
-    <include
-        android:id="@+id/toolbar_include"
-        layout="@layout/toolbar" />
-
-    <LinearLayout
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="vertical"
+        android:weightSum="10"
+        tools:context="com.rajasaboor.redditclient.MainActivity">
 
-        <TextView
-            android:id="@+id/no_offline_data_text_view"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_weight="4"
-            android:padding="8dp"
-            android:text="@string/no_offline_data"
-            android:textAlignment="center"
-            android:textSize="18sp"
-            android:visibility="gone" />
+        <include
+            android:id="@+id/toolbar_include"
+            layout="@layout/toolbar" />
 
-        <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/swipe_layout"
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="4">
+            android:orientation="horizontal">
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/posts_recycler_view"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/no_offline_data_text_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="4"
+                android:padding="8dp"
+                android:text="@string/no_offline_data"
+                android:textAlignment="center"
+                android:textSize="18sp"
+                android:visibility="gone" />
+
+            <android.support.v4.widget.SwipeRefreshLayout
+                android:id="@+id/swipe_layout"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:scrollbars="vertical" />
-        </android.support.v4.widget.SwipeRefreshLayout>
+                android:layout_weight="4"
+                app:showColorScheme="@{true}">
 
-        <fragment
-            android:id="@+id/details_fragment"
-            android:name="com.rajasaboor.redditclient.fragments.DetailsFragment"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="6"
-            tools:layout="@layout/detail_fragment_layout" />
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/posts_recycler_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scrollbars="vertical" />
+            </android.support.v4.widget.SwipeRefreshLayout>
+
+            <fragment
+                android:id="@+id/details_fragment"
+                android:name="com.rajasaboor.redditclient.fragments.DetailsFragment"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="6"
+                tools:layout="@layout/detail_fragment_layout" />
+        </LinearLayout>
     </LinearLayout>
-</LinearLayout>
+</layout>

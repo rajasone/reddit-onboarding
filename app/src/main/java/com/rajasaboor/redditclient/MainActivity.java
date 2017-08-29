@@ -3,6 +3,7 @@ package com.rajasaboor.redditclient;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.databinding.DataBindingUtil;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
@@ -25,6 +26,7 @@ import com.google.gson.Gson;
 import com.rajasaboor.redditclient.adapter.ItemsAdapter;
 import com.rajasaboor.redditclient.adapter.ItemsViewHolder;
 import com.rajasaboor.redditclient.connection_manager.ConnectionStatusChecker;
+import com.rajasaboor.redditclient.databinding.ActivityMainBinding;
 import com.rajasaboor.redditclient.fragments.DetailsFragment;
 import com.rajasaboor.redditclient.fragments.PostFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
@@ -36,13 +38,15 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.rajasaboor.redditclient.R.layout.toolbar;
+
 
 public class MainActivity extends AppCompatActivity implements RetrofitController.IOnDownloadComplete, ItemsViewHolder.IOnPostTapped, RetrofitController.IPublishLastDownloadTimeInToolbar, SwipeRefreshLayout.OnRefreshListener {
     private static final String TAG = MainActivity.class.getSimpleName(); // Tag name for the Debug purposes
     private List<RedditPostWrapper> postWrapperList = new ArrayList<>();
     private RecyclerView postsRecyclerView = null;
     private ItemsAdapter itemsAdapter = null;
-    private Toolbar toolbar; // custom toolbar with the progressbar
+    // private Toolbar toolbar; // custom toolbar with the progressbar
     private ProgressBar progressBar; // this custom bar will shown to user when the refresh request is made
     private Menu menu = null; // this will hold the reference of the menu and will be used to hide or display the refresh menu icon
     private boolean isRefreshTapped = false; // to get to know that whether the refresh is tapped or not
@@ -57,28 +61,21 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     private static String CURRENT_SELECTED_OBJECT = "current_object";
     private static final int RESPONSE_CODE_OK = 200;
 
+    private ActivityMainBinding mainBinding = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate: start");
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
-
-        if (getIntent() != null && getIntent().getData() != null) {
-            String action = getIntent().getAction();
-            Uri uri = getIntent().getData();
-
-            Log.d(TAG, "onCreate: Action ===> " + action);
-            Log.d(TAG, "onCreate: Uri ===> " + uri.toString());
-        } else {
-            Log.e(TAG, "onCreate: Intent is NULL");
-        }
+        mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         controller = new RetrofitController(this, this);
         /*
         * Ini views get the reference of the XML views
          */
         initViews();
-        setSupportActionBar(toolbar); // setting up the custom toolbar as the action bar
+//        setSupportActionBar(toolbar); // setting up the custom toolbar as the action bar
+        setSupportActionBar((Toolbar) mainBinding.toolbarInclude); // setting up the custom toolbar as the action bar
         setUpRecyclerView();
 
         SharedPreferences preferences = getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE);
@@ -110,17 +107,12 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     }
 
     private void initViews() {
-        toolbar = (Toolbar) findViewById(R.id.toolbar_include);
-        progressBar = (ProgressBar) toolbar.findViewById(R.id.menu_progress_bar);
+        //   toolbar = (Toolbar) findViewById(R.id.toolbar_include);
+        progressBar = (ProgressBar) mainBinding.toolbarInclude.findViewById(R.id.menu_progress_bar);
         postsRecyclerView = (RecyclerView) findViewById(R.id.posts_recycler_view);
         postsRecyclerView.setHasFixedSize(true);
         refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout);
         noOfflineDataAvailable = (TextView) findViewById(R.id.no_offline_data_text_view);
-
-        refreshLayout.setColorSchemeColors(ContextCompat.getColor(this, R.color.colorRedHundred), ContextCompat.getColor(this, R.color.colorGreen),
-                ContextCompat.getColor(this, R.color.colorParrot), ContextCompat.getColor(this, R.color.colorYellow),
-                ContextCompat.getColor(this, R.color.colorCustom), ContextCompat.getColor(this, R.color.colorCustomTwo));
-
         detailsFragmentInTablet = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
 
         refreshLayout.setOnRefreshListener(this);
@@ -285,10 +277,10 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
 
         if (timeDiff == 0 && controller.getCacheDataFromSharedPrefs(this).size() > 1) {
             Log.d(TAG, "onResume: In 0");
-            toolbar.setSubtitle(getString(R.string.update_message_less_then_minute));
+            ((Toolbar) mainBinding.toolbarInclude).setSubtitle(getString(R.string.update_message_less_then_minute));
         } else if (timeDiff > 0 && timeDiff < 5 && controller.getCacheDataFromSharedPrefs(this).size() > 1) {
             Log.d(TAG, "onResume: > 0 AND < 5");
-            toolbar.setSubtitle(String.format(getResources().getString(R.string.update_message_more_than_minute), timeDiff,
+            ((Toolbar) mainBinding.toolbarInclude).setSubtitle(String.format(getResources().getString(R.string.update_message_more_than_minute), timeDiff,
                     (timeDiff == 1 ? getResources().getString(R.string.minute) : getResources().getString(R.string.minutes))));
         } else if (timeDiff >= 5 && ConnectionStatusChecker.checkConnection(this)) {
             Log.d(TAG, "onResume: >=5");
@@ -407,8 +399,8 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     // Call back method to set the subtitles of the toolbar from the Retrofit class
     @Override
     public void setMessageToToolbar(String message) {
-        if (toolbar != null) {
-            toolbar.setSubtitle(message);
+        if (mainBinding.toolbarInclude != null) {
+            ((Toolbar) mainBinding.toolbarInclude).setSubtitle(message);
         } else {
             Log.e(TAG, "setMessageToToolbar: Toolbar is NULL");
         }
@@ -417,8 +409,8 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     // Call back method to set the subtitles of the toolbar from the Retrofit class
     @Override
     public void setMessageToToolbar(@StringRes int message) {
-        if (toolbar != null) {
-            toolbar.setSubtitle(message);
+        if (mainBinding.toolbarInclude != null) {
+            ((Toolbar) mainBinding.toolbarInclude).setSubtitle(message);
         } else {
             Log.e(TAG, "setMessageToToolbar: Toolbar is NULL");
         }

@@ -12,8 +12,6 @@ android {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         buildConfigField "String", "BASE_URI", '"https://www.reddit.com"'
         buildConfigField "String", "INDIVIDUAL_POST_ITEM_KEY", '"post_item"'
-
-
         buildConfigField "String", "SHARED_PREFS_NAME", '"post_lists"'
         buildConfigField "String", "SIZE_OF_POST_LIST", '"list_size"'
         buildConfigField "String", "LAST_DOWNLOAD_FILE_NAME", '"last_download_file"'
@@ -24,12 +22,12 @@ android {
         buildConfigField "Integer", "ERROR_RESPONSE_CODE", '404'
     }
 
+    dataBinding{
+        enabled = true;
+    }
+
     buildTypes {
         release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-        debug {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
@@ -61,5 +59,6 @@ dependencies {
         exclude group: 'com.android.support', module: 'recyclerview-v7'
     }
     compile 'junit:junit:4.12'
+
 
 }
