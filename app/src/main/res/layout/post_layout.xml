@@ -1,108 +1,116 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/post_parent_layout"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="?android:attr/selectableItemBackground"
-    android:clickable="true"
-    android:focusable="true">
+    xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
 
-    <TextView
-        android:id="@+id/ups_text_view"
-        android:layout_width="wrap_content"
+        <variable
+            name="post"
+            type="com.rajasaboor.redditclient.model.RedditPost" />
+    </data>
+
+    <android.support.constraint.ConstraintLayout
+        android:id="@+id/post_parent_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="RtlHardcoded"
-        tools:text="Ups" />
-
-    <TextView
-        android:id="@+id/title_text_view"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:ellipsize="end"
-        android:maxLines="1"
-        android:textColor="@android:color/black"
-        android:textStyle="bold"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintLeft_toRightOf="@+id/ups_image_view"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="RtlHardcoded"
-        tools:text="Title" />
-
-    <TextView
-        android:id="@+id/user_name_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
-        android:layout_marginTop="4dp"
-        android:ellipsize="end"
-        android:maxLength="6"
-        app:layout_constraintLeft_toRightOf="@+id/ups_image_view"
-        app:layout_constraintTop_toBottomOf="@+id/title_text_view"
-        tools:ignore="MissingPrefix,RtlHardcoded"
-        tools:text="Username"
-        android:layout_marginStart="8dp" />
-
-    <TextView
-        android:id="@+id/link_text_view"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="6dp"
-        android:ellipsize="end"
-        android:maxLines="1"
-        app:layout_constraintLeft_toRightOf="@+id/ups_image_view"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/user_name_text_view"
-        tools:ignore="RtlHardcoded"
-        tools:text="Link"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        android:layout_marginBottom="8dp"
-        app:layout_constraintVertical_bias="0.0" />
-
-    <TextView
-        android:id="@+id/comments_text_view"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="8dp"
-        android:layout_marginLeft="8dp"
-        android:layout_marginRight="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintLeft_toRightOf="@+id/user_name_text_view"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/title_text_view"
-        tools:text="Comments" />
-
-    <ImageView
-        android:id="@+id/ups_image_view"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:layout_marginLeft="2dp"
-        android:layout_marginStart="2dp"
-        android:layout_marginTop="8dp"
-        android:contentDescription="@string/thumb_up"
-        app:layout_constraintLeft_toRightOf="@+id/ups_text_view"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@drawable/thumb_up"
-        tools:ignore="ContentDescription,RtlHardcoded" />
+        android:background="?android:attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true">
 
 
-</android.support.constraint.ConstraintLayout>
+        <TextView
+            android:id="@+id/ups_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="RtlHardcoded"
+            tools:text="@{String.valueOf(post.numberOfUps)}" />
+
+        <TextView
+            android:id="@+id/title_text_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textColor="@android:color/black"
+            android:textStyle="bold"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toRightOf="@+id/ups_image_view"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="RtlHardcoded"
+            tools:text="@{post.postTitle}" />
+
+        <TextView
+            android:id="@+id/user_name_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            android:ellipsize="end"
+            android:maxLength="6"
+            app:layout_constraintLeft_toRightOf="@+id/ups_image_view"
+            app:layout_constraintTop_toBottomOf="@+id/title_text_view"
+            tools:ignore="MissingPrefix,RtlHardcoded"
+            tools:text="@{post.postAuthor}" />
+
+        <TextView
+            android:id="@+id/link_text_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="6dp"
+            android:ellipsize="end"
+            android:maxLines="1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintLeft_toRightOf="@+id/ups_image_view"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/user_name_text_view"
+            app:layout_constraintVertical_bias="0.0"
+            tools:ignore="RtlHardcoded"
+            tools:text="@{String.format(@string/base_link,post.commentsLink)}" />
+
+        <TextView
+            android:id="@+id/comments_text_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintLeft_toRightOf="@+id/user_name_text_view"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/title_text_view"
+            tools:text="@{String.format(@string/comments_text,post.postComments)}" />
+
+        <ImageView
+            android:id="@+id/ups_image_view"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginStart="2dp"
+            android:layout_marginTop="8dp"
+            android:contentDescription="@string/thumb_up"
+            app:layout_constraintLeft_toRightOf="@+id/ups_text_view"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/thumb_up"
+            tools:ignore="ContentDescription,RtlHardcoded" />
+    </android.support.constraint.ConstraintLayout>
+</layout>

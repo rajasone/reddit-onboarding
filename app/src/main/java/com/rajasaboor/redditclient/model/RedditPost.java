@@ -18,31 +18,29 @@ public class RedditPost implements Parcelable {
      */
     private static final String TAG = RedditPost.class.getSimpleName();
     @SerializedName("title")
-    private String postTitle;
+    private final String postTitle;
 
     @SerializedName("author")
-    private String postAuthor;
+    private final String postAuthor;
 
     @SerializedName("permalink")
-    private String commentsLink;
+    private final String commentsLink;
 
     @SerializedName("url")
-    private String postURL;
+    private final String postURL;
 
     @SerializedName("is_self")
-    private boolean isPostIsSelf;
+    private final boolean isPostIsSelf;
 
     @SerializedName("num_comments")
-    private int postComments;
+    private final int postComments;
 
     @SerializedName("ups")
-    private int numberOfUps;
+    private final int numberOfUps;
 
     @SerializedName("is_video")
-    private boolean isVideo;
+    private final boolean isVideo;
 
-    public RedditPost() {
-    }
 
     public RedditPost(String postTitle, String postAuthor, String commentsLink, String postURL, boolean isPostIsSelf, int postComments, int numberOfUps, boolean isVideo) {
         this.postTitle = postTitle;
@@ -59,65 +57,34 @@ public class RedditPost implements Parcelable {
         return postTitle;
     }
 
-    public void setPostTitle(String postTitle) {
-        this.postTitle = postTitle;
-    }
-
     public String getPostAuthor() {
         return postAuthor;
-    }
-
-    public void setPostAuthor(String postAuthor) {
-        this.postAuthor = postAuthor;
     }
 
     public String getCommentsLink() {
         return commentsLink;
     }
 
-    public void setCommentsLink(String commentsLink) {
-        this.commentsLink = commentsLink;
-    }
-
     public boolean isPostIsSelf() {
         return isPostIsSelf;
-    }
-
-    public void setPostIsSelf(boolean postIsSelf) {
-        isPostIsSelf = postIsSelf;
     }
 
     public int getPostComments() {
         return postComments;
     }
 
-    public void setPostComments(int postComments) {
-        this.postComments = postComments;
-    }
-
     public int getNumberOfUps() {
         return numberOfUps;
-    }
-
-    public void setNumberOfUps(int numberOfUps) {
-        this.numberOfUps = numberOfUps;
     }
 
     public boolean isVideo() {
         return isVideo;
     }
 
-    public void setVideo(boolean video) {
-        isVideo = video;
-    }
-
     public String getPostURL() {
         return postURL;
     }
 
-    public void setPostURL(String postURL) {
-        this.postURL = postURL;
-    }
 
     @Override
     public String toString() {

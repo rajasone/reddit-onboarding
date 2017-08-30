@@ -4,6 +4,8 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
 import android.support.design.widget.TabLayout;
@@ -99,6 +101,26 @@ public class Util {
         shareIntent.putExtra(Intent.EXTRA_TEXT, context.getString(R.string.share_message) + urlToShare);
         shareIntent.setType("text/plain");
         context.startActivity(shareIntent);
+    }
+
+    /*
+    * This method return TRUE if there is a connection with the internet
+     */
+    public static boolean checkConnection(Context context) {
+        boolean result = false;
+        try {
+            ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+
+            if (networkInfo != null)
+                result = networkInfo.isConnected();
+        } catch (Exception e) {
+            Log.e(TAG, "checkConnection: An error happen ===> " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        Log.d(TAG, "checkConnection: Result ===> " + result);
+        return result;
     }
 
 

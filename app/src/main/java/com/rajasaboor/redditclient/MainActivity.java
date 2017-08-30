@@ -2,59 +2,40 @@ package com.rajasaboor.redditclient;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
 import android.databinding.DataBindingUtil;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
-import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.rajasaboor.redditclient.adapter.ItemsAdapter;
-import com.rajasaboor.redditclient.adapter.ItemsViewHolder;
-import com.rajasaboor.redditclient.connection_manager.ConnectionStatusChecker;
 import com.rajasaboor.redditclient.databinding.ActivityMainBinding;
 import com.rajasaboor.redditclient.fragments.DetailsFragment;
-import com.rajasaboor.redditclient.fragments.PostFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.retrofit.RetrofitController;
 import com.rajasaboor.redditclient.util.Util;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.rajasaboor.redditclient.R.layout.toolbar;
 
-
-public class MainActivity extends AppCompatActivity implements RetrofitController.IOnDownloadComplete, ItemsViewHolder.IOnPostTapped, RetrofitController.IPublishLastDownloadTimeInToolbar, SwipeRefreshLayout.OnRefreshListener {
+public class MainActivity extends AppCompatActivity implements RetrofitController.IOnDownloadComplete, ItemsAdapter.IOnPostTapped, RetrofitController.IPublishLastDownloadTimeInToolbar, SwipeRefreshLayout.OnRefreshListener {
     private static final String TAG = MainActivity.class.getSimpleName(); // Tag name for the Debug purposes
     private List<RedditPostWrapper> postWrapperList = new ArrayList<>();
-    private RecyclerView postsRecyclerView = null;
     private ItemsAdapter itemsAdapter = null;
-    // private Toolbar toolbar; // custom toolbar with the progressbar
-    private ProgressBar progressBar; // this custom bar will shown to user when the refresh request is made
     private Menu menu = null; // this will hold the reference of the menu and will be used to hide or display the refresh menu icon
-    private boolean isRefreshTapped = false; // to get to know that whether the refresh is tapped or not
     private RedditPost selectedPost; // A post which is selected in the landscape layout
     private DetailsFragment detailsFragmentInTablet;  // instance of detail fragment to hide or show the toolbar and set view pager adapter and used to know the current mode either Tablet/Phone
-    private TextView noOfflineDataAvailable = null;
     private RetrofitController controller = null;
-    private SwipeRefreshLayout refreshLayout = null;
 
     // Some Global constants which are used by the MainActivity ONLY
     private static final String KEY_TO_CHECK_DATA = "1";
@@ -63,25 +44,20 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
 
     private ActivityMainBinding mainBinding = null;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate: start");
         super.onCreate(savedInstanceState);
         mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
         controller = new RetrofitController(this, this);
-        /*
-        * Ini views get the reference of the XML views
-         */
+
         initViews();
-//        setSupportActionBar(toolbar); // setting up the custom toolbar as the action bar
-        setSupportActionBar((Toolbar) mainBinding.toolbarInclude); // setting up the custom toolbar as the action bar
+        setSupportActionBar(mainBinding.toolbarInclude.customToolbar); // setting up the custom toolbar as the action bar
         setUpRecyclerView();
 
         SharedPreferences preferences = getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE);
 
         /*
-        * Following if and else condition is used to check whether data is inside the shared prefs or not and also check for the orientation change
         * Check whether the data is inside the shared prefs
         * if data is found dont make the request call to the server
         * if data is not found OR the savedInstanceState is empty then make a request call
@@ -90,13 +66,13 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
             Log.d(TAG, "onCreate: Data is inside the preferences");
             postWrapperList = controller.getCacheDataFromSharedPrefs(this);
             itemsAdapter.updateAdapter(postWrapperList);
-        } else if ((preferences.getString(MainActivity.KEY_TO_CHECK_DATA, null) == null) && (ConnectionStatusChecker.checkConnection(this))) {
+        } else if ((preferences.getString(MainActivity.KEY_TO_CHECK_DATA, null) == null) && (Util.checkConnection(this))) {
                /*
             * Initiate the call to the base URI and VISIBLE the progress bar
             */
 
             Log.d(TAG, "onCreate: Preference is empty but connection is available");
-            makeServerRequest();
+            fireUpNetworkRequest();
         } else {
             /*
             * No data is in the shared prefs and no internet connection as well
@@ -107,15 +83,8 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     }
 
     private void initViews() {
-        //   toolbar = (Toolbar) findViewById(R.id.toolbar_include);
-        progressBar = (ProgressBar) mainBinding.toolbarInclude.findViewById(R.id.menu_progress_bar);
-        postsRecyclerView = (RecyclerView) findViewById(R.id.posts_recycler_view);
-        postsRecyclerView.setHasFixedSize(true);
-        refreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_layout);
-        noOfflineDataAvailable = (TextView) findViewById(R.id.no_offline_data_text_view);
         detailsFragmentInTablet = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
-
-        refreshLayout.setOnRefreshListener(this);
+        mainBinding.swipeLayout.setOnRefreshListener(this);
     }
 
      /*
@@ -123,12 +92,13 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
      */
 
     private void setUpRecyclerView() {
-        postsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mainBinding.postsRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         itemsAdapter = new ItemsAdapter(R.layout.post_layout, new ArrayList<RedditPostWrapper>(), this);
-        postsRecyclerView.setAdapter(itemsAdapter);
+        mainBinding.postsRecyclerView.setHasFixedSize(true);
+        mainBinding.postsRecyclerView.setAdapter(itemsAdapter);
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, new LinearLayoutManager(this).getOrientation());
-        postsRecyclerView.addItemDecoration(dividerItemDecoration);
+        mainBinding.postsRecyclerView.addItemDecoration(dividerItemDecoration);
     }
 
 
@@ -138,7 +108,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
      */
 
     private void makeServerRequest() {
-        hideTheProgressBar(false);
+        showTheProgressBar(true);
         controller.start();
     }
 
@@ -146,8 +116,8 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     * An utility method to Hide Or Visible the Progress bar
      */
 
-    private void hideTheProgressBar(boolean hide) {
-        progressBar.setVisibility(hide ? View.GONE : View.VISIBLE);
+    private void showTheProgressBar(boolean show) {
+        mainBinding.toolbarInclude.menuProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -170,11 +140,9 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         Log.d(TAG, "onOptionsItemSelected: start");
         switch (item.getItemId()) {
             case R.id.refresh_post_list_menu:
-                if (ConnectionStatusChecker.checkConnection(this)) {
-                    setRefreshTapped(true);
-                    showOrHideTheRefreshIcon(false);
-                    makeServerRequest();
-
+                if (Util.checkConnection(this)) {
+                    showRefreshIcon(false);
+                    fireUpNetworkRequest();
                     if (isTableLayoutIsActive() && getCurrentPostFromSharedPrefs() != null) {
                         Log.d(TAG, "onOptionsItemSelected: Lansdscape is active also refresh the web page");
                         DetailsFragment detailsFragment = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
@@ -202,13 +170,11 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         return super.onOptionsItemSelected(item);
     }
 
-    public void setRefreshTapped(boolean refreshTapped) {
-        isRefreshTapped = refreshTapped;
-    }
-
-    private void showOrHideTheRefreshIcon(boolean command) {
-        if ((menu != null) && (isRefreshTapped())) {
+    private void showRefreshIcon(boolean command) {
+        if ((menu != null)) {
             menu.findItem(R.id.refresh_post_list_menu).setVisible(command);
+        } else {
+            Log.e(TAG, "showRefreshIcon: Menu is NULL");
         }
     }
 
@@ -277,14 +243,15 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
 
         if (timeDiff == 0 && controller.getCacheDataFromSharedPrefs(this).size() > 1) {
             Log.d(TAG, "onResume: In 0");
-            ((Toolbar) mainBinding.toolbarInclude).setSubtitle(getString(R.string.update_message_less_then_minute));
+            mainBinding.toolbarInclude.customToolbar.setSubtitle(getString(R.string.update_message_less_then_minute));
         } else if (timeDiff > 0 && timeDiff < 5 && controller.getCacheDataFromSharedPrefs(this).size() > 1) {
             Log.d(TAG, "onResume: > 0 AND < 5");
-            ((Toolbar) mainBinding.toolbarInclude).setSubtitle(String.format(getResources().getString(R.string.update_message_more_than_minute), timeDiff,
+            mainBinding.toolbarInclude.customToolbar.setSubtitle(String.format(getResources().getString(R.string.update_message_more_than_minute), timeDiff,
                     (timeDiff == 1 ? getResources().getString(R.string.minute) : getResources().getString(R.string.minutes))));
-        } else if (timeDiff >= 5 && ConnectionStatusChecker.checkConnection(this)) {
+        } else if (timeDiff >= 5 && Util.checkConnection(this)) {
             Log.d(TAG, "onResume: >=5");
-            makeServerRequest();
+            showRefreshIcon(false);
+            fireUpNetworkRequest();
         } else {
             Log.d(TAG, "onResume: ELSE");
         }
@@ -304,7 +271,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
 
 
     private void showNoOfflineDataTextView(boolean show) {
-        noOfflineDataAvailable.setVisibility(show ? View.VISIBLE : View.GONE);
+        mainBinding.noOfflineDataTextView.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
 
@@ -313,8 +280,8 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         Log.d(TAG, "onDownloadCompleteListener: start");
         Log.d(TAG, "onDownloadCompleteListener: Response Code ---> " + responseCode);
 
-        hideTheProgressBar(true);
-        showOrHideTheRefreshIcon(true);
+        showTheProgressBar(false);
+        showRefreshIcon(true);
 
         switch (responseCode) {
             case MainActivity.RESPONSE_CODE_OK:
@@ -328,7 +295,6 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
                 } else {
                     showNoOfflineDataTextView(false);
                 }
-
                 break;
             default:
                 Log.e(TAG, "onDownloadCompleteListener: Something wrong with the response response code is ---> " + responseCode);
@@ -367,10 +333,6 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
         Log.d(TAG, "onPostTappedListener: end");
     }
 
-    public boolean isRefreshTapped() {
-        return isRefreshTapped;
-    }
-
 
     public RedditPost getSelectedPost() {
         return selectedPost;
@@ -400,7 +362,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     @Override
     public void setMessageToToolbar(String message) {
         if (mainBinding.toolbarInclude != null) {
-            ((Toolbar) mainBinding.toolbarInclude).setSubtitle(message);
+            mainBinding.toolbarInclude.customToolbar.setSubtitle(message);
         } else {
             Log.e(TAG, "setMessageToToolbar: Toolbar is NULL");
         }
@@ -410,7 +372,7 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     @Override
     public void setMessageToToolbar(@StringRes int message) {
         if (mainBinding.toolbarInclude != null) {
-            ((Toolbar) mainBinding.toolbarInclude).setSubtitle(message);
+            mainBinding.toolbarInclude.customToolbar.setSubtitle(message);
         } else {
             Log.e(TAG, "setMessageToToolbar: Toolbar is NULL");
         }
@@ -421,13 +383,17 @@ public class MainActivity extends AppCompatActivity implements RetrofitControlle
     @Override
     public void onRefresh() {
         Log.d(TAG, "onRefresh: start");
-        makeServerRequest();
-        onDownloadComplete();
+        if (Util.checkConnection(this)) {
+            fireUpNetworkRequest();
+        } else {
+            Toast.makeText(this, getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
+        }
+        mainBinding.swipeLayout.setRefreshing(false);
         Log.d(TAG, "onRefresh: end");
     }
 
-    // This method will hide the refresh animation of swipe layout
-    private void onDownloadComplete() {
-        refreshLayout.setRefreshing(false);
+    private void fireUpNetworkRequest() {
+        showRefreshIcon(false);
+        makeServerRequest();
     }
 }

@@ -1,25 +1,26 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context="com.rajasaboor.redditclient.fragments.PostFragment">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
-    <WebView
-        android:id="@+id/post_webview"
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="top"
-        android:padding="4dp" />
+        tools:context="com.rajasaboor.redditclient.fragments.PostFragment">
 
-    <ProgressBar
-        android:id="@+id/post_progress_bar"
-        style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:max="100"
-        android:progress="0"
-        android:visibility="visible" />
+        <WebView
+            android:id="@+id/post_webview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="top"
+            android:padding="4dp" />
 
-
-</RelativeLayout>
+        <ProgressBar
+            android:id="@+id/post_progress_bar"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:max="100"
+            android:progress="0"
+            android:visibility="visible" />
+    </RelativeLayout>
+</layout>
