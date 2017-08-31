@@ -112,6 +112,7 @@ public class RetrofitController implements Callback<RedditRespone> {
 
     public void saveTheDataInSharedPrefs(List<RedditPostWrapper> postWrapperList) {
         Context context = (Context) onDownloadComplete;
+        removeTheCacheData(context);
         SharedPreferences.Editor editor = context.getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE).edit();
         editor.putInt(BuildConfig.SIZE_OF_POST_LIST, postWrapperList.size());
         Gson gson = new Gson();
