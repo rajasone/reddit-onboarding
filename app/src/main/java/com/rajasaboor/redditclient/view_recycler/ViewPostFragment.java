@@ -1,6 +1,7 @@
 package com.rajasaboor.redditclient.view_recycler;
 
 import android.content.Context;
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
@@ -24,6 +25,8 @@ import com.rajasaboor.redditclient.BuildConfig;
 import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.adapter.ItemsAdapter;
 import com.rajasaboor.redditclient.databinding.MainFragmentBinding;
+import com.rajasaboor.redditclient.detail_post.DetailActivity;
+import com.rajasaboor.redditclient.detail_post.DetailActivityFragment;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.util.Util;
 
@@ -252,6 +255,10 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
         Log.d(TAG, "onPostTappedListener: start");
         Log.d(TAG, "onPostTappedListener: Position ===> " + position);
         Log.d(TAG, "onPostTappedListener: Title ===> " + ((ViewPresenter) viewPresenter).getPostWrapperList().get(position).getData().getPostTitle());
+
+        Intent detail = new Intent(getContext(), DetailActivity.class);
+        detail.putExtra(BuildConfig.INDIVIDUAL_POST_ITEM_KEY, ((ViewPresenter) viewPresenter).getPostWrapperList().get(position).getData());
+        startActivity(detail);
         Log.d(TAG, "onPostTappedListener: end");
     }
 }

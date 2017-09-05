@@ -6,10 +6,11 @@ package com.rajasaboor.redditclient.detail_post;
 
 public interface DetailPostContract {
     interface View {
+        void initToolbar();
 
+        void setUpViewPager();
     }
 
     interface Presenter {
-
     }
 }

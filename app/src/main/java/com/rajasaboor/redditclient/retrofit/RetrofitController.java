@@ -34,7 +34,6 @@ import static android.content.Context.MODE_PRIVATE;
  * a call back method is invoke which sends the response back to the caller (in this case caller in MainActivity)
  */
 
-
 interface IRetroApi {
     @GET(".json")
     Call<RedditRespone> loadChanges();
