@@ -37,7 +37,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DetailActivity"
+            android:name=".detail_post.DetailActivity"
             android:parentActivityName=".view_recycler.MainActivity">
 
         </activity>

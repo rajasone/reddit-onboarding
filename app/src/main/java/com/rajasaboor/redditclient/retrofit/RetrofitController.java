@@ -75,7 +75,9 @@ public class RetrofitController implements Callback<RedditRespone> {
     }
 
     public void saveTheDataInSharedPrefs(List<RedditPostWrapper> postWrapperList, SharedPreferences preferences) {
+        Log.d(TAG, "saveTheDataInSharedPrefs: Size of list to save ===> " + postWrapperList.size());
         SharedPreferences.Editor editor = preferences.edit();
+        editor.putInt(BuildConfig.SIZE_OF_POST_LIST, postWrapperList.size());
         Gson gson = new Gson();
         for (int i = 0; i < postWrapperList.size(); i++) {
             editor.putString(Integer.toString(i), gson.toJson(postWrapperList.get(i)));

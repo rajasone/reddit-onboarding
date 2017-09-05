@@ -25,8 +25,8 @@ interface ViewPostContract {
 
         void showToast(String message);
 
-
         void showProgressBar(boolean show);
+
     }
 
     interface Presenter {
@@ -38,7 +38,7 @@ interface ViewPostContract {
 
         List<RedditPostWrapper> getCacheData(SharedPreferences preferences);
 
-        void checkTheCacheAndRequestServer(Bundle savedInstanceState, ConnectivityManager manager);
+        void checkTheCacheAndRequestServer(ConnectivityManager manager);
 
         int manageTheLastDownloadTime();
 

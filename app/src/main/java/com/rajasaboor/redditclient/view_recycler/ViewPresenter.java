@@ -22,21 +22,17 @@ import java.util.concurrent.TimeUnit;
  * Created by rajaSaboor on 9/4/2017.
  */
 
-class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IOnDownloadComplete, ItemsAdapter.IOnPostTapped {
+class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IOnDownloadComplete {
     private static final String TAG = ViewPresenter.class.getSimpleName();
     private RetrofitController controller = null;
     private UpdateAdapter updateAdaper = null;
     private SharedPreferences preferences = null;
+    private List<RedditPostWrapper> postWrapperList = new ArrayList<>();
 
     ViewPresenter(UpdateAdapter saveDataInSharedPrefs, SharedPreferences preferences) {
         controller = new RetrofitController(this);
         this.updateAdaper = saveDataInSharedPrefs;
         this.preferences = preferences;
-    }
-
-    @Override
-    public void onPostTappedListener(int position) {
-
     }
 
     @Override
@@ -78,11 +74,11 @@ class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IO
     }
 
     @Override
-    public void checkTheCacheAndRequestServer(Bundle savedInstanceState, ConnectivityManager manager) {
+    public void checkTheCacheAndRequestServer(ConnectivityManager manager) {
         Log.d(TAG, "checkTheCacheAndRequestServer: start");
         if (preferences.getString(MainActivity.KEY_TO_CHECK_DATA, null) != null) {
-            List<RedditPostWrapper> postWrapperList = getCacheData(preferences);
-//            Util.printList(postWrapperList);
+            postWrapperList = getCacheData(preferences);
+            Util.printList(postWrapperList);
             updateAdaper.updateAdapter(postWrapperList);
         } else if ((preferences.getString(MainActivity.KEY_TO_CHECK_DATA, null) == null) && (Util.checkConnection(manager))) {
             controller.start();
@@ -111,6 +107,14 @@ class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IO
 
     private void saveDownloadTimeHelper() {
         preferences.edit().putLong(BuildConfig.LAST_DOWNLOAD_TIME_KEY, System.currentTimeMillis()).apply();
+    }
+
+    public List<RedditPostWrapper> getPostWrapperList() {
+        return postWrapperList;
+    }
+
+    public void setPostWrapperList(List<RedditPostWrapper> postWrapperList) {
+        this.postWrapperList = postWrapperList;
     }
 
     /*

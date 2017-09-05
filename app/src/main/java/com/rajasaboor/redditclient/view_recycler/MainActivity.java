@@ -1,31 +1,21 @@
 package com.rajasaboor.redditclient.view_recycler;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.annotation.StringRes;
-import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.rajasaboor.redditclient.BuildConfig;
-import com.rajasaboor.redditclient.DetailActivity;
+import com.rajasaboor.redditclient.detail_post.DetailActivity;
 import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.adapter.ItemsAdapter;
 import com.rajasaboor.redditclient.databinding.ActivityMainBinding;
 import com.rajasaboor.redditclient.fragments.DetailsFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
-import com.rajasaboor.redditclient.retrofit.RetrofitController;
-import com.rajasaboor.redditclient.util.Util;
 
 import java.util.ArrayList;
 import java.util.List;

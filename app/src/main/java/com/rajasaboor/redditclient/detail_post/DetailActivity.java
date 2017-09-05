@@ -1,6 +1,5 @@
-package com.rajasaboor.redditclient;
+package com.rajasaboor.redditclient.detail_post;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.PersistableBundle;
 import android.support.design.widget.TabLayout;
@@ -11,8 +10,9 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.rajasaboor.redditclient.BuildConfig;
+import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.appbar_layout.DetailViewPager;
-import com.rajasaboor.redditclient.fragments.PostFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.util.Util;
 

@@ -36,7 +36,8 @@ import static android.content.Context.MODE_PRIVATE;
  * Created by rajaSaboor on 8/31/2017.
  */
 
-public class ViewPostFragment extends Fragment implements ViewPostContract.View, ViewPresenter.UpdateAdapter, SwipeRefreshLayout.OnRefreshListener {
+public class ViewPostFragment extends Fragment implements ViewPostContract.View, ViewPresenter.UpdateAdapter,
+        SwipeRefreshLayout.OnRefreshListener, ItemsAdapter.IOnPostTapped {
     private static final String TAG = ViewPostFragment.class.getSimpleName();
     private MainFragmentBinding fragmentBinding = null;
     private ViewPostContract.Presenter viewPresenter = null;
@@ -72,7 +73,7 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
         super.onActivityCreated(savedInstanceState);
         settingUpTheViews();
 
-        viewPresenter.checkTheCacheAndRequestServer(savedInstanceState, (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE));
+//        viewPresenter.checkTheCacheAndRequestServer(savedInstanceState, (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE));
         Log.d(TAG, "onActivityCreated: end");
     }
 
@@ -84,7 +85,7 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
     private void setUpTheRecyclerView() {
         Log.d(TAG, "setUpTheRecyclerView: start");
         fragmentBinding.postsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        itemsAdapter = new ItemsAdapter(R.layout.post_layout, new ArrayList<RedditPostWrapper>(), (ItemsAdapter.IOnPostTapped) viewPresenter);
+        itemsAdapter = new ItemsAdapter(R.layout.post_layout, new ArrayList<RedditPostWrapper>(), this);
         fragmentBinding.postsRecyclerView.setHasFixedSize(true);
         fragmentBinding.postsRecyclerView.setAdapter(itemsAdapter);
 
@@ -106,6 +107,9 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
         int lastDownloadTime = viewPresenter.manageTheLastDownloadTime();
         updateTheActionBarSubtitles(lastDownloadTime);
         actionPerformWhileRequestingServer(lastDownloadTime);
+
+        viewPresenter.checkTheCacheAndRequestServer((ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE));
+
         Log.d(TAG, "onResume: end");
     }
 
@@ -206,11 +210,11 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
         fragmentBinding.toolbarInclude.menuProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
-
     @Override
     public void updateAdapter(List<RedditPostWrapper> redditPostWrapper) {
         Log.d(TAG, "updateAdapter: start");
-
+        Log.d(TAG, "updateAdapter: Size of list in update adapter ===> " + redditPostWrapper.size());
+        ((ViewPresenter) viewPresenter).setPostWrapperList(redditPostWrapper);
         toolbarSubtitleSetter();
         hideTheNoOfflineDataAvailableTextView(true);
         showProgressBar(false);
@@ -241,5 +245,13 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
         refreshListHandler();
         fragmentBinding.swipeLayout.setRefreshing(false);
         Log.d(TAG, "onRefresh: end");
+    }
+
+    @Override
+    public void onPostTappedListener(int position) {
+        Log.d(TAG, "onPostTappedListener: start");
+        Log.d(TAG, "onPostTappedListener: Position ===> " + position);
+        Log.d(TAG, "onPostTappedListener: Title ===> " + ((ViewPresenter) viewPresenter).getPostWrapperList().get(position).getData().getPostTitle());
+        Log.d(TAG, "onPostTappedListener: end");
     }
 }
