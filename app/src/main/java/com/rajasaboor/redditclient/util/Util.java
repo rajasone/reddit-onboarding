@@ -123,5 +123,21 @@ public class Util {
         return result;
     }
 
+    public static boolean checkConnection(ConnectivityManager manager) {
+        boolean result = false;
+        try {
+            NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+
+            if (networkInfo != null)
+                result = networkInfo.isConnected();
+        } catch (Exception e) {
+            Log.e(TAG, "checkConnection: An error happen ===> " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        Log.d(TAG, "checkConnection: Result ===> " + result);
+        return result;
+    }
+
 
 }

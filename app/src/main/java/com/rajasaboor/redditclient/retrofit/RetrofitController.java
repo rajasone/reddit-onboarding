@@ -8,7 +8,6 @@ import android.util.Log;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.rajasaboor.redditclient.BuildConfig;
-import com.rajasaboor.redditclient.MainActivity;
 import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.model.RedditRespone;
@@ -42,14 +41,10 @@ interface IRetroApi {
 
 public class RetrofitController implements Callback<RedditRespone> {
     private static final String TAG = RetrofitController.class.getSimpleName(); // Tag name for the Debug purposes
-    private static final String LAST_DOWNLOAD_MESSAGE_KEY = "download_key";
     private final IOnDownloadComplete onDownloadComplete; // An interface instance to call the listener method
-    private long lastUpdateTimeInMilliSeconds;
-    private IPublishLastDownloadTimeInToolbar downloadTimeInToolbar = null;
 
-    public RetrofitController(IOnDownloadComplete onDownloadComplete, IPublishLastDownloadTimeInToolbar downloadTimeInToolbar) {
+    public RetrofitController(IOnDownloadComplete onDownloadComplete) {
         this.onDownloadComplete = onDownloadComplete;
-        this.downloadTimeInToolbar = downloadTimeInToolbar;
     }
 
     public void start() {
@@ -69,10 +64,10 @@ public class RetrofitController implements Callback<RedditRespone> {
         Log.d(TAG, "onResponse: start");
 
         if (response.isSuccessful()) {
-            saveTheDownloadTime(); // save the download time of the response
-            manageTheLastUpdate();
+            // saveTheDownloadTime(); // save the download time of the response
+//            manageTheLastUpdate();
             if (onDownloadComplete != null) {
-                saveTheDataInSharedPrefs(response.body().getData().getChildren());
+//                saveTheDataInSharedPrefs(response.body().getData().getChildren());
                 onDownloadComplete.onDownloadCompleteListener(response.code(), response.body().getData().getChildren());
             }
         } else {
@@ -81,6 +76,7 @@ public class RetrofitController implements Callback<RedditRespone> {
         Log.d(TAG, "onResponse: end");
     }
 
+    /*
     private void saveTheDownloadTime() {
         setLastUpdateTimeInMilliSeconds(System.currentTimeMillis()); // set the current time field
         Context context = (Context) onDownloadComplete;
@@ -89,11 +85,19 @@ public class RetrofitController implements Callback<RedditRespone> {
         editor.apply();
     }
 
+    public void saveTheDownloadTime(SharedPreferences preferences) {
+        setLastUpdateTimeInMilliSeconds(System.currentTimeMillis()); // set the current time field
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putLong(BuildConfig.LAST_DOWNLOAD_TIME_KEY, getLastUpdateTimeInMilliSeconds());
+        editor.apply();
+    }
+    */
+
+    /*
     private void manageTheLastUpdate() {
         Context context = (Context) onDownloadComplete;
 
         Log.d(TAG, "manageTheLastUpdate: Fetched milli seconds ===> " + getLastUpdateTimeInMilliSeconds());
-        Log.d(TAG, "manageTheLastUpdate: Fetched milli seconds from shared prefs ===> " + getTheDownloadTimeFromSharedPrefs());
         Log.d(TAG, "manageTheLastUpdate: Current time - fetched time ===> " + (System.currentTimeMillis() - getLastUpdateTimeInMilliSeconds()));
 
         long minutes = getTimeDifferenceInMinutes();
@@ -109,11 +113,10 @@ public class RetrofitController implements Callback<RedditRespone> {
                     (minutes == 1 ? context.getResources().getString(R.string.minute) : context.getResources().getString(R.string.minutes))));
         }
     }
+    */
 
-    public void saveTheDataInSharedPrefs(List<RedditPostWrapper> postWrapperList) {
-        Context context = (Context) onDownloadComplete;
-        removeTheCacheData(context);
-        SharedPreferences.Editor editor = context.getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE).edit();
+    public void saveTheDataInSharedPrefs(List<RedditPostWrapper> postWrapperList, SharedPreferences preferences) {
+        SharedPreferences.Editor editor = preferences.edit();
         editor.putInt(BuildConfig.SIZE_OF_POST_LIST, postWrapperList.size());
         Gson gson = new Gson();
         for (int i = 0; i < postWrapperList.size(); i++) {
@@ -135,13 +138,26 @@ public class RetrofitController implements Callback<RedditRespone> {
     }
 
 
-    public List<RedditPostWrapper> getCacheDataFromSharedPrefs(Context context) {
+//    public List<RedditPostWrapper> getCacheDataFromSharedPrefs(Context context) {
+//        Log.d(TAG, "getCacheDataFromSharedPrefs: start");
+//        Gson gson = new Gson();
+//        List<RedditPostWrapper> temp = new ArrayList<>();
+//        SharedPreferences sharedPreferences = context.getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE);
+//        for (int i = 0; i < sharedPreferences.getInt(BuildConfig.SIZE_OF_POST_LIST, 0); i++)
+//            temp.add(gson.fromJson(sharedPreferences.getString(String.valueOf(i), ""), RedditPostWrapper.class));
+//
+//        Log.d(TAG, "getCacheDataFromSharedPrefs: size of temp ---> " + temp.size());
+//        Log.d(TAG, "getCacheDataFromSharedPrefs: end");
+//        return temp;
+//    }
+
+    public List<RedditPostWrapper> getCacheDataFromSharedPrefs(SharedPreferences preferences) {
         Log.d(TAG, "getCacheDataFromSharedPrefs: start");
         Gson gson = new Gson();
         List<RedditPostWrapper> temp = new ArrayList<>();
-        SharedPreferences sharedPreferences = context.getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE);
-        for (int i = 0; i < sharedPreferences.getInt(BuildConfig.SIZE_OF_POST_LIST, 0); i++)
-            temp.add(gson.fromJson(sharedPreferences.getString(String.valueOf(i), ""), RedditPostWrapper.class));
+
+        for (int i = 0; i < preferences.getInt(BuildConfig.SIZE_OF_POST_LIST, 0); i++)
+            temp.add(gson.fromJson(preferences.getString(String.valueOf(i), ""), RedditPostWrapper.class));
 
         Log.d(TAG, "getCacheDataFromSharedPrefs: size of temp ---> " + temp.size());
         Log.d(TAG, "getCacheDataFromSharedPrefs: end");
@@ -149,12 +165,13 @@ public class RetrofitController implements Callback<RedditRespone> {
     }
 
 
-    private long getTheDownloadTimeFromSharedPrefs() {
-        Context context = (Context) onDownloadComplete;
-        setLastUpdateTimeInMilliSeconds(context.getSharedPreferences(BuildConfig.LAST_DOWNLOAD_FILE_NAME, MODE_PRIVATE).getLong(BuildConfig.LAST_DOWNLOAD_TIME_KEY, System.currentTimeMillis()));
+    /*
+    private long getTheDownloadTimeFromSharedPrefs(SharedPreferences preferences) {
+        setLastUpdateTimeInMilliSeconds(preferences.getLong(BuildConfig.LAST_DOWNLOAD_TIME_KEY, System.currentTimeMillis()));
 
         return getLastUpdateTimeInMilliSeconds();
     }
+
 
 
     private void setLastUpdateTimeInMilliSeconds(long lastUpdateTimeInMilliSeconds) {
@@ -165,28 +182,21 @@ public class RetrofitController implements Callback<RedditRespone> {
         return lastUpdateTimeInMilliSeconds;
     }
 
+*/
 
-    public long getTimeDifferenceInMinutes() {
-        long timeDifference = System.currentTimeMillis() - getTheDownloadTimeFromSharedPrefs();
+    /*
+    public long getTimeDifferenceInMinutes(SharedPreferences preferences) {
+        long timeDifference = System.currentTimeMillis() - getTheDownloadTimeFromSharedPrefs(preferences);
         return TimeUnit.MILLISECONDS.toMinutes(timeDifference);
     }
+    */
 
-    public void removeTheCacheData(Context context) {
-        if (getCacheDataFromSharedPrefs(context).size() > 0) {
-            context.getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE).edit().clear().apply();
-        }
+    public void removeTheCacheData(SharedPreferences preferences) {
+        int size = getCacheDataFromSharedPrefs(preferences).size();
+        for (int i = 0; i < size; i++)
+            preferences.edit().remove(String.valueOf(i)).apply();
     }
-
-    /*
-    * An interface which sets the toolbar subtitle
-     */
-    public interface IPublishLastDownloadTimeInToolbar {
-        void setMessageToToolbar(String message);
-
-        void setMessageToToolbar(@StringRes int message);
-    }
-
-    /*
+        /*
     * An interface which sends the download result back to the Caller who request the data in this case its MainActivity
      */
 

@@ -23,15 +23,16 @@ import java.util.List;
  */
 
 public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder> {
-    private List<RedditPostWrapper> postWrapperList = null; // Data ource which is assigned to this by constructor or setter method
+    private static final String TAG = ItemsAdapter.class.getSimpleName();
+    private List<RedditPostWrapper> postWrapperList = null; // Data source which is assigned to this by constructor or setter method
     private int layoutResource; // Layout address which will be inflate by this class
     private ItemsAdapter.IOnPostTapped onPostTapped = null;
+
 
     public ItemsAdapter(@LayoutRes int layoutResource, List<RedditPostWrapper> postWrapperList, ItemsAdapter.IOnPostTapped onPostTapped) {
         this.layoutResource = layoutResource;
         this.postWrapperList = postWrapperList;
         this.onPostTapped = onPostTapped;
-
     }
 
     /*

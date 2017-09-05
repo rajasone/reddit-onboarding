@@ -1,21 +1,15 @@
 package com.rajasaboor.redditclient;
 
 import android.content.pm.ActivityInfo;
-import android.support.test.espresso.Espresso;
-import android.support.test.espresso.matcher.ViewMatchers;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
 
 import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.retrofit.RetrofitController;
+import com.rajasaboor.redditclient.view_recycler.MainActivity;
 import com.schibsted.spain.barista.BaristaAssertions;
-import com.schibsted.spain.barista.BaristaClickActions;
-import com.schibsted.spain.barista.BaristaDialogActions;
-import com.schibsted.spain.barista.BaristaMenuClickActions;
 import com.schibsted.spain.barista.BaristaRecyclerViewActions;
 import com.schibsted.spain.barista.BaristaRule;
-import com.schibsted.spain.barista.BaristaViewPagerActions;
 
 import junit.framework.Assert;
 
@@ -31,9 +25,6 @@ import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.action.ViewActions.click;
 import static android.support.test.espresso.action.ViewActions.swipeLeft;
 import static android.support.test.espresso.action.ViewActions.swipeRight;
-import static android.support.test.espresso.assertion.ViewAssertions.matches;
-import static android.support.test.espresso.matcher.RootMatchers.isDialog;
-import static android.support.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static android.support.test.espresso.matcher.ViewMatchers.withText;
 import static com.schibsted.spain.barista.BaristaSleepActions.sleep;
@@ -113,7 +104,7 @@ public class BaristaTesting {
 
     @Test
     public void noInternetAndNoSavedData() {
-        controller.removeTheCacheData(mainActivity);
+//        controller.removeTheCacheData(mainActivity);
         Log.d(TAG, "noInternetAndNoSavedData: Size of shared PRefs ===> " + controller.getCacheDataFromSharedPrefs(mainActivity).size());
         Assert.assertFalse(controller.getCacheDataFromSharedPrefs(mainActivity).size() > 0);
     }

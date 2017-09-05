@@ -8,7 +8,7 @@
         android:layout_height="match_parent"
         android:orientation="vertical"
         android:weightSum="10"
-        tools:context="com.rajasaboor.redditclient.MainActivity">
+        tools:context="com.rajasaboor.redditclient.view_recycler.MainActivity">
 
         <include
             android:id="@+id/toolbar_include"
