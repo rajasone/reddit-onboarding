@@ -1,6 +1,8 @@
 package com.rajasaboor.redditclient.adapter;
 
+import android.content.Context;
 import android.databinding.DataBindingUtil;
+import android.net.ConnectivityManager;
 import android.support.annotation.LayoutRes;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -81,7 +83,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemsViewHol
         public void onClick(View view) {
             switch (view.getId()) {
                 case R.id.post_parent_layout:
-                    if ((onPostTapped != null) && (Util.checkConnection(view.getContext()))) {
+                    if ((onPostTapped != null) && (Util.checkConnection((ConnectivityManager) view.getContext().getSystemService(Context.CONNECTIVITY_SERVICE)))) {
                         Log.d(TAG, "onClick: Sending the call to the interface");
                         onPostTapped.onPostTappedListener(getAdapterPosition());
                     } else {

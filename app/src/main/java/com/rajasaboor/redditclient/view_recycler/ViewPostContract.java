@@ -25,7 +25,6 @@ interface ViewPostContract {
 
         void showToast(String message);
 
-        void showToast(@StringRes int message);
 
         void showProgressBar(boolean show);
     }

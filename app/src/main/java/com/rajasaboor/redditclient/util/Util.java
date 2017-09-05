@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -48,13 +49,12 @@ public class Util {
         Log.d(TAG, "printList: end");
     }
 
-    public static void displayErrorDialog(Context context, String errorMessage, boolean isCancelAble) {
+    public static void displayErrorDialog(AlertDialog.Builder errorDialog, String errorMessage, boolean isCancelAble) {
         Log.d(TAG, "displayErrorDialog: start");
-        AlertDialog.Builder errorDialog = new AlertDialog.Builder(context)
-                .setTitle(context.getResources().getString(R.string.error_alert_dialog_title))
+        errorDialog.setTitle(Resources.getSystem().getString(R.string.error_alert_dialog_title))
                 .setCancelable(isCancelAble)
                 .setMessage(errorMessage)
-                .setNegativeButton(context.getResources().getString(R.string.error_dialog_button), new DialogInterface.OnClickListener() {
+                .setNegativeButton(Resources.getSystem().getString(R.string.error_dialog_button), new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         Log.d(TAG, "onClick: Dismiss the dialog");
@@ -106,22 +106,6 @@ public class Util {
     /*
     * This method return TRUE if there is a connection with the internet
      */
-    public static boolean checkConnection(Context context) {
-        boolean result = false;
-        try {
-            ConnectivityManager manager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo networkInfo = manager.getActiveNetworkInfo();
-
-            if (networkInfo != null)
-                result = networkInfo.isConnected();
-        } catch (Exception e) {
-            Log.e(TAG, "checkConnection: An error happen ===> " + e.getMessage());
-            e.printStackTrace();
-        }
-
-        Log.d(TAG, "checkConnection: Result ===> " + result);
-        return result;
-    }
 
     public static boolean checkConnection(ConnectivityManager manager) {
         boolean result = false;

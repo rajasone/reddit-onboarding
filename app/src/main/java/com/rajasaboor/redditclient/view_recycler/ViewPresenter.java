@@ -5,6 +5,7 @@ import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.annotation.StringRes;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import com.rajasaboor.redditclient.BuildConfig;
@@ -21,13 +22,13 @@ import java.util.concurrent.TimeUnit;
  * Created by rajaSaboor on 9/4/2017.
  */
 
-public class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IOnDownloadComplete, ItemsAdapter.IOnPostTapped {
+class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IOnDownloadComplete, ItemsAdapter.IOnPostTapped {
     private static final String TAG = ViewPresenter.class.getSimpleName();
     private RetrofitController controller = null;
     private UpdateAdapter updateAdaper = null;
     private SharedPreferences preferences = null;
 
-    public ViewPresenter(UpdateAdapter saveDataInSharedPrefs, SharedPreferences preferences) {
+    ViewPresenter(UpdateAdapter saveDataInSharedPrefs, SharedPreferences preferences) {
         controller = new RetrofitController(this);
         this.updateAdaper = saveDataInSharedPrefs;
         this.preferences = preferences;
@@ -42,11 +43,17 @@ public class ViewPresenter implements ViewPostContract.Presenter, RetrofitContro
     public void onDownloadCompleteListener(int responseCode, List<RedditPostWrapper> postsList) {
         Log.d(TAG, "onDownloadCompleteListener: start");
         Log.d(TAG, "onDownloadCompleteListener: Response code ===> " + responseCode);
-        saveDownloadTimeHelper(); // save the current time in shared prefs
-        updateAdaper.updateAdapter(postsList); // call back in the fragment and update the recycler view
-        removeDataFromCache(preferences); // remove the existing data from the cache
-        saveDownloadDataInCache(postsList); // save the new download data in shared prefs
-        // Util.printList(postsList); // print the list for debug purpose
+
+        if (responseCode == BuildConfig.OK_RESPONSE_CODE) {
+            saveDownloadTimeHelper(); // save the current time in shared prefs
+            updateAdaper.updateAdapter(postsList); // call back in the fragment and update the recycler view
+            removeDataFromCache(preferences); // remove the existing data from the cache
+            saveDownloadDataInCache(postsList); // save the new download data in shared prefs
+            // Util.printList(postsList); // print the list for debug purpose
+        } else {
+            // TODO: 9/5/2017 display an error dialog call a method from util class CONTEXT problem
+//            Util.displayErrorDialog(new AlertDialog.Builder(this));
+        }
         Log.d(TAG, "onDownloadCompleteListener: end");
     }
 
@@ -84,17 +91,6 @@ public class ViewPresenter implements ViewPostContract.Presenter, RetrofitContro
     }
 
     private long getTimeDifferenceInMinutes() {
-        /*
-        Log.e(TAG, "getTimeDifferenceInMinutes: Is Contains ===>" + (preferences.contains(BuildConfig.LAST_DOWNLOAD_TIME_KEY)));
-        long timeDifference = (System.currentTimeMillis()) - (preferences.getLong(BuildConfig.LAST_DOWNLOAD_TIME_KEY, System.currentTimeMillis()));
-        long temp = preferences.getLong(BuildConfig.LAST_DOWNLOAD_TIME_KEY, 0L);
-
-        Log.d(TAG, "getTimeDifferenceInMinutes: Time Fetched From preferences ===> " + temp);
-        Log.d(TAG, "getTimeDifferenceInMinutes: Current Time ===> " + System.currentTimeMillis());
-        Log.d(TAG, "getTimeDifferenceInMinutes: Time diff in milis ===> " + timeDifference);
-        Log.d(TAG, "getTimeDifferenceInMinutes: Time diff in minutes ===> " + TimeUnit.MILLISECONDS.toMinutes(timeDifference));
-        return TimeUnit.MILLISECONDS.toMinutes(timeDifference);
-*/
         long timeDifference = (System.currentTimeMillis()) - (preferences.getLong(BuildConfig.LAST_DOWNLOAD_TIME_KEY, System.currentTimeMillis()));
         return TimeUnit.MILLISECONDS.toMinutes(timeDifference);
     }
@@ -114,11 +110,7 @@ public class ViewPresenter implements ViewPostContract.Presenter, RetrofitContro
     }
 
     private void saveDownloadTimeHelper() {
-        long downloadTime = System.currentTimeMillis(); // set the current time field
-//        Log.d(TAG, "saveDownloadTimeHelper: Time to save ===> " + downloadTime);
-//        Log.d(TAG, "saveDownloadTimeHelper: Time to save current time ===> " + System.currentTimeMillis());
         preferences.edit().putLong(BuildConfig.LAST_DOWNLOAD_TIME_KEY, System.currentTimeMillis()).apply();
-//        Log.d(TAG, "saveDownloadTimeHelper: Saved Time ===> " + preferences.getLong(BuildConfig.LAST_DOWNLOAD_TIME_KEY, 0L));
     }
 
     /*

@@ -202,11 +202,6 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
     }
 
     @Override
-    public void showToast(@StringRes int message) {
-
-    }
-
-    @Override
     public void showProgressBar(boolean show) {
         fragmentBinding.toolbarInclude.menuProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }

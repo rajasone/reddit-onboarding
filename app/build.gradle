@@ -20,6 +20,7 @@ android {
         buildConfigField "String", "POST_LOADING_STATUS", '"post_loading"'
         buildConfigField "String", "POST_TAB_KEY", '"key"'
         buildConfigField "Integer", "ERROR_RESPONSE_CODE", '404'
+        buildConfigField "Integer", "OK_RESPONSE_CODE", '200'
     }
 
     dataBinding{

@@ -3,6 +3,7 @@ package com.rajasaboor.redditclient.retrofit;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.StringRes;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -64,11 +65,8 @@ public class RetrofitController implements Callback<RedditRespone> {
         Log.d(TAG, "onResponse: start");
 
         if (response.isSuccessful()) {
-            // saveTheDownloadTime(); // save the download time of the response
-//            manageTheLastUpdate();
             if (onDownloadComplete != null) {
-//                saveTheDataInSharedPrefs(response.body().getData().getChildren());
-                onDownloadComplete.onDownloadCompleteListener(response.code(), response.body().getData().getChildren());
+                onDownloadComplete.onDownloadCompleteListener(BuildConfig.OK_RESPONSE_CODE, response.body().getData().getChildren());
             }
         } else {
             Log.e(TAG, "onResponse: error ===> " + response.errorBody() + " code ===> " + response.code());
@@ -76,48 +74,8 @@ public class RetrofitController implements Callback<RedditRespone> {
         Log.d(TAG, "onResponse: end");
     }
 
-    /*
-    private void saveTheDownloadTime() {
-        setLastUpdateTimeInMilliSeconds(System.currentTimeMillis()); // set the current time field
-        Context context = (Context) onDownloadComplete;
-        SharedPreferences.Editor editor = context.getSharedPreferences(BuildConfig.LAST_DOWNLOAD_FILE_NAME, MODE_PRIVATE).edit();
-        editor.putLong(BuildConfig.LAST_DOWNLOAD_TIME_KEY, getLastUpdateTimeInMilliSeconds());
-        editor.apply();
-    }
-
-    public void saveTheDownloadTime(SharedPreferences preferences) {
-        setLastUpdateTimeInMilliSeconds(System.currentTimeMillis()); // set the current time field
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putLong(BuildConfig.LAST_DOWNLOAD_TIME_KEY, getLastUpdateTimeInMilliSeconds());
-        editor.apply();
-    }
-    */
-
-    /*
-    private void manageTheLastUpdate() {
-        Context context = (Context) onDownloadComplete;
-
-        Log.d(TAG, "manageTheLastUpdate: Fetched milli seconds ===> " + getLastUpdateTimeInMilliSeconds());
-        Log.d(TAG, "manageTheLastUpdate: Current time - fetched time ===> " + (System.currentTimeMillis() - getLastUpdateTimeInMilliSeconds()));
-
-        long minutes = getTimeDifferenceInMinutes();
-
-        Log.d(TAG, "manageTheLastUpdate: Time in minutes ===> " + minutes);
-
-        if (minutes >= 0 && minutes < 1) {
-            downloadTimeInToolbar.setMessageToToolbar(R.string.update_message_less_then_minute);
-            Log.d(TAG, "manageTheLastUpdate: less than a minute ago");
-        } else {
-            Log.d(TAG, "manageTheLastUpdate: In ELSE");
-            downloadTimeInToolbar.setMessageToToolbar(String.format(context.getResources().getString(R.string.update_message_more_than_minute), minutes,
-                    (minutes == 1 ? context.getResources().getString(R.string.minute) : context.getResources().getString(R.string.minutes))));
-        }
-    }
-    */
-
     public void saveTheDataInSharedPrefs(List<RedditPostWrapper> postWrapperList, SharedPreferences preferences) {
         SharedPreferences.Editor editor = preferences.edit();
-        editor.putInt(BuildConfig.SIZE_OF_POST_LIST, postWrapperList.size());
         Gson gson = new Gson();
         for (int i = 0; i < postWrapperList.size(); i++) {
             editor.putString(Integer.toString(i), gson.toJson(postWrapperList.get(i)));
@@ -131,25 +89,11 @@ public class RetrofitController implements Callback<RedditRespone> {
         Log.d(TAG, "onFailure: start");
         t.printStackTrace();
         if (onDownloadComplete != null) {
-            Util.displayErrorDialog((Context) onDownloadComplete, (((Context) onDownloadComplete).getResources().getString(R.string.no_internet_connection)), false);
             onDownloadComplete.onDownloadCompleteListener(BuildConfig.ERROR_RESPONSE_CODE, null);
         }
         Log.d(TAG, "onFailure: end");
     }
 
-
-//    public List<RedditPostWrapper> getCacheDataFromSharedPrefs(Context context) {
-//        Log.d(TAG, "getCacheDataFromSharedPrefs: start");
-//        Gson gson = new Gson();
-//        List<RedditPostWrapper> temp = new ArrayList<>();
-//        SharedPreferences sharedPreferences = context.getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE);
-//        for (int i = 0; i < sharedPreferences.getInt(BuildConfig.SIZE_OF_POST_LIST, 0); i++)
-//            temp.add(gson.fromJson(sharedPreferences.getString(String.valueOf(i), ""), RedditPostWrapper.class));
-//
-//        Log.d(TAG, "getCacheDataFromSharedPrefs: size of temp ---> " + temp.size());
-//        Log.d(TAG, "getCacheDataFromSharedPrefs: end");
-//        return temp;
-//    }
 
     public List<RedditPostWrapper> getCacheDataFromSharedPrefs(SharedPreferences preferences) {
         Log.d(TAG, "getCacheDataFromSharedPrefs: start");
@@ -163,33 +107,6 @@ public class RetrofitController implements Callback<RedditRespone> {
         Log.d(TAG, "getCacheDataFromSharedPrefs: end");
         return temp;
     }
-
-
-    /*
-    private long getTheDownloadTimeFromSharedPrefs(SharedPreferences preferences) {
-        setLastUpdateTimeInMilliSeconds(preferences.getLong(BuildConfig.LAST_DOWNLOAD_TIME_KEY, System.currentTimeMillis()));
-
-        return getLastUpdateTimeInMilliSeconds();
-    }
-
-
-
-    private void setLastUpdateTimeInMilliSeconds(long lastUpdateTimeInMilliSeconds) {
-        this.lastUpdateTimeInMilliSeconds = lastUpdateTimeInMilliSeconds;
-    }
-
-    private long getLastUpdateTimeInMilliSeconds() {
-        return lastUpdateTimeInMilliSeconds;
-    }
-
-*/
-
-    /*
-    public long getTimeDifferenceInMinutes(SharedPreferences preferences) {
-        long timeDifference = System.currentTimeMillis() - getTheDownloadTimeFromSharedPrefs(preferences);
-        return TimeUnit.MILLISECONDS.toMinutes(timeDifference);
-    }
-    */
 
     public void removeTheCacheData(SharedPreferences preferences) {
         int size = getCacheDataFromSharedPrefs(preferences).size();
