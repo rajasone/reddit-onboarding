@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
@@ -79,7 +80,6 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
     }
 
     private void settingUpTheViews() {
-        setUpTheToolbar();
         setUpTheRecyclerView();
     }
 
@@ -95,20 +95,14 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
         Log.d(TAG, "setUpTheRecyclerView: end");
     }
 
-    private void setUpTheToolbar() {
-        Log.d(TAG, "setUpTheToolbar: start");
-        ((AppCompatActivity) getActivity()).setSupportActionBar(fragmentBinding.toolbarInclude.customToolbar);
-        Log.d(TAG, "setUpTheToolbar: end");
-    }
-
     @Override
     public void onResume() {
         Log.d(TAG, "onResume: start");
         super.onResume();
+
         int lastDownloadTime = viewPresenter.manageTheLastDownloadTime();
         updateTheActionBarSubtitles(lastDownloadTime);
         actionPerformWhileRequestingServer(lastDownloadTime);
-
         viewPresenter.checkTheCacheAndRequestServer((ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE));
 
         Log.d(TAG, "onResume: end");
@@ -120,11 +114,11 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
             Log.d(TAG, "actionPerformWhileRequestingServer: Requesting the call to server");
             refreshListHandler();
         }
-
         Log.d(TAG, "actionPerformWhileRequestingServer: end");
     }
 
     public void setViewPresenter(ViewPostContract.Presenter viewPresenter) {
+        Log.d(TAG, "setViewPresenter: Setting the presenter");
         this.viewPresenter = viewPresenter;
     }
 
@@ -171,16 +165,22 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
             return;
         }
 
+        ActionBar temp = ((AppCompatActivity) getActivity()).getSupportActionBar();
+        if (temp == null) {
+            Log.e(TAG, "updateTheActionBarSubtitles: Action bar is NULL");
+            return;
+        }
+
         if (downloadTime == 0) {
             Log.d(TAG, "updateTheActionBarSubtitles: In 0");
-            fragmentBinding.toolbarInclude.customToolbar.setSubtitle(getString(R.string.update_message_less_then_minute));
+            temp.setSubtitle(getString(R.string.update_message_less_then_minute));
         } else if (downloadTime >= 1 && downloadTime < 5) {
             Log.d(TAG, "updateTheActionBarSubtitles: >=1 && < 5");
-            fragmentBinding.toolbarInclude.customToolbar.setSubtitle(String.format(getResources().getString(R.string.update_message_more_than_minute), downloadTime,
+            temp.setSubtitle(String.format(getResources().getString(R.string.update_message_more_than_minute), downloadTime,
                     (downloadTime == 1 ? getResources().getString(R.string.minute) : getResources().getString(R.string.minutes))));
         } else {
             Log.d(TAG, "updateTheActionBarSubtitles: >5");
-            fragmentBinding.toolbarInclude.customToolbar.setSubtitle(String.format(getResources().getString(R.string.update_message_more_than_minute), downloadTime,
+            temp.setSubtitle(String.format(getResources().getString(R.string.update_message_more_than_minute), downloadTime,
                     (downloadTime >= 5 ? getResources().getString(R.string.minute) : getResources().getString(R.string.minutes))));
         }
 
@@ -208,7 +208,8 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
 
     @Override
     public void showProgressBar(boolean show) {
-        fragmentBinding.toolbarInclude.menuProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+        ((ViewActivity) getActivity()).showProgressBar(show);
+//        fragmentBinding.toolbarInclude.menuProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     @Override

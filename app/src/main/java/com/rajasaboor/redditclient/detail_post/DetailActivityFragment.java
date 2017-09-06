@@ -18,6 +18,7 @@ import android.view.ViewGroup;
 import com.rajasaboor.redditclient.BuildConfig;
 import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.appbar_layout.DetailViewPager;
+import com.rajasaboor.redditclient.databinding.ActivityDetailBinding;
 import com.rajasaboor.redditclient.databinding.DetailFragmentLayoutBinding;
 import com.rajasaboor.redditclient.model.RedditPost;
 
@@ -29,6 +30,7 @@ public class DetailActivityFragment extends Fragment implements DetailPostContra
     private static final String TAG = DetailActivityFragment.class.getSimpleName();
     private DetailFragmentLayoutBinding detailFragmentLayoutBinding = null;
     private DetailPostContract.Presenter presenter = null;
+
     public static DetailActivityFragment newInstance() {
         return new DetailActivityFragment();
     }
@@ -40,7 +42,6 @@ public class DetailActivityFragment extends Fragment implements DetailPostContra
         detailFragmentLayoutBinding = DataBindingUtil.inflate(inflater, R.layout.detail_fragment_layout, container, false);
         setHasOptionsMenu(true);
 
-        initToolbar();
         setUpViewPager();
         Log.d(TAG, "onCreateView: end");
         return detailFragmentLayoutBinding.getRoot();
@@ -64,13 +65,6 @@ public class DetailActivityFragment extends Fragment implements DetailPostContra
         }
         Log.d(TAG, "onOptionsItemSelected: end");
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void initToolbar() {
-        ((AppCompatActivity) getActivity()).setSupportActionBar(detailFragmentLayoutBinding.detailToolbar.customToolbar);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(((DetailPresenter) presenter).getPost().getPostTitle());
     }
 
     @Override

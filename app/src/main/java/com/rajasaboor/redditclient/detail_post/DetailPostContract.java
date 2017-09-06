@@ -8,7 +8,6 @@ import com.rajasaboor.redditclient.model.RedditPost;
 
 public interface DetailPostContract {
     interface View {
-        void initToolbar();
 
         void setUpViewPager();
 

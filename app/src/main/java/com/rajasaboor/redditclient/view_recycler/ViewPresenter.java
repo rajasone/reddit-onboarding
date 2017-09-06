@@ -2,14 +2,9 @@ package com.rajasaboor.redditclient.view_recycler;
 
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
-import android.os.Bundle;
-import android.support.annotation.StringRes;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 
 import com.rajasaboor.redditclient.BuildConfig;
-import com.rajasaboor.redditclient.adapter.ItemsAdapter;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.retrofit.RetrofitController;
 import com.rajasaboor.redditclient.util.Util;
@@ -76,11 +71,11 @@ class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IO
     @Override
     public void checkTheCacheAndRequestServer(ConnectivityManager manager) {
         Log.d(TAG, "checkTheCacheAndRequestServer: start");
-        if (preferences.getString(MainActivity.KEY_TO_CHECK_DATA, null) != null) {
+        if (preferences.getString(ViewActivity.KEY_TO_CHECK_DATA, null) != null) {
             postWrapperList = getCacheData(preferences);
-            Util.printList(postWrapperList);
+           // Util.printList(postWrapperList);
             updateAdaper.updateAdapter(postWrapperList);
-        } else if ((preferences.getString(MainActivity.KEY_TO_CHECK_DATA, null) == null) && (Util.checkConnection(manager))) {
+        } else if ((preferences.getString(ViewActivity.KEY_TO_CHECK_DATA, null) == null) && (Util.checkConnection(manager))) {
             controller.start();
         }
         Log.d(TAG, "checkTheCacheAndRequestServer: end");

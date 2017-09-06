@@ -3,6 +3,7 @@ package com.rajasaboor.redditclient.view_recycler;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -21,16 +22,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class MainActivity extends AppCompatActivity implements ItemsAdapter.IOnPostTapped {
-    private static final String TAG = MainActivity.class.getSimpleName(); // Tag name for the Debug purposes
+public class ViewActivity extends AppCompatActivity implements ItemsAdapter.IOnPostTapped {
+    private static final String TAG = ViewActivity.class.getSimpleName(); // Tag name for the Debug purposes
     private List<RedditPostWrapper> postWrapperList = new ArrayList<>();
     private RedditPost selectedPost; // A post which is selected in the landscape layout
     private DetailsFragment detailsFragmentInTablet;  // instance of detail fragment to hide or show the toolbar and set view pager adapter and used to know the current mode either Tablet/Phone
 
-    // Some Global constants which are used by the MainActivity ONLY
+    // Some Global constants which are used by the ViewActivity ONLY
     public static final String KEY_TO_CHECK_DATA = "1";
     public static String CURRENT_SELECTED_OBJECT = "current_object";
-
     private ActivityMainBinding mainBinding = null;
 
     @Override
@@ -38,24 +38,29 @@ public class MainActivity extends AppCompatActivity implements ItemsAdapter.IOnP
         Log.d(TAG, "onCreate: start");
         super.onCreate(savedInstanceState);
         mainBinding = DataBindingUtil.setContentView(this, R.layout.activity_main);
+        setSupportActionBar(mainBinding.toolbarInclude.customToolbar);
 
-        // adding the fragment to the ActivityMain
-        ViewPostFragment viewPostFragment = ViewPostFragment.newInstance();
-        viewPostFragment.setViewPresenter(new ViewPresenter(viewPostFragment, getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE)));
-        getSupportFragmentManager().beginTransaction().add(R.id.main_fragment_container, viewPostFragment).commit();
+
+        ViewPostFragment viewPostFragment = (ViewPostFragment) getSupportFragmentManager().findFragmentById(R.id.main_fragment_container);
+        if (viewPostFragment == null) {
+            viewPostFragment = ViewPostFragment.newInstance();
+            getSupportFragmentManager().beginTransaction().add(R.id.main_fragment_container, viewPostFragment).commit();
+        }
+        ViewPresenter presenter = new ViewPresenter(viewPostFragment, getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE));
+        viewPostFragment.setViewPresenter(presenter);
+
+        if (mainBinding.detailFragmentContainer != null) {
+            DetailsFragment detailsFragment = DetailsFragment.newInstance();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.detail_fragment_container, detailsFragment)
+                    .commit();
+        }
 
         Log.d(TAG, "onCreate: end");
     }
 
-    private void initViews() {
-        detailsFragmentInTablet = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.details_fragment);
-    }
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        Log.d(TAG, "onSaveInstanceState: start");
-        super.onSaveInstanceState(outState);
-        Log.d(TAG, "onSaveInstanceState: end");
+    public void showProgressBar(boolean show) {
+        mainBinding.toolbarInclude.menuProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
 
@@ -106,26 +111,6 @@ public class MainActivity extends AppCompatActivity implements ItemsAdapter.IOnP
     }
 
 
-    @Override
-    protected void onResume() {
-        Log.d(TAG, "onResume: start");
-        super.onResume();
-        Log.d(TAG, "onResume: end");
-    }
-
-
-    private void showNoOfflineDataTextView(boolean show) {
-        mainBinding.noOfflineDataTextView.setVisibility(show ? View.VISIBLE : View.GONE);
-    }
-
-
-    public void setPostWrapperList(List<RedditPostWrapper> postWrapperList) {
-        Log.d(TAG, "setPostWrapperList: start");
-        this.postWrapperList = postWrapperList;
-        Log.d(TAG, "setPostWrapperList: end");
-
-    }
-
     public List<RedditPostWrapper> getPostWrapperList() {
         return postWrapperList;
     }
@@ -162,7 +147,7 @@ public class MainActivity extends AppCompatActivity implements ItemsAdapter.IOnP
      */
     private void saveTheCurrentPostInSharedPrefs() {
         if (getSelectedPost() != null) {
-            getSharedPreferences(MainActivity.CURRENT_SELECTED_OBJECT, MODE_PRIVATE).edit().putString(MainActivity.CURRENT_SELECTED_OBJECT, new Gson().toJson(getSelectedPost())).apply();
+            getSharedPreferences(ViewActivity.CURRENT_SELECTED_OBJECT, MODE_PRIVATE).edit().putString(ViewActivity.CURRENT_SELECTED_OBJECT, new Gson().toJson(getSelectedPost())).apply();
         } else {
             Log.e(TAG, "saveTheCurrentPostInSharedPrefs: Post is NULL");
         }
@@ -172,6 +157,6 @@ public class MainActivity extends AppCompatActivity implements ItemsAdapter.IOnP
     * Get the post which is selected by the user in landscape mode from the shared prefs IF ANY EXISTS
      */
     private RedditPost getCurrentPostFromSharedPrefs() {
-        return new Gson().fromJson(getSharedPreferences(MainActivity.CURRENT_SELECTED_OBJECT, MODE_PRIVATE).getString(MainActivity.CURRENT_SELECTED_OBJECT, null), RedditPost.class);
+        return new Gson().fromJson(getSharedPreferences(ViewActivity.CURRENT_SELECTED_OBJECT, MODE_PRIVATE).getString(ViewActivity.CURRENT_SELECTED_OBJECT, null), RedditPost.class);
     }
 }

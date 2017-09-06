@@ -9,12 +9,11 @@ import android.util.Log;
 import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.retrofit.RetrofitController;
-import com.rajasaboor.redditclient.view_recycler.MainActivity;
+import com.rajasaboor.redditclient.view_recycler.ViewActivity;
 
 import static android.support.test.espresso.Espresso.onView;
 import static android.support.test.espresso.assertion.ViewAssertions.matches;
 import static android.support.test.espresso.matcher.ViewMatchers.hasDescendant;
-import static org.junit.Assert.*;
 
 
 import static android.support.test.espresso.action.ViewActions.click;
@@ -66,16 +65,17 @@ public class MainActivityTesting {
     }
 
     @Rule
-    public ActivityTestRule<MainActivity> myRule = new ActivityTestRule<MainActivity>(MainActivity.class, true, true);
-    private MainActivity mainActivity = null;
+    public ActivityTestRule<ViewActivity> myRule = new ActivityTestRule<ViewActivity>(ViewActivity.class, true, true);
+    private ViewActivity viewActivity = null;
 
+    /*
     @Before
     public void beforeMethod() {
         Log.d(TAG, "beforeMethod: Start");
-        mainActivity = myRule.getActivity();
+        viewActivity = myRule.getActivity();
         callingTheCallBackToSetTheMockData(); // calling this method to save the data in main activity list
-        controller = new RetrofitController(mainActivity, mainActivity);
-//        controller.saveTheDataInSharedPrefs(mainActivity.getPostWrapperList()); // saving the mock data in cache
+        controller = new RetrofitController(viewActivity, viewActivity);
+//        controller.saveTheDataInSharedPrefs(viewActivity.getPostWrapperList()); // saving the mock data in cache
         Log.d(TAG, "beforeMethod: end");
     }
 
@@ -86,7 +86,7 @@ public class MainActivityTesting {
 
                 @Override
                 public void run() {
-                    mainActivity.onDownloadCompleteListener(200, MainActivityTesting.MOCK_DATA);
+                    viewActivity.onDownloadCompleteListener(200, MainActivityTesting.MOCK_DATA);
                 }
             });
         } catch (Throwable throwable) {
@@ -118,9 +118,9 @@ public class MainActivityTesting {
     @Test
     public void noInternetConnectionAndNoSavedData() {
         Log.d(TAG, "noInternetConnectionAndNoSavedData: start");
-//        controller.removeTheCacheData(mainActivity);
-//        Log.d(TAG, "noInternetConnectionAndNoSavedData: Cache Size ===> " + controller.getCacheDataFromSharedPrefs(mainActivity).size());
-//        assertFalse(controller.getCacheDataFromSharedPrefs(mainActivity).size() != 0);
+//        controller.removeTheCacheData(viewActivity);
+//        Log.d(TAG, "noInternetConnectionAndNoSavedData: Cache Size ===> " + controller.getCacheDataFromSharedPrefs(viewActivity).size());
+//        assertFalse(controller.getCacheDataFromSharedPrefs(viewActivity).size() != 0);
         Log.d(TAG, "noInternetConnectionAndNoSavedData: end");
     }
 
@@ -148,11 +148,11 @@ public class MainActivityTesting {
     }
 
     private void rotateDeviceToLandscape() {
-        mainActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        viewActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
     }
 
     private void rotateDeviceToPortrait() {
-        mainActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        viewActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
     }
 
     @After
@@ -160,6 +160,7 @@ public class MainActivityTesting {
         Log.d(TAG, "afterMethod: start");
         Log.d(TAG, "afterMethod: end");
     }
+    */
 }
 
 

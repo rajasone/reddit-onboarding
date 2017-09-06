@@ -20,23 +20,36 @@ import com.rajasaboor.redditclient.util.Util;
 
 public class DetailActivity extends AppCompatActivity {
     private static final String TAG = DetailActivity.class.getSimpleName();
-
+    private ActivityDetailBinding detailBinding = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate: start");
         super.onCreate(savedInstanceState);
-        ActivityDetailBinding detailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
+        detailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
 
-        DetailActivityFragment detailActivityFragment = DetailActivityFragment.newInstance();
-        if (getIntent().getExtras().getParcelable(BuildConfig.INDIVIDUAL_POST_ITEM_KEY) != null) {
-            Log.d(TAG, "onCreate: Have the POST");
-            detailActivityFragment.setPresenter(new DetailPresenter((RedditPost) getIntent().getExtras().getParcelable(BuildConfig.INDIVIDUAL_POST_ITEM_KEY)));
+        setSupportActionBar(detailBinding.detailToolbar.customToolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
+        DetailActivityFragment detailActivityFragment = (DetailActivityFragment) getSupportFragmentManager().findFragmentById(R.id.detail_fragment_container);
+        if (detailActivityFragment == null) {
+            detailActivityFragment = DetailActivityFragment.newInstance();
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.detail_fragment_container, detailActivityFragment).commit();
-        } else {
-            Log.e(TAG, "onCreate: NULL");
         }
+
+        getSupportActionBar().setTitle(getParcelableFromBundle().getPostTitle());
+        detailActivityFragment.setPresenter(new DetailPresenter(getParcelableFromBundle()));
         Log.d(TAG, "onCreate: end");
+    }
+
+    private RedditPost getParcelableFromBundle() {
+        RedditPost post = getIntent().getExtras().getParcelable(BuildConfig.INDIVIDUAL_POST_ITEM_KEY);
+
+        if (post != null) {
+            return post;
+        } else {
+            throw new IllegalStateException("Something is wrong post is null");
+        }
     }
 }

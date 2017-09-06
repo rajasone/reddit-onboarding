@@ -26,6 +26,10 @@ public class DetailsFragment extends Fragment {
     private RedditPost post;
     private DetailFragmentLayoutBinding layoutBinding = null;
 
+    public static DetailsFragment newInstance() {
+        return new DetailsFragment();
+    }
+
     public DetailsFragment() {
         Log.d(TAG, "DetailsFragment: start/end");
     }

@@ -31,7 +31,7 @@ import static android.content.Context.MODE_PRIVATE;
 /**
  * Created by default on 8/2/2017.
  * A connection class which connects to the internet and download the raw data from the {@link BuildConfig} and when the download is complete without any exception
- * a call back method is invoke which sends the response back to the caller (in this case caller in MainActivity)
+ * a call back method is invoke which sends the response back to the caller (in this case caller in ViewActivity)
  */
 
 interface IRetroApi {
@@ -115,7 +115,7 @@ public class RetrofitController implements Callback<RedditRespone> {
             preferences.edit().remove(String.valueOf(i)).apply();
     }
         /*
-    * An interface which sends the download result back to the Caller who request the data in this case its MainActivity
+    * An interface which sends the download result back to the Caller who request the data in this case its ViewActivity
      */
 
     public interface IOnDownloadComplete {

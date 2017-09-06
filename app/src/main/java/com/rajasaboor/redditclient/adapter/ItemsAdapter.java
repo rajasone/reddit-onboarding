@@ -96,7 +96,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemsViewHol
     }
 
     /*
-    * An interface which is used to send the current position of the adapter to the caller in this case caller is the MainActivity
+    * An interface which is used to send the current position of the adapter to the caller in this case caller is the ViewActivity
      */
 
     public interface IOnPostTapped {

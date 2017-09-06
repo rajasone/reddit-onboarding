@@ -1,14 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout>
+<layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
+    <LinearLayout
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:weightSum="10"
-        tools:context="com.rajasaboor.redditclient.view_recycler.MainActivity">
+        tools:context="com.rajasaboor.redditclient.view_recycler.ViewActivity">
 
         <include
             android:id="@+id/toolbar_include"
@@ -17,41 +15,23 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal">
+            android:weightSum="10">
 
-            <TextView
-                android:id="@+id/no_offline_data_text_view"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_weight="4"
-                android:padding="8dp"
-                android:text="@string/no_offline_data"
-                android:textAlignment="center"
-                android:textSize="18sp"
-                android:visibility="gone" />
-
-            <android.support.v4.widget.SwipeRefreshLayout
-                android:id="@+id/swipe_layout"
+            <FrameLayout
+                android:id="@+id/main_fragment_container"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="4"
-                app:showColorScheme="@{true}">
+                android:layout_marginBottom="0dp"
+                android:layout_marginLeft="0dp"
+                android:layout_marginRight="0dp"
+                android:layout_marginTop="0dp"
+                android:layout_weight="4" />
 
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/posts_recycler_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scrollbars="vertical" />
-            </android.support.v4.widget.SwipeRefreshLayout>
-
-            <fragment
-                android:id="@+id/details_fragment"
-                android:name="com.rajasaboor.redditclient.fragments.DetailsFragment"
+            <FrameLayout
+                android:id="@+id/detail_fragment_container"
                 android:layout_width="0dp"
                 android:layout_height="match_parent"
-                android:layout_weight="6"
-                tools:layout="@layout/detail_fragment_layout" />
+                android:layout_weight="6" />
         </LinearLayout>
     </LinearLayout>
 </layout>
