@@ -75,8 +75,6 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
         Log.d(TAG, "onActivityCreated: start");
         super.onActivityCreated(savedInstanceState);
         settingUpTheViews();
-
-//        viewPresenter.checkTheCacheAndRequestServer(savedInstanceState, (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE));
         Log.d(TAG, "onActivityCreated: end");
     }
 

@@ -92,16 +92,6 @@ public class Util {
         }, 500);
     }
 
-    public static void shareThisPostWithFriends(Context context, TabLayout tabLayout, RedditPost redditPost) {
-        Log.d(TAG, "shareThisPostWithFriends: Selected tab position ===> " + tabLayout.getSelectedTabPosition());
-        Log.d(TAG, "shareThisPostWithFriends: Comment url ===> " + redditPost.getCommentsLink());
-        String urlToShare = tabLayout.getSelectedTabPosition() == 0 ? redditPost.getPostURL() : BuildConfig.BASE_URI + redditPost.getCommentsLink();
-        Intent shareIntent = new Intent();
-        shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.putExtra(Intent.EXTRA_TEXT, context.getString(R.string.share_message) + urlToShare);
-        shareIntent.setType("text/plain");
-        context.startActivity(shareIntent);
-    }
 
     /*
     * This method return TRUE if there is a connection with the internet

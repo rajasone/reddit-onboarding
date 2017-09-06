@@ -1,5 +1,7 @@
 package com.rajasaboor.redditclient.detail_post;
 
+import android.content.Intent;
+import android.content.res.Resources;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -15,6 +17,7 @@ import android.view.ViewGroup;
 
 import com.rajasaboor.redditclient.BuildConfig;
 import com.rajasaboor.redditclient.R;
+import com.rajasaboor.redditclient.appbar_layout.DetailViewPager;
 import com.rajasaboor.redditclient.databinding.DetailFragmentLayoutBinding;
 import com.rajasaboor.redditclient.model.RedditPost;
 
@@ -25,18 +28,9 @@ import com.rajasaboor.redditclient.model.RedditPost;
 public class DetailActivityFragment extends Fragment implements DetailPostContract.View {
     private static final String TAG = DetailActivityFragment.class.getSimpleName();
     private DetailFragmentLayoutBinding detailFragmentLayoutBinding = null;
-
+    private DetailPostContract.Presenter presenter = null;
     public static DetailActivityFragment newInstance() {
         return new DetailActivityFragment();
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate: start");
-        super.onCreate(savedInstanceState);
-
-
-        Log.d(TAG, "onCreate: end");
     }
 
     @Nullable
@@ -46,17 +40,10 @@ public class DetailActivityFragment extends Fragment implements DetailPostContra
         detailFragmentLayoutBinding = DataBindingUtil.inflate(inflater, R.layout.detail_fragment_layout, container, false);
         setHasOptionsMenu(true);
 
-
         initToolbar();
+        setUpViewPager();
         Log.d(TAG, "onCreateView: end");
         return detailFragmentLayoutBinding.getRoot();
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onActivityCreated: start");
-        super.onActivityCreated(savedInstanceState);
-        Log.d(TAG, "onActivityCreated: end");
     }
 
     @Override
@@ -72,6 +59,7 @@ public class DetailActivityFragment extends Fragment implements DetailPostContra
         Log.d(TAG, "onOptionsItemSelected: start");
         switch (item.getItemId()) {
             case R.id.share_menu:
+                sharePost();
                 break;
         }
         Log.d(TAG, "onOptionsItemSelected: end");
@@ -82,12 +70,27 @@ public class DetailActivityFragment extends Fragment implements DetailPostContra
     public void initToolbar() {
         ((AppCompatActivity) getActivity()).setSupportActionBar(detailFragmentLayoutBinding.detailToolbar.customToolbar);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("abc");
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(((DetailPresenter) presenter).getPost().getPostTitle());
     }
 
     @Override
     public void setUpViewPager() {
-
+        DetailViewPager detailViewPager = new DetailViewPager(getFragmentManager(), ((DetailPresenter) presenter).getPost());
+        detailFragmentLayoutBinding.detailsViewPager.setAdapter(detailViewPager);
+        detailFragmentLayoutBinding.detailsTabsLayout.setupWithViewPager(detailFragmentLayoutBinding.detailsViewPager);
     }
 
+    @Override
+    public void sharePost() {
+        String urlToShare = detailFragmentLayoutBinding.detailsTabsLayout.getSelectedTabPosition() == 0 ? ((DetailPresenter) presenter).getPost().getPostURL() : BuildConfig.BASE_URI + ((DetailPresenter) presenter).getPost().getCommentsLink();
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(getContext().getString(R.string.share_message), urlToShare));
+        shareIntent.setType("text/plain");
+        startActivity(shareIntent);
+    }
+
+    public void setPresenter(DetailPostContract.Presenter presenter) {
+        this.presenter = presenter;
+    }
 }

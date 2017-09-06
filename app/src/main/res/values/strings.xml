@@ -23,5 +23,5 @@
     <string name="no_offline_data">No offline data available</string>
     <string name="no_post_selected">No post selected</string>
     <string name="share_menu">Share</string>
-    <string name="share_message">Hi ! I want to share this post with you i hop you also find this one is interesting\n</string>
+    <string name="share_message">Hi ! I want to share this post with you i hop you also find this one is interesting\n %S</string>
 </resources>
