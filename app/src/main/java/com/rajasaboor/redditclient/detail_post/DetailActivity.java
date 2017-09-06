@@ -20,13 +20,11 @@ import com.rajasaboor.redditclient.util.Util;
 
 public class DetailActivity extends AppCompatActivity {
     private static final String TAG = DetailActivity.class.getSimpleName();
-    private ActivityDetailBinding detailBinding = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate: start");
         super.onCreate(savedInstanceState);
-        detailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
+        ActivityDetailBinding detailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
 
         setSupportActionBar(detailBinding.detailToolbar.customToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
@@ -40,7 +38,6 @@ public class DetailActivity extends AppCompatActivity {
 
         getSupportActionBar().setTitle(getParcelableFromBundle().getPostTitle());
         detailActivityFragment.setPresenter(new DetailPresenter(getParcelableFromBundle()));
-        Log.d(TAG, "onCreate: end");
     }
 
     private RedditPost getParcelableFromBundle() {

@@ -58,38 +58,25 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate: start");
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
         if (savedInstanceState != null) {
-            Log.d(TAG, "onCreate: Saved instance have data");
             selectedPost = savedInstanceState.getParcelable(BuildConfig.INDIVIDUAL_POST_ITEM_KEY);
         }
-        Log.d(TAG, "onCreate: end");
     }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView: start");
         fragmentBinding = DataBindingUtil.inflate(inflater, R.layout.main_fragment, container, false);
         fragmentBinding.swipeLayout.setOnRefreshListener(this);
-        Log.d(TAG, "onCreateView: end");
         return fragmentBinding.getRoot();
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onActivityCreated: start");
         super.onActivityCreated(savedInstanceState);
         settingUpTheViews();
-
-        if (fragmentBinding.noOfflineDataTextView == null) {
-            Log.d(TAG, "onActivityCreated: Show the detail fragment");
-        } else {
-            Log.d(TAG, "onActivityCreated: Hide the detail fragment");
-        }
-        Log.d(TAG, "onActivityCreated: end");
     }
 
     private void settingUpTheViews() {
@@ -97,7 +84,6 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
     }
 
     private void setUpTheRecyclerView() {
-        Log.d(TAG, "setUpTheRecyclerView: start");
         fragmentBinding.postsRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
         itemsAdapter = new ItemsAdapter(R.layout.post_layout, new ArrayList<RedditPostWrapper>(), this);
         fragmentBinding.postsRecyclerView.setHasFixedSize(true);
@@ -105,12 +91,10 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
 
         DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(getContext(), new LinearLayoutManager(getContext()).getOrientation());
         fragmentBinding.postsRecyclerView.addItemDecoration(dividerItemDecoration);
-        Log.d(TAG, "setUpTheRecyclerView: end");
     }
 
     @Override
     public void onResume() {
-        Log.d(TAG, "onResume: start");
         super.onResume();
 
         int lastDownloadTime = viewPresenter.manageTheLastDownloadTime();
@@ -119,53 +103,40 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
         viewPresenter.checkTheCacheAndRequestServer((ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE));
 
         if (isTabletActive() && selectedPost != null) {
-            Log.d(TAG, "onResume: Tablet active");
             hideTheDetailFragment(false);
             getDetailFragmentReferenceInTablet().setPost(selectedPost);
-        } else {
-            Log.d(TAG, "onResume: Phone Device");
         }
-        Log.d(TAG, "onResume: end");
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        Log.d(TAG, "onSaveInstanceState: start");
         outState.putParcelable(BuildConfig.INDIVIDUAL_POST_ITEM_KEY, selectedPost);
-
-        Log.d(TAG, "onSaveInstanceState: end");
         super.onSaveInstanceState(outState);
     }
 
     private void actionPerformWhileRequestingServer(int lastDownloadTime) {
-        Log.d(TAG, "actionPerformWhileRequestingServer: start");
         if (lastDownloadTime >= 5) {
             Log.d(TAG, "actionPerformWhileRequestingServer: Requesting the call to server");
             refreshListHandler();
         }
-        Log.d(TAG, "actionPerformWhileRequestingServer: end");
     }
 
     public void setViewPresenter(ViewPostContract.Presenter viewPresenter) {
-        Log.d(TAG, "setViewPresenter: Setting the presenter");
         this.viewPresenter = viewPresenter;
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        Log.d(TAG, "onCreateOptionsMenu: start");
         inflater.inflate(R.menu.main_menu, menu);
         setMenu(menu);
         if (isTabletActive()) {
             menu.findItem(R.id.share_menu).setVisible(true);
         }
-        Log.d(TAG, "onCreateOptionsMenu: end");
         super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Log.d(TAG, "onOptionsItemSelected: start");
         switch (item.getItemId()) {
             case R.id.refresh_post_list_menu:
                 refreshListHandler();
@@ -174,11 +145,10 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
                 if (selectedPost == null) {
                     showToast(getString(R.string.no_post_selected));
                 } else {
-                   sharePost();
+                    sharePost();
                 }
                 break;
         }
-        Log.d(TAG, "onOptionsItemSelected: end");
         return super.onOptionsItemSelected(item);
     }
 
@@ -195,9 +165,6 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
 
     @Override
     public void updateTheActionBarSubtitles(int downloadTime) {
-        Log.d(TAG, "updateTheActionBarSubtitles: start");
-        Log.d(TAG, "updateTheActionBarSubtitles: Download Time ===> " + downloadTime);
-
         // if the app starts first time and no didn't request the server then don't show any subtitle
         if (!getActivity().getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE).contains(BuildConfig.LAST_DOWNLOAD_TIME_KEY)) {
             return;
@@ -222,15 +189,12 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
                     (downloadTime >= 5 ? getResources().getString(R.string.minute) : getResources().getString(R.string.minutes))));
         }
 
-        Log.d(TAG, "updateTheActionBarSubtitles: end");
     }
 
     @Override
     public void showTheRefreshIcon(boolean hide) {
         if (getMenu() != null) {
             getMenu().findItem(R.id.refresh_post_list_menu).setVisible(hide);
-        } else {
-            Log.e(TAG, "showTheRefreshIcon: MENU IS NULL");
         }
     }
 
@@ -247,7 +211,6 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
     @Override
     public void showProgressBar(boolean show) {
         ((ViewActivity) getActivity()).showProgressBar(show);
-//        fragmentBinding.toolbarInclude.menuProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     @Override
@@ -257,23 +220,17 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
 
     @Override
     public void updateAdapter(List<RedditPostWrapper> redditPostWrapper) {
-        Log.d(TAG, "updateAdapter: start");
-        Log.d(TAG, "updateAdapter: Size of list in update adapter ===> " + redditPostWrapper.size());
         ((ViewPresenter) viewPresenter).setPostWrapperList(redditPostWrapper);
         toolbarSubtitleSetter();
         hideTheNoOfflineDataAvailableTextView(true);
         showProgressBar(false);
         showTheRefreshIcon(true);
         itemsAdapter.updateAdapter(redditPostWrapper);
-
-
-        Log.d(TAG, "updateAdapter: end");
     }
 
     private void toolbarSubtitleSetter() {
         int lastDownloadTime = viewPresenter.manageTheLastDownloadTime();
         updateTheActionBarSubtitles(lastDownloadTime);
-
     }
 
     public Menu getMenu() {
@@ -286,18 +243,12 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
 
     @Override
     public void onRefresh() {
-        Log.d(TAG, "onRefresh: start");
         refreshListHandler();
         fragmentBinding.swipeLayout.setRefreshing(false);
-        Log.d(TAG, "onRefresh: end");
     }
 
     @Override
     public void onPostTappedListener(int position) {
-        Log.d(TAG, "onPostTappedListener: start");
-        Log.d(TAG, "onPostTappedListener: Position ===> " + position);
-        Log.d(TAG, "onPostTappedListener: Title ===> " + ((ViewPresenter) viewPresenter).getPostWrapperList().get(position).getData().getPostTitle());
-
         selectedPost = ((ViewPresenter) viewPresenter).getPostWrapperList().get(position).getData();
 
         if (!isTabletActive()) {
@@ -308,7 +259,6 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
             hideTheDetailFragment(false);
             getDetailFragmentReferenceInTablet().setPost(selectedPost);
         }
-        Log.d(TAG, "onPostTappedListener: end");
     }
 
     @Override
@@ -329,9 +279,5 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
         shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(getContext().getString(R.string.share_message), urlToShare));
         shareIntent.setType("text/plain");
         startActivity(shareIntent);
-    }
-
-    public ViewPostContract.Presenter getViewPresenter() {
-        return viewPresenter;
     }
 }

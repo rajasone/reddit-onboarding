@@ -32,15 +32,11 @@ class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IO
 
     @Override
     public void onDownloadCompleteListener(int responseCode, List<RedditPostWrapper> postsList) {
-        Log.d(TAG, "onDownloadCompleteListener: start");
-        Log.d(TAG, "onDownloadCompleteListener: Response code ===> " + responseCode);
-
         if (responseCode == BuildConfig.OK_RESPONSE_CODE) {
             saveDownloadTimeHelper(); // save the current time in shared prefs
             updateAdaper.updateAdapter(postsList); // call back in the fragment and update the recycler view
             removeDataFromCache(preferences); // remove the existing data from the cache
             saveDownloadDataInCache(postsList); // save the new download data in shared prefs
-            // Util.printList(postsList); // print the list for debug purpose
         } else {
             // TODO: 9/5/2017 display an error dialog call a method from util class CONTEXT problem
 //            Util.displayErrorDialog(new AlertDialog.Builder(this));
@@ -70,15 +66,12 @@ class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IO
 
     @Override
     public void checkTheCacheAndRequestServer(ConnectivityManager manager) {
-        Log.d(TAG, "checkTheCacheAndRequestServer: start");
-        if (preferences.getString(ViewActivity.KEY_TO_CHECK_DATA, null) != null) {
+        if (preferences.getString(BuildConfig.KEY_TO_CHECK_DATA, null) != null) {
             postWrapperList = getCacheData(preferences);
-           // Util.printList(postWrapperList);
             updateAdaper.updateAdapter(postWrapperList);
-        } else if ((preferences.getString(ViewActivity.KEY_TO_CHECK_DATA, null) == null) && (Util.checkConnection(manager))) {
+        } else if ((preferences.getString(BuildConfig.KEY_TO_CHECK_DATA, null) == null) && (Util.checkConnection(manager))) {
             controller.start();
         }
-        Log.d(TAG, "checkTheCacheAndRequestServer: end");
     }
 
     private long getTimeDifferenceInMinutes() {
@@ -89,26 +82,23 @@ class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IO
     @Override
     public int manageTheLastDownloadTime() {
         long timeDiff = getTimeDifferenceInMinutes();
-        Log.d(TAG, "manageTheLastDownloadTime: Time Difference ===> " + timeDiff);
         return (int) timeDiff;
     }
 
     @Override
     public void saveDownloadTimeInSharedPrefs() {
-        Log.d(TAG, "saveDownloadTimeInSharedPrefs: start");
         saveDownloadTimeHelper();
-        Log.d(TAG, "saveDownloadTimeInSharedPrefs: end");
     }
 
     private void saveDownloadTimeHelper() {
         preferences.edit().putLong(BuildConfig.LAST_DOWNLOAD_TIME_KEY, System.currentTimeMillis()).apply();
     }
 
-    public List<RedditPostWrapper> getPostWrapperList() {
+    List<RedditPostWrapper> getPostWrapperList() {
         return postWrapperList;
     }
 
-    public void setPostWrapperList(List<RedditPostWrapper> postWrapperList) {
+    void setPostWrapperList(List<RedditPostWrapper> postWrapperList) {
         this.postWrapperList = postWrapperList;
     }
 

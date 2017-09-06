@@ -36,25 +36,17 @@ public class PostFragment extends Fragment {
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onCreate: start");
         super.onCreate(savedInstanceState);
 
         if (getArguments().getParcelable(BuildConfig.KEY_URL_STRING) != null) {
-            Log.d(TAG, "onCreate: Bundle have data");
             post = getArguments().getParcelable(BuildConfig.KEY_URL_STRING);
-            Log.d(TAG, "onCreate: Port URL is ---> " + ((RedditPost) getArguments().getParcelable(BuildConfig.KEY_URL_STRING)).getPostURL());
-            Log.d(TAG, "onCreate: Flag ===> " + getArguments().getInt(BuildConfig.POST_TAB_KEY));
-        } else {
-            Log.e(TAG, "onCreate: Bundle is empty");
         }
-        Log.d(TAG, "onCreate: end");
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView: start");
         postBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_post, container, false);
 
 
@@ -68,18 +60,12 @@ public class PostFragment extends Fragment {
          */
         if (savedInstanceState != null) {
             postBinding.postWebview.restoreState(savedInstanceState);
-            Log.d(TAG, "onCreateView: Fetched Progress ===> " + postBinding.postWebview.getProgress());
             postProgress = postBinding.postWebview.getProgress() == 10 ? 100 : postBinding.postWebview.getProgress();
 
         } else {
-            Log.d(TAG, "onCreateView: Bundle is empty");
-            Log.d(TAG, "onCreateView: Flag ===> " + getArguments().getInt(BuildConfig.POST_TAB_KEY));
-
             if (isPost) {
-                Log.d(TAG, "onCreateView: Loading the POST");
                 postBinding.postWebview.loadUrl(post.getPostURL());
             } else {
-                Log.d(TAG, "onCreateView: Loading the Comments");
                 postBinding.postWebview.loadUrl(BuildConfig.BASE_URI + post.getCommentsLink());
             }
         }
@@ -93,7 +79,6 @@ public class PostFragment extends Fragment {
         } else {
             postBinding.postProgressBar.setVisibility(View.GONE);
         }
-        Log.d(TAG, "onCreateView: end");
         return postBinding.getRoot();
     }
 
@@ -107,11 +92,7 @@ public class PostFragment extends Fragment {
      */
     @Override
     public void onSaveInstanceState(Bundle outState) {
-        Log.d(TAG, "onSaveInstanceState: start");
         super.onSaveInstanceState(outState);
         postBinding.postWebview.saveState(outState);
-        Log.d(TAG, "onSaveInstanceState: end");
     }
-
-
 }

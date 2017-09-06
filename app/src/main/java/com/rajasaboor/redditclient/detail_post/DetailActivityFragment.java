@@ -39,32 +39,26 @@ public class DetailActivityFragment extends Fragment implements DetailPostContra
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        Log.d(TAG, "onCreateView: start");
         detailFragmentLayoutBinding = DataBindingUtil.inflate(inflater, R.layout.detail_fragment_layout, container, false);
         setHasOptionsMenu(true);
 
         setUpViewPager();
-        Log.d(TAG, "onCreateView: end");
         return detailFragmentLayoutBinding.getRoot();
     }
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        Log.d(TAG, "onCreateOptionsMenu: start");
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.share_menu, menu);
-        Log.d(TAG, "onCreateOptionsMenu: edn");
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Log.d(TAG, "onOptionsItemSelected: start");
         switch (item.getItemId()) {
             case R.id.share_menu:
                 sharePost(detailFragmentLayoutBinding.detailsTabsLayout, ((DetailPresenter) presenter).getPost());
                 break;
         }
-        Log.d(TAG, "onOptionsItemSelected: end");
         return super.onOptionsItemSelected(item);
     }
 

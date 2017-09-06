@@ -48,33 +48,24 @@ public class RetrofitController implements Callback<RedditRespone> {
     }
 
     public void start() {
-        Log.d(TAG, "start: start");
         Gson gson = new GsonBuilder().setLenient().create();
         Retrofit.Builder retrofitBuilder = new Retrofit.Builder().baseUrl(BuildConfig.BASE_URI).addConverterFactory(GsonConverterFactory.create(gson));
         Retrofit retrofit = retrofitBuilder.build();
-        Log.d(TAG, "start: retrofit ===> " + retrofit.baseUrl());
         IRetroApi iRetroApi = retrofit.create(IRetroApi.class);
         Call<RedditRespone> post = iRetroApi.loadChanges();
         post.enqueue(this);
-        Log.d(TAG, "start: end");
     }
 
     @Override
     public void onResponse(Call<RedditRespone> call, Response<RedditRespone> response) {
-        Log.d(TAG, "onResponse: start");
-
         if (response.isSuccessful()) {
             if (onDownloadComplete != null) {
                 onDownloadComplete.onDownloadCompleteListener(BuildConfig.OK_RESPONSE_CODE, response.body().getData().getChildren());
             }
-        } else {
-            Log.e(TAG, "onResponse: error ===> " + response.errorBody() + " code ===> " + response.code());
         }
-        Log.d(TAG, "onResponse: end");
     }
 
     public void saveTheDataInSharedPrefs(List<RedditPostWrapper> postWrapperList, SharedPreferences preferences) {
-        Log.d(TAG, "saveTheDataInSharedPrefs: Size of list to save ===> " + postWrapperList.size());
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt(BuildConfig.SIZE_OF_POST_LIST, postWrapperList.size());
         Gson gson = new Gson();
@@ -87,25 +78,19 @@ public class RetrofitController implements Callback<RedditRespone> {
 
     @Override
     public void onFailure(Call<RedditRespone> call, Throwable t) {
-        Log.d(TAG, "onFailure: start");
         t.printStackTrace();
         if (onDownloadComplete != null) {
             onDownloadComplete.onDownloadCompleteListener(BuildConfig.ERROR_RESPONSE_CODE, null);
         }
-        Log.d(TAG, "onFailure: end");
     }
 
 
     public List<RedditPostWrapper> getCacheDataFromSharedPrefs(SharedPreferences preferences) {
-        Log.d(TAG, "getCacheDataFromSharedPrefs: start");
         Gson gson = new Gson();
         List<RedditPostWrapper> temp = new ArrayList<>();
 
         for (int i = 0; i < preferences.getInt(BuildConfig.SIZE_OF_POST_LIST, 0); i++)
             temp.add(gson.fromJson(preferences.getString(String.valueOf(i), ""), RedditPostWrapper.class));
-
-        Log.d(TAG, "getCacheDataFromSharedPrefs: size of temp ---> " + temp.size());
-        Log.d(TAG, "getCacheDataFromSharedPrefs: end");
         return temp;
     }
 

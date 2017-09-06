@@ -50,31 +50,13 @@ public class DetailsFragment extends Fragment {
     public void setPost(RedditPost post) {
         this.post = post;
         setUpTheViewPager();
-        Log.d(TAG, "setPost: post title ===> " + post.getPostTitle());
-        Log.d(TAG, "setPost: post URL ===> " + post.getPostURL());
     }
 
     private void setUpTheViewPager() {
-        Log.d(TAG, "setUpTheViewPager: start");
         if (layoutBinding.detailsViewPager.getAdapter() == null) {
             DetailViewPager detailViewPager = new DetailViewPager(getFragmentManager(), post);
             layoutBinding.detailsViewPager.setAdapter(detailViewPager);
             layoutBinding.detailsTabsLayout.setupWithViewPager(layoutBinding.detailsViewPager);
-        }
-        Log.d(TAG, "setUpTheViewPager: end");
-    }
-
-
-    /*
-    * True means Hide the toolbar
-    * False means show the toolbar
-     */
-    public void hideTheToolbar(boolean hide) {
-        if (layoutBinding.detailsTabsLayout != null) {
-            layoutBinding.detailsTabsLayout.setVisibility(hide ? View.GONE : View.VISIBLE);
-            Log.d(TAG, "hideTheToolbar: Hiding the tab layout");
-        } else {
-            Log.e(TAG, "hideTheToolbar: Tab layout is NULL");
         }
     }
 

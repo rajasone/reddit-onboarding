@@ -27,26 +27,20 @@ public class DetailViewPager extends FragmentStatePagerAdapter {
     public DetailViewPager(FragmentManager fm, RedditPost post) {
         super(fm);
         this.post = post;
-        Log.d(TAG, "DetailViewPager: start/end");
     }
 
     @Override
     public Fragment getItem(int position) {
-        Log.d(TAG, "getItem: start/end");
-        Log.d(TAG, "getItem: Post Title ====> " + post.getPostTitle());
-
         Bundle bundle = new Bundle();
         bundle.putParcelable(BuildConfig.KEY_URL_STRING, post);
         PostFragment postFragment = new PostFragment();
 
         switch (position) {
             case 0:
-                Log.d(TAG, "getItem: Case 0");
                 bundle.putInt(BuildConfig.POST_TAB_KEY, POST_TAB_VALUE);
                 postFragment.setArguments(bundle);
                 return postFragment;
             case 1:
-                Log.d(TAG, "getItem: Case 1");
                 bundle.putInt(BuildConfig.POST_TAB_KEY, COMMENTS_TAB_VALUE);
                 postFragment.setArguments(bundle);
                 return postFragment;
@@ -63,7 +57,6 @@ public class DetailViewPager extends FragmentStatePagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
-        Log.d(TAG, "getPageTitle: start/end");
         return (post.isPostIsSelf() ? DetailViewPager.TABS_NAMES[DetailViewPager.COMMENT_TAB_POSITION] : DetailViewPager.TABS_NAMES[position]);
     }
 
