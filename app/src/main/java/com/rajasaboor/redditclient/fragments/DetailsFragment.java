@@ -53,11 +53,9 @@ public class DetailsFragment extends Fragment {
     }
 
     private void setUpTheViewPager() {
-        if (layoutBinding.detailsViewPager.getAdapter() == null) {
-            DetailViewPager detailViewPager = new DetailViewPager(getFragmentManager(), post);
-            layoutBinding.detailsViewPager.setAdapter(detailViewPager);
-            layoutBinding.detailsTabsLayout.setupWithViewPager(layoutBinding.detailsViewPager);
-        }
+        DetailViewPager detailViewPager = new DetailViewPager(getFragmentManager(), post);
+        layoutBinding.detailsViewPager.setAdapter(detailViewPager);
+        layoutBinding.detailsTabsLayout.setupWithViewPager(layoutBinding.detailsViewPager);
     }
 
     public TabLayout getTabLayout() {

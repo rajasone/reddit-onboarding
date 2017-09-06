@@ -36,6 +36,7 @@ interface ViewPostContract {
 
         void sharePost();
 
+        void hideTheNoPostSelected(boolean hide);
     }
 
     interface Presenter {

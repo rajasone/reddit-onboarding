@@ -102,6 +102,9 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
         actionPerformWhileRequestingServer(lastDownloadTime);
         viewPresenter.checkTheCacheAndRequestServer((ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE));
 
+        if (isTabletActive() && selectedPost == null) {
+            hideTheNoPostSelected(false);
+        }
         if (isTabletActive() && selectedPost != null) {
             hideTheDetailFragment(false);
             getDetailFragmentReferenceInTablet().setPost(selectedPost);
@@ -188,7 +191,11 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
             temp.setSubtitle(String.format(getResources().getString(R.string.update_message_more_than_minute), downloadTime,
                     (downloadTime >= 5 ? getResources().getString(R.string.minute) : getResources().getString(R.string.minutes))));
         }
+    }
 
+    @Override
+    public void hideTheNoPostSelected(boolean hide) {
+        ((ViewActivity) getActivity()).getMainBinding().noPostSelectedTextView.setVisibility(hide ? View.GONE : View.VISIBLE);
     }
 
     @Override
@@ -257,6 +264,7 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
             startActivity(detail);
         } else {
             hideTheDetailFragment(false);
+            hideTheNoPostSelected(true);
             getDetailFragmentReferenceInTablet().setPost(selectedPost);
         }
     }
