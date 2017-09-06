@@ -28,6 +28,8 @@ import com.rajasaboor.redditclient.adapter.ItemsAdapter;
 import com.rajasaboor.redditclient.databinding.MainFragmentBinding;
 import com.rajasaboor.redditclient.detail_post.DetailActivity;
 import com.rajasaboor.redditclient.detail_post.DetailActivityFragment;
+import com.rajasaboor.redditclient.fragments.DetailsFragment;
+import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.util.Util;
 
@@ -47,6 +49,7 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
     private ViewPostContract.Presenter viewPresenter = null;
     private ItemsAdapter itemsAdapter = null;
     private Menu menu = null;
+    private RedditPost selectedPost = null;
 
 
     public static ViewPostFragment newInstance() {
@@ -58,6 +61,10 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
         Log.d(TAG, "onCreate: start");
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        if (savedInstanceState != null) {
+            Log.d(TAG, "onCreate: Saved instance have data");
+            selectedPost = savedInstanceState.getParcelable(BuildConfig.INDIVIDUAL_POST_ITEM_KEY);
+        }
         Log.d(TAG, "onCreate: end");
     }
 
@@ -76,6 +83,12 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
         Log.d(TAG, "onActivityCreated: start");
         super.onActivityCreated(savedInstanceState);
         settingUpTheViews();
+
+        if (fragmentBinding.noOfflineDataTextView == null) {
+            Log.d(TAG, "onActivityCreated: Show the detail fragment");
+        } else {
+            Log.d(TAG, "onActivityCreated: Hide the detail fragment");
+        }
         Log.d(TAG, "onActivityCreated: end");
     }
 
@@ -105,7 +118,23 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
         actionPerformWhileRequestingServer(lastDownloadTime);
         viewPresenter.checkTheCacheAndRequestServer((ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE));
 
+        if (isTabletActive() && selectedPost != null) {
+            Log.d(TAG, "onResume: Tablet active");
+            hideTheDetailFragment(false);
+            getDetailFragmentReferenceInTablet().setPost(selectedPost);
+        } else {
+            Log.d(TAG, "onResume: Phone Device");
+        }
         Log.d(TAG, "onResume: end");
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        Log.d(TAG, "onSaveInstanceState: start");
+        outState.putParcelable(BuildConfig.INDIVIDUAL_POST_ITEM_KEY, selectedPost);
+
+        Log.d(TAG, "onSaveInstanceState: end");
+        super.onSaveInstanceState(outState);
     }
 
     private void actionPerformWhileRequestingServer(int lastDownloadTime) {
@@ -127,6 +156,9 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
         Log.d(TAG, "onCreateOptionsMenu: start");
         inflater.inflate(R.menu.main_menu, menu);
         setMenu(menu);
+        if (isTabletActive()) {
+            menu.findItem(R.id.share_menu).setVisible(true);
+        }
         Log.d(TAG, "onCreateOptionsMenu: end");
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -139,11 +171,17 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
                 refreshListHandler();
                 break;
             case R.id.share_menu:
+                if (selectedPost == null) {
+                    showToast(getString(R.string.no_post_selected));
+                } else {
+                   sharePost();
+                }
                 break;
         }
         Log.d(TAG, "onOptionsItemSelected: end");
         return super.onOptionsItemSelected(item);
     }
+
 
     private void refreshListHandler() {
         if (Util.checkConnection((ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE))) {
@@ -213,6 +251,11 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
     }
 
     @Override
+    public boolean isTabletActive() {
+        return (((ViewActivity) getActivity()).getMainBinding().detailFragmentContainer != null);
+    }
+
+    @Override
     public void updateAdapter(List<RedditPostWrapper> redditPostWrapper) {
         Log.d(TAG, "updateAdapter: start");
         Log.d(TAG, "updateAdapter: Size of list in update adapter ===> " + redditPostWrapper.size());
@@ -255,9 +298,40 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.View,
         Log.d(TAG, "onPostTappedListener: Position ===> " + position);
         Log.d(TAG, "onPostTappedListener: Title ===> " + ((ViewPresenter) viewPresenter).getPostWrapperList().get(position).getData().getPostTitle());
 
-        Intent detail = new Intent(getContext(), DetailActivity.class);
-        detail.putExtra(BuildConfig.INDIVIDUAL_POST_ITEM_KEY, ((ViewPresenter) viewPresenter).getPostWrapperList().get(position).getData());
-        startActivity(detail);
+        selectedPost = ((ViewPresenter) viewPresenter).getPostWrapperList().get(position).getData();
+
+        if (!isTabletActive()) {
+            Intent detail = new Intent(getContext(), DetailActivity.class);
+            detail.putExtra(BuildConfig.INDIVIDUAL_POST_ITEM_KEY, ((ViewPresenter) viewPresenter).getPostWrapperList().get(position).getData());
+            startActivity(detail);
+        } else {
+            hideTheDetailFragment(false);
+            getDetailFragmentReferenceInTablet().setPost(selectedPost);
+        }
         Log.d(TAG, "onPostTappedListener: end");
+    }
+
+    @Override
+    public void hideTheDetailFragment(boolean hide) {
+        ((ViewActivity) getActivity()).getMainBinding().detailFragmentContainer.setVisibility(hide ? View.GONE : View.VISIBLE);
+    }
+
+    @Override
+    public DetailsFragment getDetailFragmentReferenceInTablet() {
+        return ((DetailsFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.detail_fragment_container));
+    }
+
+    @Override
+    public void sharePost() {
+        String urlToShare = getDetailFragmentReferenceInTablet().getTabLayout().getSelectedTabPosition() == 0 ? selectedPost.getPostURL() : BuildConfig.BASE_URI + selectedPost.getCommentsLink();
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(getContext().getString(R.string.share_message), urlToShare));
+        shareIntent.setType("text/plain");
+        startActivity(shareIntent);
+    }
+
+    public ViewPostContract.Presenter getViewPresenter() {
+        return viewPresenter;
     }
 }

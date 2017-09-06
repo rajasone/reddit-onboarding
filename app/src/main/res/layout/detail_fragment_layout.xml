@@ -36,28 +36,10 @@
                 </android.support.design.widget.TabLayout>
             </android.support.design.widget.AppBarLayout>
 
-            <RelativeLayout
+            <android.support.v4.view.ViewPager
+                android:id="@+id/details_view_pager"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_vertical">
-
-                <TextView
-                    android:id="@+id/no_post_selected_text_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_centerInParent="true"
-                    android:gravity="center"
-                    android:padding="8dp"
-                    android:text="@string/no_post_selected"
-                    android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
-                    android:textSize="18sp"
-                    android:textStyle="italic" />
-
-                <android.support.v4.view.ViewPager
-                    android:id="@+id/details_view_pager"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-            </RelativeLayout>
+                android:layout_height="match_parent" />
         </LinearLayout>
     </android.support.design.widget.CoordinatorLayout>
 </layout>

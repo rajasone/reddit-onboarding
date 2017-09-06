@@ -1,5 +1,7 @@
 package com.rajasaboor.redditclient.detail_post;
 
+import android.support.design.widget.TabLayout;
+
 import com.rajasaboor.redditclient.model.RedditPost;
 
 /**
@@ -11,7 +13,7 @@ public interface DetailPostContract {
 
         void setUpViewPager();
 
-        void sharePost();
+        void sharePost(TabLayout tabLayout, RedditPost post);
     }
 
     interface Presenter {

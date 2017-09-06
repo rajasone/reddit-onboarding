@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <LinearLayout
-        xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -26,6 +25,20 @@
                 android:layout_marginRight="0dp"
                 android:layout_marginTop="0dp"
                 android:layout_weight="4" />
+
+            <TextView
+                android:id="@+id/no_post_selected_text_view"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_weight="6"
+                android:visibility="gone"
+                android:gravity="center"
+                android:padding="8dp"
+                android:text="@string/no_post_selected"
+                android:textAppearance="@style/Base.TextAppearance.AppCompat.Large"
+                android:textSize="18sp"
+                android:textStyle="italic" />
 
             <FrameLayout
                 android:id="@+id/detail_fragment_container"

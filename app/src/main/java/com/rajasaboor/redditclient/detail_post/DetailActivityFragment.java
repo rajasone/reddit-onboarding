@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -60,7 +61,7 @@ public class DetailActivityFragment extends Fragment implements DetailPostContra
         Log.d(TAG, "onOptionsItemSelected: start");
         switch (item.getItemId()) {
             case R.id.share_menu:
-                sharePost();
+                sharePost(detailFragmentLayoutBinding.detailsTabsLayout, ((DetailPresenter) presenter).getPost());
                 break;
         }
         Log.d(TAG, "onOptionsItemSelected: end");
@@ -75,8 +76,8 @@ public class DetailActivityFragment extends Fragment implements DetailPostContra
     }
 
     @Override
-    public void sharePost() {
-        String urlToShare = detailFragmentLayoutBinding.detailsTabsLayout.getSelectedTabPosition() == 0 ? ((DetailPresenter) presenter).getPost().getPostURL() : BuildConfig.BASE_URI + ((DetailPresenter) presenter).getPost().getCommentsLink();
+    public void sharePost(TabLayout tabLayout, RedditPost post) {
+        String urlToShare = tabLayout.getSelectedTabPosition() == 0 ? post.getPostURL() : BuildConfig.BASE_URI + post.getCommentsLink();
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(getContext().getString(R.string.share_message), urlToShare));

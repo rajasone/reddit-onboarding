@@ -112,6 +112,8 @@ class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IO
         this.postWrapperList = postWrapperList;
     }
 
+
+
     /*
     * Callback to update the adapter
      */

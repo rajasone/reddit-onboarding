@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.StringRes;
 
 import com.rajasaboor.redditclient.databinding.MainFragmentBinding;
+import com.rajasaboor.redditclient.fragments.DetailsFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 
@@ -26,6 +27,14 @@ interface ViewPostContract {
         void showToast(String message);
 
         void showProgressBar(boolean show);
+
+        boolean isTabletActive();
+
+        void hideTheDetailFragment(boolean hide);
+
+        DetailsFragment getDetailFragmentReferenceInTablet();
+
+        void sharePost();
 
     }
 

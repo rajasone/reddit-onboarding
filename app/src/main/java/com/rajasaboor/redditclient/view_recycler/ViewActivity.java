@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class ViewActivity extends AppCompatActivity implements ItemsAdapter.IOnPostTapped {
+public class ViewActivity extends AppCompatActivity {
     private static final String TAG = ViewActivity.class.getSimpleName(); // Tag name for the Debug purposes
     private List<RedditPostWrapper> postWrapperList = new ArrayList<>();
     private RedditPost selectedPost; // A post which is selected in the landscape layout
@@ -46,16 +46,14 @@ public class ViewActivity extends AppCompatActivity implements ItemsAdapter.IOnP
             viewPostFragment = ViewPostFragment.newInstance();
             getSupportFragmentManager().beginTransaction().add(R.id.main_fragment_container, viewPostFragment).commit();
         }
-        ViewPresenter presenter = new ViewPresenter(viewPostFragment, getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE));
-        viewPostFragment.setViewPresenter(presenter);
+        viewPostFragment.setViewPresenter(new ViewPresenter(viewPostFragment, getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE)));
 
         if (mainBinding.detailFragmentContainer != null) {
-            DetailsFragment detailsFragment = DetailsFragment.newInstance();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.detail_fragment_container, detailsFragment)
-                    .commit();
+            Log.d(TAG, "onCreate: Container is Not NULL");
+            setUpTheTabletLayout();
+        } else {
+            Log.d(TAG, "onCreate: Container is NULL");
         }
-
         Log.d(TAG, "onCreate: end");
     }
 
@@ -63,10 +61,24 @@ public class ViewActivity extends AppCompatActivity implements ItemsAdapter.IOnP
         mainBinding.toolbarInclude.menuProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
+    public ActivityMainBinding getMainBinding() {
+        return mainBinding;
+    }
+
+    private void setUpTheTabletLayout(){
+        DetailsFragment detailsFragment = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.detail_fragment_container);
+        if (detailsFragment == null) {
+            detailsFragment = DetailsFragment.newInstance();
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.detail_fragment_container, detailsFragment)
+                    .commit();
+        }
+        mainBinding.detailFragmentContainer.setVisibility(View.GONE); // hide the fragment if user tap on post then it will be visible
+    }
 
     /*
-    * Check the details fragment if it is not null and it is visible set the tab bar is hide by default
-     */
+        * Check the details fragment if it is not null and it is visible set the tab bar is hide by default
+         */
     private void hideTheTabsInLandscapeLayout() {
         if (detailsFragmentInTablet != null) {
             detailsFragmentInTablet.hideTheToolbar(true);
@@ -115,25 +127,25 @@ public class ViewActivity extends AppCompatActivity implements ItemsAdapter.IOnP
         return postWrapperList;
     }
 
-    @Override
-    public void onPostTappedListener(int position) {
-        Log.d(TAG, "onPostTappedListener: start");
-        Log.d(TAG, "onPostTappedListener: position ---> " + position);
-
-        if (!isTableLayoutIsActive()) {
-            Log.d(TAG, "onPostTappedListener: Inside the portrait mode so open a DetailActivity");
-            Intent detailActivityIntent = new Intent(this, DetailActivity.class);
-            detailActivityIntent.putExtra(BuildConfig.INDIVIDUAL_POST_ITEM_KEY, getPostWrapperList().get(position).getData());
-            startActivity(detailActivityIntent);
-        } else {
-            Log.d(TAG, "onPostTappedListener: !!!!!!!!!!!!!!!!!!Tablet layout is ACTIVE!!!!!!!!!!!!!!!!!!");
-            setSelectedPost(getPostWrapperList().get(position).getData());
-            saveTheCurrentPostInSharedPrefs();
-            Log.d(TAG, "onPostTappedListener: Inside the Landscape mode so display the result in DetailsFragment");
-            callTheDetailViewPagerMethod();
-        }
-        Log.d(TAG, "onPostTappedListener: end");
-    }
+//    @Override
+//    public void onPostTappedListener(int position) {
+//        Log.d(TAG, "onPostTappedListener: start");
+//        Log.d(TAG, "onPostTappedListener: position ---> " + position);
+//
+//        if (!isTableLayoutIsActive()) {
+//            Log.d(TAG, "onPostTappedListener: Inside the portrait mode so open a DetailActivity");
+//            Intent detailActivityIntent = new Intent(this, DetailActivity.class);
+//            detailActivityIntent.putExtra(BuildConfig.INDIVIDUAL_POST_ITEM_KEY, getPostWrapperList().get(position).getData());
+//            startActivity(detailActivityIntent);
+//        } else {
+//            Log.d(TAG, "onPostTappedListener: !!!!!!!!!!!!!!!!!!Tablet layout is ACTIVE!!!!!!!!!!!!!!!!!!");
+//            setSelectedPost(getPostWrapperList().get(position).getData());
+//            saveTheCurrentPostInSharedPrefs();
+//            Log.d(TAG, "onPostTappedListener: Inside the Landscape mode so display the result in DetailsFragment");
+//            callTheDetailViewPagerMethod();
+//        }
+//        Log.d(TAG, "onPostTappedListener: end");
+//    }
 
 
     public RedditPost getSelectedPost() {
