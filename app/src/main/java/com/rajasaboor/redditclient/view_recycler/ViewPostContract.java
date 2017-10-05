@@ -1,9 +1,14 @@
 package com.rajasaboor.redditclient.view_recycler;
 
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.annotation.StringRes;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
+import android.view.View;
 
 import com.rajasaboor.redditclient.databinding.MainFragmentBinding;
 import com.rajasaboor.redditclient.fragments.DetailsFragment;
@@ -17,42 +22,55 @@ import java.util.List;
  */
 
 interface ViewPostContract {
-    interface View {
-        void updateTheActionBarSubtitles(int downloadTime);
+    interface ActivityView {
+        void hideNoPostSelectedTextView(boolean hide);
 
-        void showTheRefreshIcon(boolean hide);
+        void updateLastDownloadMessageInToolbar(int minutes);
 
-        void hideTheNoOfflineDataAvailableTextView(boolean hide);
+        void showServerRequestProgressBar(boolean show);
+    }
 
-        void showToast(String message);
-
-        void showProgressBar(boolean show);
-
+    interface FragmentView {
         boolean isTabletActive();
-
-        void hideTheDetailFragment(boolean hide);
 
         DetailsFragment getDetailFragmentReferenceInTablet();
 
         void sharePost();
 
-        void hideTheNoPostSelected(boolean hide);
+        void showErrorDialogWhileServerRequest();
+
+        String getMessageFromStringRes(@StringRes int resID);
+
+        void updatePostAdapter(List<RedditPostWrapper> wrapperList);
+
+        void showRefreshIcon(boolean hide);
+
+        void showToast(String message);
+
+        void hideNoOfflineDataAvailableTextView(boolean hide);
     }
 
     interface Presenter {
-        void startTheDownloadProcess();
+        void startDownloadProcess();
 
-        void saveDownloadDataInCache(List<RedditPostWrapper> redditPostWrapper);
+        List<RedditPostWrapper> getCacheData();
 
-        void removeDataFromCache(SharedPreferences sharedPreferences);
-
-        List<RedditPostWrapper> getCacheData(SharedPreferences preferences);
+        List<RedditPostWrapper> getPostWrapperList();
 
         void checkTheCacheAndRequestServer(ConnectivityManager manager);
 
-        int manageTheLastDownloadTime();
-
         void saveDownloadTimeInSharedPrefs();
 
+        RedditPost getSelectedPost();
+
+        void setSelectedPost(RedditPost selectedPost);
+
+        long getTimeDifferenceInMinutes();
+
+        void hideNoPostSelectedTextView(boolean hide);
+
+        void updateToolbarSubtitle();
+
+        void requestServer(ConnectivityManager manager);
     }
 }

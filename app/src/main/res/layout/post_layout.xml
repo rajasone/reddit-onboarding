@@ -18,6 +18,8 @@
         android:clickable="true"
         android:focusable="true">
 
+        <!--android:onClick="@{(adapterPosition) -> postTappedHandler.onPostClick(adapterPosition)}">-->
+
 
         <TextView
             android:id="@+id/ups_text_view"

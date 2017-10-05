@@ -1,28 +1,17 @@
 package com.rajasaboor.redditclient.view_recycler;
 
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 
-import com.google.gson.Gson;
 import com.rajasaboor.redditclient.BuildConfig;
-import com.rajasaboor.redditclient.detail_post.DetailActivity;
 import com.rajasaboor.redditclient.R;
-import com.rajasaboor.redditclient.adapter.ItemsAdapter;
 import com.rajasaboor.redditclient.databinding.ActivityMainBinding;
 import com.rajasaboor.redditclient.fragments.DetailsFragment;
-import com.rajasaboor.redditclient.model.RedditPost;
-import com.rajasaboor.redditclient.model.RedditPostWrapper;
 
-import java.util.ArrayList;
-import java.util.List;
-
-
-public class ViewActivity extends AppCompatActivity {
+public class ViewActivity extends AppCompatActivity implements ViewPostContract.ActivityView {
     private static final String TAG = ViewActivity.class.getSimpleName(); // Tag name for the Debug purposes
     private ActivityMainBinding mainBinding = null;
 
@@ -39,16 +28,12 @@ public class ViewActivity extends AppCompatActivity {
             viewPostFragment = ViewPostFragment.newInstance();
             getSupportFragmentManager().beginTransaction().add(R.id.main_fragment_container, viewPostFragment).commit();
         }
-        viewPostFragment.setViewPresenter(new ViewPresenter(viewPostFragment, getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE)));
+        viewPostFragment.setViewPresenter(new ViewPresenter(getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE), viewPostFragment, this));
 
         // if tablet layout is activated inflate the detail fragment
         if (mainBinding.detailFragmentContainer != null) {
             setUpTheTabletLayout();
         }
-    }
-
-    public void showProgressBar(boolean show) {
-        mainBinding.toolbarInclude.menuProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
     }
 
     public ActivityMainBinding getMainBinding() {
@@ -64,5 +49,30 @@ public class ViewActivity extends AppCompatActivity {
                     .commit();
         }
         mainBinding.detailFragmentContainer.setVisibility(View.GONE); // hide the fragment if user tap on post then it will be visible
+    }
+
+    @Override
+    public void showServerRequestProgressBar(boolean show) {
+        mainBinding.toolbarInclude.menuProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void hideNoPostSelectedTextView(boolean hide) {
+        mainBinding.noPostSelectedTextView.setVisibility(hide ? View.GONE : View.VISIBLE);
+    }
+
+    @Override
+    public void updateLastDownloadMessageInToolbar(int downloadTime) {
+        String temp;
+
+        if (downloadTime == 0) {
+            Log.d(TAG, "updateTheActionBarSubtitles: In 0");
+            temp = getString(R.string.update_message_less_then_minute);
+        } else {
+            Log.d(TAG, "updateTheActionBarSubtitles: >=1 ");
+            temp = String.format(getString(R.string.update_message_more_than_minute), downloadTime, (downloadTime == 1 ? getString(R.string.minute) :
+                    getString(R.string.minutes)));
+        }
+        getSupportActionBar().setSubtitle(temp);
     }
 }

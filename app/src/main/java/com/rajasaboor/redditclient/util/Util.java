@@ -48,23 +48,6 @@ public class Util {
 
         Log.d(TAG, "printList: end");
     }
-
-    public static void displayErrorDialog(AlertDialog.Builder errorDialog, String errorMessage, boolean isCancelAble) {
-        Log.d(TAG, "displayErrorDialog: start");
-        errorDialog.setTitle(Resources.getSystem().getString(R.string.error_alert_dialog_title))
-                .setCancelable(isCancelAble)
-                .setMessage(errorMessage)
-                .setNegativeButton(Resources.getSystem().getString(R.string.error_dialog_button), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Log.d(TAG, "onClick: Dismiss the dialog");
-                        dialogInterface.dismiss();
-                    }
-                });
-
-        errorDialog.show();
-        Log.d(TAG, "displayErrorDialog: end");
-    }
      /*
     * This method check the progress of the web view and updating the progress bar
      */

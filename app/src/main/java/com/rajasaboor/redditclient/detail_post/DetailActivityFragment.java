@@ -27,10 +27,10 @@ import com.rajasaboor.redditclient.model.RedditPost;
  * Created by rajaSaboor on 9/5/2017.
  */
 
-public class DetailActivityFragment extends Fragment implements DetailPostContract.View {
+public class DetailActivityFragment extends Fragment {
     private static final String TAG = DetailActivityFragment.class.getSimpleName();
     private DetailFragmentLayoutBinding detailFragmentLayoutBinding = null;
-    private DetailPostContract.Presenter presenter = null;
+    private DetailPostContract.Presenter presenter;
 
     public static DetailActivityFragment newInstance() {
         return new DetailActivityFragment();
@@ -41,9 +41,14 @@ public class DetailActivityFragment extends Fragment implements DetailPostContra
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         detailFragmentLayoutBinding = DataBindingUtil.inflate(inflater, R.layout.detail_fragment_layout, container, false);
         setHasOptionsMenu(true);
-
         setUpViewPager();
         return detailFragmentLayoutBinding.getRoot();
+    }
+
+    public void setUpViewPager() {
+        DetailViewPager detailViewPager = new DetailViewPager(getFragmentManager(), presenter.getPost());
+        detailFragmentLayoutBinding.detailsViewPager.setAdapter(detailViewPager);
+        detailFragmentLayoutBinding.detailsTabsLayout.setupWithViewPager(detailFragmentLayoutBinding.detailsViewPager);
     }
 
     @Override
@@ -56,22 +61,14 @@ public class DetailActivityFragment extends Fragment implements DetailPostContra
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.share_menu:
-                sharePost(detailFragmentLayoutBinding.detailsTabsLayout, ((DetailPresenter) presenter).getPost());
+                sharePost();
                 break;
         }
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public void setUpViewPager() {
-        DetailViewPager detailViewPager = new DetailViewPager(getFragmentManager(), ((DetailPresenter) presenter).getPost());
-        detailFragmentLayoutBinding.detailsViewPager.setAdapter(detailViewPager);
-        detailFragmentLayoutBinding.detailsTabsLayout.setupWithViewPager(detailFragmentLayoutBinding.detailsViewPager);
-    }
-
-    @Override
-    public void sharePost(TabLayout tabLayout, RedditPost post) {
-        String urlToShare = tabLayout.getSelectedTabPosition() == 0 ? post.getPostURL() : BuildConfig.BASE_URI + post.getCommentsLink();
+    public void sharePost() {
+        String urlToShare = detailFragmentLayoutBinding.detailsTabsLayout.getSelectedTabPosition() == 0 ? presenter.getPost().getPostURL() : BuildConfig.BASE_URI + presenter.getPost().getCommentsLink();
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(getContext().getString(R.string.share_message), urlToShare));

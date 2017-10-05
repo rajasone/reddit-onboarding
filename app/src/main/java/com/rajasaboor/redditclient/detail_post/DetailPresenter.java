@@ -16,6 +16,7 @@ class DetailPresenter implements DetailPostContract.Presenter {
         this.post = post;
     }
 
+    @Override
     public RedditPost getPost() {
         return post;
     }

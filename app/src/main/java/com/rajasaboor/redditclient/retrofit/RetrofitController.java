@@ -42,9 +42,11 @@ interface IRetroApi {
 public class RetrofitController implements Callback<RedditRespone> {
     private static final String TAG = RetrofitController.class.getSimpleName(); // Tag name for the Debug purposes
     private final IOnDownloadComplete onDownloadComplete; // An interface instance to call the listener method
+    private SharedPreferences preferences;
 
-    public RetrofitController(IOnDownloadComplete onDownloadComplete) {
+    public RetrofitController(IOnDownloadComplete onDownloadComplete, SharedPreferences preferences) {
         this.onDownloadComplete = onDownloadComplete;
+        this.preferences = preferences;
     }
 
     public void start() {
@@ -65,7 +67,9 @@ public class RetrofitController implements Callback<RedditRespone> {
         }
     }
 
-    public void saveTheDataInSharedPrefs(List<RedditPostWrapper> postWrapperList, SharedPreferences preferences) {
+    public void saveTheDataInSharedPrefs(List<RedditPostWrapper> postWrapperList) {
+        removeTheCacheData();
+
         SharedPreferences.Editor editor = preferences.edit();
         editor.putInt(BuildConfig.SIZE_OF_POST_LIST, postWrapperList.size());
         Gson gson = new Gson();
@@ -75,7 +79,6 @@ public class RetrofitController implements Callback<RedditRespone> {
         editor.apply();
     }
 
-
     @Override
     public void onFailure(Call<RedditRespone> call, Throwable t) {
         t.printStackTrace();
@@ -84,20 +87,22 @@ public class RetrofitController implements Callback<RedditRespone> {
         }
     }
 
-
-    public List<RedditPostWrapper> getCacheDataFromSharedPrefs(SharedPreferences preferences) {
+    public List<RedditPostWrapper> getCacheDataFromSharedPrefs() {
         Gson gson = new Gson();
         List<RedditPostWrapper> temp = new ArrayList<>();
 
-        for (int i = 0; i < preferences.getInt(BuildConfig.SIZE_OF_POST_LIST, 0); i++)
+        for (int i = 0; i < preferences.getInt(BuildConfig.SIZE_OF_POST_LIST, 0); i++) {
             temp.add(gson.fromJson(preferences.getString(String.valueOf(i), ""), RedditPostWrapper.class));
+        }
         return temp;
     }
 
-    public void removeTheCacheData(SharedPreferences preferences) {
-        int size = getCacheDataFromSharedPrefs(preferences).size();
-        for (int i = 0; i < size; i++)
+    private void removeTheCacheData() {
+        int size = getCacheDataFromSharedPrefs().size();
+        Log.d(TAG, "removeTheCacheData: Size of prefs ====> " + size);
+        for (int i = 0; i < size; i++) {
             preferences.edit().remove(String.valueOf(i)).apply();
+        }
     }
         /*
     * An interface which sends the download result back to the Caller who request the data in this case its ViewActivity
