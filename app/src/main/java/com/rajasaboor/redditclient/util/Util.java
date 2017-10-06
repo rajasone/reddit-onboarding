@@ -60,7 +60,7 @@ public class Util {
 
             @Override
             public void run() {
-                Log.d(TAG, "onCreateView: Progress ---> " + postWebView.getProgress());
+//                Log.d(TAG, "onCreateView: Progress ---> " + postWebView.getProgress());
                 postProgress = postWebView.getProgress();
                 if (postProgress == 100) {
                     Log.d(TAG, "run: now off the thread");

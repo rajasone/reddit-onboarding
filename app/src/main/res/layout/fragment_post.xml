@@ -4,7 +4,7 @@
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context="com.rajasaboor.redditclient.fragments.PostFragment">
+        tools:context="com.rajasaboor.redditclient.detail_post.PostFragment">
 
         <WebView
             android:id="@+id/post_webview"

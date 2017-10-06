@@ -68,7 +68,8 @@ public class DetailActivityFragment extends Fragment {
     }
 
     public void sharePost() {
-        String urlToShare = detailFragmentLayoutBinding.detailsTabsLayout.getSelectedTabPosition() == 0 ? presenter.getPost().getPostURL() : BuildConfig.BASE_URI + presenter.getPost().getCommentsLink();
+        String urlToShare = detailFragmentLayoutBinding.detailsTabsLayout.getSelectedTabPosition() == 0 ? presenter.getPost().getPostURL() :
+                BuildConfig.BASE_URI + presenter.getPost().getCommentsLink();
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(getContext().getString(R.string.share_message), urlToShare));

@@ -1,17 +1,9 @@
 package com.rajasaboor.redditclient.view_recycler;
 
-import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.net.ConnectivityManager;
-import android.os.Bundle;
-import android.support.annotation.IdRes;
 import android.support.annotation.StringRes;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.view.View;
 
-import com.rajasaboor.redditclient.databinding.MainFragmentBinding;
-import com.rajasaboor.redditclient.fragments.DetailsFragment;
+import com.rajasaboor.redditclient.detail_post.DetailsTabletFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 
@@ -28,15 +20,15 @@ interface ViewPostContract {
         void updateLastDownloadMessageInToolbar(int minutes);
 
         void showServerRequestProgressBar(boolean show);
+
+        void hideDetailFragment(boolean hide);
+
+        void setViewPagerPost(RedditPost redditPost);
+
+        void sharePost(String message);
     }
 
     interface FragmentView {
-        boolean isTabletActive();
-
-        DetailsFragment getDetailFragmentReferenceInTablet();
-
-        void sharePost();
-
         void showErrorDialogWhileServerRequest();
 
         String getMessageFromStringRes(@StringRes int resID);
@@ -57,8 +49,6 @@ interface ViewPostContract {
 
         List<RedditPostWrapper> getPostWrapperList();
 
-        void checkTheCacheAndRequestServer(ConnectivityManager manager);
-
         void saveDownloadTimeInSharedPrefs();
 
         RedditPost getSelectedPost();
@@ -67,10 +57,16 @@ interface ViewPostContract {
 
         long getTimeDifferenceInMinutes();
 
-        void hideNoPostSelectedTextView(boolean hide);
-
         void updateToolbarSubtitle();
 
-        void requestServer(ConnectivityManager manager);
+        void requestServer();
+
+        boolean isTabletLayoutIsActive();
+
+        void checkCurrentLayoutAndSetUpViews();
+
+        void sharePost();
+
+        void loadCacheOrRequestServer();
     }
 }

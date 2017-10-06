@@ -21,19 +21,18 @@
             android:id="@+id/swipe_layout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@+id/toolbar_include"
             android:layout_marginBottom="0dp"
             android:layout_marginLeft="0dp"
             android:layout_marginRight="0dp"
-            android:layout_marginTop="0dp">
+            android:layout_marginTop="0dp"
+            app:showColorScheme="@{true}">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/posts_recycler_view"
                 android:layout_width="match_parent"
-                android:visibility="visible"
                 android:layout_height="match_parent"
-                android:scrollbars="vertical" />
+                android:scrollbars="vertical"
+                android:visibility="visible" />
         </android.support.v4.widget.SwipeRefreshLayout>
-
     </RelativeLayout>
 </layout>

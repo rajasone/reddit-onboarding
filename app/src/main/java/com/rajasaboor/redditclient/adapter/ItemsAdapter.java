@@ -85,7 +85,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemsViewHol
                 case R.id.post_parent_layout:
                     if ((onPostTapped != null) && (Util.checkConnection((ConnectivityManager) view.getContext().getSystemService(Context.CONNECTIVITY_SERVICE)))) {
                         Log.d(TAG, "onClick: Sending the call to the interface");
-                        onPostTapped.onPostTappedListener(getAdapterPosition());
+                        onPostTapped.onPostTappedListener(getAdapterPosition() == RecyclerView.NO_POSITION ? 0 : getAdapterPosition());
                     } else {
                         Toast.makeText(view.getContext(), view.getContext().getResources().getString(R.string.no_internet_connection), Toast.LENGTH_SHORT).show();
                         Log.e(TAG, "onClick: No internet connection");

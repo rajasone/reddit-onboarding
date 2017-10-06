@@ -4,10 +4,9 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
-import android.util.Log;
 
 import com.rajasaboor.redditclient.BuildConfig;
-import com.rajasaboor.redditclient.fragments.PostFragment;
+import com.rajasaboor.redditclient.detail_post.PostFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
 
 
@@ -52,12 +51,13 @@ public class DetailViewPager extends FragmentStatePagerAdapter {
 
     @Override
     public int getCount() {
-        return (post.isPostIsSelf() ? 1 : 2);
+        return ((post != null) && (post.isPostIsSelf()) ? 1 : 2);
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return (post.isPostIsSelf() ? DetailViewPager.TABS_NAMES[DetailViewPager.COMMENT_TAB_POSITION] : DetailViewPager.TABS_NAMES[position]);
+        return ((post != null) && (post.isPostIsSelf()) ? DetailViewPager.TABS_NAMES[DetailViewPager.COMMENT_TAB_POSITION] :
+                DetailViewPager.TABS_NAMES[position]);
     }
 
     public RedditPost getPost() {

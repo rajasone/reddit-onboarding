@@ -1,6 +1,8 @@
 package com.rajasaboor.redditclient.view_recycler;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -9,7 +11,8 @@ import android.view.View;
 import com.rajasaboor.redditclient.BuildConfig;
 import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.databinding.ActivityMainBinding;
-import com.rajasaboor.redditclient.fragments.DetailsFragment;
+import com.rajasaboor.redditclient.detail_post.DetailsTabletFragment;
+import com.rajasaboor.redditclient.model.RedditPost;
 
 public class ViewActivity extends AppCompatActivity implements ViewPostContract.ActivityView {
     private static final String TAG = ViewActivity.class.getSimpleName(); // Tag name for the Debug purposes
@@ -28,32 +31,45 @@ public class ViewActivity extends AppCompatActivity implements ViewPostContract.
             viewPostFragment = ViewPostFragment.newInstance();
             getSupportFragmentManager().beginTransaction().add(R.id.main_fragment_container, viewPostFragment).commit();
         }
-        viewPostFragment.setViewPresenter(new ViewPresenter(getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE), viewPostFragment, this));
 
-        // if tablet layout is activated inflate the detail fragment
+        // If the device is tablet set up the tablet layout and pass it to the presenter
+        DetailsTabletFragment detailsTabletFragment = null;
         if (mainBinding.detailFragmentContainer != null) {
-            setUpTheTabletLayout();
+            detailsTabletFragment = (DetailsTabletFragment) getSupportFragmentManager().findFragmentById(R.id.detail_fragment_container);
+            if (detailsTabletFragment == null) {
+                detailsTabletFragment = DetailsTabletFragment.newInstance(null);
+                getSupportFragmentManager().beginTransaction()
+                        .add(R.id.detail_fragment_container, detailsTabletFragment)
+                        .commit();
+            }
+            mainBinding.detailFragmentContainer.setVisibility(View.GONE); // hide the fragment if user tap on post then it will be visible
         }
-    }
-
-    public ActivityMainBinding getMainBinding() {
-        return mainBinding;
-    }
-
-    private void setUpTheTabletLayout() {
-        DetailsFragment detailsFragment = (DetailsFragment) getSupportFragmentManager().findFragmentById(R.id.detail_fragment_container);
-        if (detailsFragment == null) {
-            detailsFragment = DetailsFragment.newInstance();
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.detail_fragment_container, detailsFragment)
-                    .commit();
-        }
-        mainBinding.detailFragmentContainer.setVisibility(View.GONE); // hide the fragment if user tap on post then it will be visible
+        viewPostFragment.setViewPresenter(new ViewPresenter(getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE), viewPostFragment,
+                this, detailsTabletFragment, (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE)));
     }
 
     @Override
     public void showServerRequestProgressBar(boolean show) {
         mainBinding.toolbarInclude.menuProgressBar.setVisibility(show ? View.VISIBLE : View.GONE);
+    }
+
+    @Override
+    public void hideDetailFragment(boolean hide) {
+        mainBinding.detailFragmentContainer.setVisibility(hide ? View.GONE : View.VISIBLE);
+    }
+
+    @Override
+    public void setViewPagerPost(RedditPost redditPost) {
+        ((DetailsTabletFragment) getSupportFragmentManager().findFragmentById(R.id.detail_fragment_container)).setViewPagerPost(redditPost);
+    }
+
+    @Override
+    public void sharePost(String message) {
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(getString(R.string.share_message), message));
+        shareIntent.setType("text/plain");
+        startActivity(shareIntent);
     }
 
     @Override

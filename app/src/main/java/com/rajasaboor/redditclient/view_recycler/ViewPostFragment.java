@@ -27,7 +27,7 @@ import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.adapter.ItemsAdapter;
 import com.rajasaboor.redditclient.databinding.MainFragmentBinding;
 import com.rajasaboor.redditclient.detail_post.DetailActivity;
-import com.rajasaboor.redditclient.fragments.DetailsFragment;
+import com.rajasaboor.redditclient.detail_post.DetailsTabletFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 
@@ -43,9 +43,9 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.Fragm
 
     private static final String TAG = ViewPostFragment.class.getSimpleName();
     private MainFragmentBinding fragmentBinding = null;
-    private ViewPostContract.Presenter viewPresenter = null;
     private ItemsAdapter itemsAdapter = null;
     private Menu menu = null;
+    private ViewPostContract.Presenter viewPresenter;
 
 
     public static ViewPostFragment newInstance() {
@@ -79,25 +79,8 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.Fragm
     @Override
     public void onResume() {
         super.onResume();
-
-        if (viewPresenter.getTimeDifferenceInMinutes() >= 5) {
-            Log.d(TAG, "onResume: Call the server");
-            viewPresenter.requestServer((ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE));
-        } else {
-            Log.d(TAG, "onResume: Getting the cache data");
-            viewPresenter.checkTheCacheAndRequestServer((ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE));
-        }
-
-        if (isTabletActive() && viewPresenter.getSelectedPost() == null) {
-            Log.d(TAG, "onResume: Inside the if of tablet layout");
-            viewPresenter.hideNoPostSelectedTextView(false);
-        }
-
-        if (isTabletActive() && viewPresenter.getSelectedPost() != null) {
-            Log.d(TAG, "onResume: Inside the tablet layout");
-            hideDetailFragment(false);
-            getDetailFragmentReferenceInTablet().setPost(viewPresenter.getSelectedPost());
-        }
+        viewPresenter.loadCacheOrRequestServer();
+        viewPresenter.checkCurrentLayoutAndSetUpViews();
     }
 
     @Override
@@ -110,12 +93,13 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.Fragm
         this.viewPresenter = viewPresenter;
     }
 
+
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.main_menu, menu);
         setMenu(menu);
-        if (isTabletActive()) {
+        if (viewPresenter.isTabletLayoutIsActive()) {
             menu.findItem(R.id.share_menu).setVisible(true);
         }
     }
@@ -124,14 +108,10 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.Fragm
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.refresh_post_list_menu:
-                viewPresenter.requestServer((ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE));
+                viewPresenter.requestServer();
                 break;
             case R.id.share_menu:
-                if (viewPresenter.getSelectedPost() == null) {
-                    Toast.makeText(getContext(), getString(R.string.no_post_selected), Toast.LENGTH_SHORT).show();
-                } else {
-                    sharePost();
-                }
+                viewPresenter.sharePost();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -175,11 +155,6 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.Fragm
         fragmentBinding.noOfflineDataTextView.setVisibility(hide ? View.GONE : View.VISIBLE);
     }
 
-    @Override
-    public boolean isTabletActive() {
-        return (((ViewActivity) getActivity()).getMainBinding().detailFragmentContainer != null);
-    }
-
 
     @Override
     public void updatePostAdapter(List<RedditPostWrapper> wrapperList) {
@@ -196,41 +171,21 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.Fragm
 
     @Override
     public void onRefresh() {
-        viewPresenter.requestServer((ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE));
+        viewPresenter.requestServer();
         fragmentBinding.swipeLayout.setRefreshing(false);
     }
 
     @Override
     public void onPostTappedListener(int position) {
+        Log.d(TAG, "onPostTappedListener: Position ---> " + position);
         viewPresenter.setSelectedPost(viewPresenter.getPostWrapperList().get(position).getData());
 
-        if (!isTabletActive()) {
+        if (!viewPresenter.isTabletLayoutIsActive()) {
             Intent detail = new Intent(getContext(), DetailActivity.class);
             detail.putExtra(BuildConfig.INDIVIDUAL_POST_ITEM_KEY, viewPresenter.getPostWrapperList().get(position).getData());
             startActivity(detail);
         } else {
-            hideDetailFragment(false);
-            viewPresenter.hideNoPostSelectedTextView(true);
-            getDetailFragmentReferenceInTablet().setPost(viewPresenter.getSelectedPost());
+            viewPresenter.checkCurrentLayoutAndSetUpViews();
         }
-    }
-
-    public void hideDetailFragment(boolean hide) {
-        ((ViewActivity) getActivity()).getMainBinding().detailFragmentContainer.setVisibility(hide ? View.GONE : View.VISIBLE);
-    }
-
-    @Override
-    public DetailsFragment getDetailFragmentReferenceInTablet() {
-        return ((DetailsFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.detail_fragment_container));
-    }
-
-    @Override
-    public void sharePost() {
-        String urlToShare = getDetailFragmentReferenceInTablet().getTabLayout().getSelectedTabPosition() == 0 ? viewPresenter.getSelectedPost().getPostURL() : BuildConfig.BASE_URI + viewPresenter.getSelectedPost().getCommentsLink();
-        Intent shareIntent = new Intent();
-        shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(getContext().getString(R.string.share_message), urlToShare));
-        shareIntent.setType("text/plain");
-        startActivity(shareIntent);
     }
 }

@@ -1,18 +1,15 @@
-package com.rajasaboor.redditclient.fragments;
+package com.rajasaboor.redditclient.detail_post;
 
 
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.ProgressBar;
 
 import com.rajasaboor.redditclient.BuildConfig;
 import com.rajasaboor.redditclient.R;
@@ -45,10 +42,8 @@ public class PostFragment extends Fragment {
 
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         postBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_post, container, false);
-
 
         // If key == 0 Post URI will be loaded otherwise Comments URI will be loaded
         boolean isPost = getArguments().getInt(BuildConfig.POST_TAB_KEY) == 0;
@@ -61,7 +56,6 @@ public class PostFragment extends Fragment {
         if (savedInstanceState != null) {
             postBinding.postWebview.restoreState(savedInstanceState);
             postProgress = postBinding.postWebview.getProgress() == 10 ? 100 : postBinding.postWebview.getProgress();
-
         } else {
             if (isPost) {
                 postBinding.postWebview.loadUrl(post.getPostURL());

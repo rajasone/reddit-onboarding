@@ -15,7 +15,7 @@ public class CustomBindingAdapter {
     private static final String TAG = CustomBindingAdapter.class.getSimpleName();
 
     @BindingAdapter("showColorScheme")
-    public static void addTheColorScheme(SwipeRefreshLayout refreshLayout, boolean applyColorScheme) {
+    public static void showColorScheme(SwipeRefreshLayout refreshLayout, boolean applyColorScheme) {
         if (applyColorScheme) {
             refreshLayout.setColorSchemeColors(ContextCompat.getColor(refreshLayout.getContext(), R.color.colorRedHundred), ContextCompat.getColor(refreshLayout.getContext(), R.color.colorGreen),
                     ContextCompat.getColor(refreshLayout.getContext(), R.color.colorParrot), ContextCompat.getColor(refreshLayout.getContext(), R.color.colorYellow),
