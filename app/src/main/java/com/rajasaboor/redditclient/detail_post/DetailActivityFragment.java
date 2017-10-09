@@ -1,14 +1,10 @@
 package com.rajasaboor.redditclient.detail_post;
 
 import android.content.Intent;
-import android.content.res.Resources;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -19,9 +15,7 @@ import android.view.ViewGroup;
 import com.rajasaboor.redditclient.BuildConfig;
 import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.appbar_layout.DetailViewPager;
-import com.rajasaboor.redditclient.databinding.ActivityDetailBinding;
 import com.rajasaboor.redditclient.databinding.DetailFragmentLayoutBinding;
-import com.rajasaboor.redditclient.model.RedditPost;
 
 /**
  * Created by rajaSaboor on 9/5/2017.

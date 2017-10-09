@@ -1,10 +1,8 @@
 package com.rajasaboor.redditclient.view_recycler;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.rajasaboor.redditclient.BuildConfig;
 import com.rajasaboor.redditclient.R;

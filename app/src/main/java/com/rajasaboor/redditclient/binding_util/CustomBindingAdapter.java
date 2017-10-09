@@ -3,7 +3,6 @@ package com.rajasaboor.redditclient.binding_util;
 import android.databinding.BindingAdapter;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.view.View;
 
 import com.rajasaboor.redditclient.R;
 
