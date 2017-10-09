@@ -12,8 +12,6 @@ import com.rajasaboor.redditclient.R;
  */
 
 public class CustomBindingAdapter {
-    private static final String TAG = CustomBindingAdapter.class.getSimpleName();
-
     @BindingAdapter("showColorScheme")
     public static void showColorScheme(SwipeRefreshLayout refreshLayout, boolean applyColorScheme) {
         if (applyColorScheme) {

@@ -47,7 +47,7 @@ public class DetailsTabletFragment extends Fragment {
     }
 
     private void setUpTheViewPager(RedditPost post) {
-        DetailViewPager detailViewPager = new DetailViewPager(getFragmentManager(), post);
+        DetailViewPager detailViewPager = new DetailViewPager(getChildFragmentManager(), post);
         layoutBinding.detailsViewPager.setAdapter(detailViewPager);
         layoutBinding.detailsTabsLayout.setupWithViewPager(layoutBinding.detailsViewPager);
     }

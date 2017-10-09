@@ -75,14 +75,22 @@ class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IO
     }
 
     private void checkTheCacheAndRequestServer() {
+        Log.d(TAG, "checkTheCacheAndRequestServer: start");
         if (preferences.getString(BuildConfig.KEY_TO_CHECK_DATA, null) != null) {
+            Log.d(TAG, "checkTheCacheAndRequestServer: Cache have DATA");
             fragmentView.hideNoOfflineDataAvailableTextView(true);
             postWrapperList = getCacheData();
             fragmentView.updatePostAdapter(postWrapperList);
             updateToolbarSubtitle();
-        } else if ((preferences.getString(BuildConfig.KEY_TO_CHECK_DATA, null) == null) && (Util.checkConnection(connectivityManager))) {
+        }
+
+        /*
+        else if ((preferences.getString(BuildConfig.KEY_TO_CHECK_DATA, null) == null) && (Util.checkConnection(connectivityManager))) {
+            Log.d(TAG, "checkTheCacheAndRequestServer: Cache is EMPTY requesting the server for DATA");
             controller.start();
         }
+        */
+        Log.d(TAG, "checkTheCacheAndRequestServer: end");
     }
 
     @Override
@@ -137,13 +145,15 @@ class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IO
 
     @Override
     public void loadCacheOrRequestServer() {
+        Log.d(TAG, "loadCacheOrRequestServer: start");
         if (getTimeDifferenceInMinutes() >= 5) {
-            Log.d(TAG, "onResume: Call the server");
-            requestServer();
-        } else {
-            Log.d(TAG, "onResume: Getting the cache data");
-            checkTheCacheAndRequestServer();
+            if (Util.checkConnection(connectivityManager)) {
+                requestServer();
+                return;
+            }
         }
+        Log.d(TAG, "loadCacheOrRequestServer: Getting the cache data");
+        checkTheCacheAndRequestServer();
     }
 
     @Override

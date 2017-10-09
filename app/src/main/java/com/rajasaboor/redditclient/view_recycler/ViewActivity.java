@@ -35,6 +35,7 @@ public class ViewActivity extends AppCompatActivity implements ViewPostContract.
         // If the device is tablet set up the tablet layout and pass it to the presenter
         DetailsTabletFragment detailsTabletFragment = null;
         if (mainBinding.detailFragmentContainer != null) {
+            // fragment layout is active
             detailsTabletFragment = (DetailsTabletFragment) getSupportFragmentManager().findFragmentById(R.id.detail_fragment_container);
             if (detailsTabletFragment == null) {
                 detailsTabletFragment = DetailsTabletFragment.newInstance(null);

@@ -45,7 +45,7 @@ public class DetailActivityFragment extends Fragment {
         return detailFragmentLayoutBinding.getRoot();
     }
 
-    public void setUpViewPager() {
+    private void setUpViewPager() {
         DetailViewPager detailViewPager = new DetailViewPager(getFragmentManager(), presenter.getPost());
         detailFragmentLayoutBinding.detailsViewPager.setAdapter(detailViewPager);
         detailFragmentLayoutBinding.detailsTabsLayout.setupWithViewPager(detailFragmentLayoutBinding.detailsViewPager);
