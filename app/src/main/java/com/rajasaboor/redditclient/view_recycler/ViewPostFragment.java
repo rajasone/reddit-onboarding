@@ -152,7 +152,6 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.Fragm
         fragmentBinding.noOfflineDataTextView.setVisibility(hide ? View.GONE : View.VISIBLE);
     }
 
-
     @Override
     public void updatePostAdapter(List<RedditPostWrapper> wrapperList) {
         itemsAdapter.updateAdapter(wrapperList);

@@ -7,6 +7,7 @@ import android.util.Log;
 import com.rajasaboor.redditclient.BuildConfig;
 import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.detail_post.DetailsTabletFragment;
+import com.rajasaboor.redditclient.detail_post.PostFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 import com.rajasaboor.redditclient.retrofit.RetrofitController;
@@ -75,19 +76,11 @@ class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IO
     private void checkTheCacheAndRequestServer() {
         Log.d(TAG, "checkTheCacheAndRequestServer: start");
         if (preferences.getString(BuildConfig.KEY_TO_CHECK_DATA, null) != null) {
-            Log.d(TAG, "checkTheCacheAndRequestServer: Cache have DATA");
             fragmentView.hideNoOfflineDataAvailableTextView(true);
             postWrapperList = getCacheData();
             fragmentView.updatePostAdapter(postWrapperList);
             updateToolbarSubtitle();
         }
-
-        /*
-        else if ((preferences.getString(BuildConfig.KEY_TO_CHECK_DATA, null) == null) && (Util.checkConnection(connectivityManager))) {
-            Log.d(TAG, "checkTheCacheAndRequestServer: Cache is EMPTY requesting the server for DATA");
-            controller.start();
-        }
-        */
         Log.d(TAG, "checkTheCacheAndRequestServer: end");
     }
 
@@ -157,10 +150,10 @@ class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IO
     @Override
     public void handleRefreshIcon() {
         if (isTabletLayoutIsActive()) {
-            Log.d(TAG, "onOptionsItemSelected: Tablet layout is loaded");
+            Log.d(TAG, "handleRefreshIcon: Tablet layout is loaded");
             if (getSelectedPost() != null) {
                 requestServer();
-                activityView.getBusInstance().post(tabletFragment.getTabLayout().getSelectedTabPosition());
+                activityView.getBusInstance().post(new PostFragment());
             }
         }
         requestServer();

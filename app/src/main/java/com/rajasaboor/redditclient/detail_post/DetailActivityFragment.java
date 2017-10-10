@@ -5,7 +5,6 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,7 +23,7 @@ import com.rajasaboor.redditclient.databinding.DetailFragmentLayoutBinding;
  * Created by rajaSaboor on 9/5/2017.
  */
 
-public class DetailActivityFragment extends Fragment implements ViewPager.OnPageChangeListener {
+public class DetailActivityFragment extends Fragment {
     private static final String TAG = DetailActivityFragment.class.getSimpleName();
     private DetailFragmentLayoutBinding detailFragmentLayoutBinding = null;
     private DetailPostContract.Presenter presenter;
@@ -40,7 +39,6 @@ public class DetailActivityFragment extends Fragment implements ViewPager.OnPage
         detailFragmentLayoutBinding = DataBindingUtil.inflate(inflater, R.layout.detail_fragment_layout, container, false);
         setHasOptionsMenu(true);
         setUpViewPager();
-        detailFragmentLayoutBinding.detailsViewPager.addOnPageChangeListener(this);
         return detailFragmentLayoutBinding.getRoot();
     }
 
@@ -69,7 +67,7 @@ public class DetailActivityFragment extends Fragment implements ViewPager.OnPage
                 break;
             case R.id.refresh_menu:
                 Log.d(TAG, "onOptionsItemSelected: Refresh Tapped");
-                ((RedditApplication) getActivity().getApplication()).getBus().post(detailFragmentLayoutBinding.detailsViewPager.getCurrentItem());
+                ((RedditApplication) getActivity().getApplication()).getBus().post(new PostFragment());
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -89,30 +87,4 @@ public class DetailActivityFragment extends Fragment implements ViewPager.OnPage
         this.presenter = presenter;
     }
 
-    @Override
-    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-    }
-
-    @Override
-    public void onPageSelected(int position) {
-        ((RedditApplication) getActivity().getApplication()).getBus().post(new PageSelected(position));
-    }
-
-    @Override
-    public void onPageScrollStateChanged(int state) {
-
-    }
-
-    class PageSelected {
-        private int position;
-
-        PageSelected(int position) {
-            this.position = position;
-        }
-
-        public Integer getSelectedPage() {
-            return this.position;
-        }
-    }
 }

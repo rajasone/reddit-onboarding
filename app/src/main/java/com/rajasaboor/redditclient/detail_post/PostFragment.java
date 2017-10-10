@@ -24,12 +24,20 @@ import com.squareup.otto.Subscribe;
  */
 public class PostFragment extends Fragment {
     private static final String TAG = PostFragment.class.getSimpleName();
-    private static final String IS_POST = "is_post";
+    private static final String ACTION_TYPE = "type";
     private RedditPost post;
     private int postProgress = 0; // maintain the progress bar progress for the loading purpose
     private FragmentPostBinding postBinding = null;
-    private boolean isPost;
+    private boolean showContent;
 
+    public static PostFragment newInstance(RedditPost post, boolean showContent) {
+        PostFragment postFragment = new PostFragment();
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(BuildConfig.INDIVIDUAL_POST_ITEM_KEY, post);
+        bundle.putBoolean(ACTION_TYPE, showContent);
+        postFragment.setArguments(bundle);
+        return postFragment;
+    }
 
     public PostFragment() {
         // Required empty public constructor
@@ -38,27 +46,17 @@ public class PostFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        if (getArguments().getParcelable(BuildConfig.KEY_URL_STRING) != null) {
-            post = getArguments().getParcelable(BuildConfig.KEY_URL_STRING);
-        }
-
-        if (savedInstanceState != null) {
-            isPost = savedInstanceState.getBoolean(PostFragment.IS_POST);
+        if (getArguments().getParcelable(BuildConfig.INDIVIDUAL_POST_ITEM_KEY) != null) {
+            post = getArguments().getParcelable(BuildConfig.INDIVIDUAL_POST_ITEM_KEY);
+            showContent = getArguments().getBoolean(ACTION_TYPE);
         }
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         Log.d(TAG, "onCreateView: start");
         postBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_post, container, false);
-
-
         ((RedditApplication) getActivity().getApplication()).getBus().register(this);
-
-        // If key == 0 Post URI will be loaded otherwise Comments URI will be loaded
-        isPost = getArguments().getInt(BuildConfig.POST_TAB_KEY) == 0;
         initWebView();
         /*
         * Check whether the bundle is NULL or not
@@ -69,7 +67,7 @@ public class PostFragment extends Fragment {
             postBinding.postWebview.restoreState(savedInstanceState);
             postProgress = postBinding.postWebview.getProgress() == 10 ? 100 : postBinding.postWebview.getProgress();
         } else {
-            if (isPost) {
+            if (showContent) {
                 postBinding.postWebview.loadUrl(post.getPostURL());
             } else {
                 postBinding.postWebview.loadUrl(BuildConfig.BASE_URI + post.getCommentsLink());
@@ -107,41 +105,17 @@ public class PostFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         postBinding.postWebview.saveState(outState);
-        outState.putBoolean(PostFragment.IS_POST, isPost);
     }
 
     @Subscribe
-    public void refreshWebView(Integer pos) {
+    public void refreshWebView(PostFragment postFragment) {
         Log.d(TAG, "refreshWebView: Refresh the web View");
-
-        boolean temp = getUserVisibleHint();
-        Log.d(TAG, "refreshWebView: Temp ----> " + temp);
-
-        if (pos == 0) {
-            Log.d(TAG, "refreshWebView: Post view is open");
-            Log.d(TAG, "refreshWebView: Url to load ====> " + post.getPostURL());
+        if (showContent) {
+            Log.d(TAG, "refreshWebView: Show the POST URL");
             postBinding.postWebview.loadUrl(post.getPostURL());
         } else {
-            Log.d(TAG, "refreshWebView: Comments view is open");
-            Log.d(TAG, "refreshWebView: Url to load ----> " + BuildConfig.BASE_URI + post.getCommentsLink());
+            Log.d(TAG, "refreshWebView: show the COMMENT URL");
             postBinding.postWebview.loadUrl(BuildConfig.BASE_URI + post.getCommentsLink());
         }
-    }
-
-    @Subscribe
-    public void pageSelected(DetailActivityFragment.PageSelected pageSelected) {
-        Log.d(TAG, "pageSelected: start");
-        Log.d(TAG, "pageSelected: Selected page ----> " + pageSelected.getSelectedPage());
-
-        if (pageSelected.getSelectedPage() == 0) {
-            if (!postBinding.postWebview.getUrl().equals(post.getPostURL())) {
-                postBinding.postWebview.loadUrl(post.getPostURL());
-            }
-        } else {
-            if (!postBinding.postWebview.getUrl().equals(BuildConfig.BASE_URI + post.getCommentsLink())) {
-                postBinding.postWebview.loadUrl(BuildConfig.BASE_URI + post.getCommentsLink());
-            }
-        }
-        Log.d(TAG, "pageSelected: end");
     }
 }

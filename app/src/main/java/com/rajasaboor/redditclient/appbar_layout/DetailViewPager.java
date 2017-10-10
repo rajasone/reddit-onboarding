@@ -1,11 +1,9 @@
 package com.rajasaboor.redditclient.appbar_layout;
 
-import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
-import com.rajasaboor.redditclient.BuildConfig;
 import com.rajasaboor.redditclient.detail_post.PostFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
 
@@ -19,8 +17,6 @@ public class DetailViewPager extends FragmentStatePagerAdapter {
     private RedditPost post;
     private static final int COMMENT_TAB_POSITION = 1;
     private static final String[] TABS_NAMES = {"Posts", "Comments"};
-    private static final int POST_TAB_VALUE = 0;
-    private static final int COMMENTS_TAB_VALUE = 1;
 
 
     public DetailViewPager(FragmentManager fm, RedditPost post) {
@@ -30,19 +26,11 @@ public class DetailViewPager extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(BuildConfig.KEY_URL_STRING, post);
-        PostFragment postFragment = new PostFragment();
-
         switch (position) {
             case 0:
-                bundle.putInt(BuildConfig.POST_TAB_KEY, POST_TAB_VALUE);
-                postFragment.setArguments(bundle);
-                return postFragment;
+                return PostFragment.newInstance(post, true);
             case 1:
-                bundle.putInt(BuildConfig.POST_TAB_KEY, COMMENTS_TAB_VALUE);
-                postFragment.setArguments(bundle);
-                return postFragment;
+                return PostFragment.newInstance(post, false);
             default:
                 throw new IllegalArgumentException("Unknown position ---> " + position);
         }
