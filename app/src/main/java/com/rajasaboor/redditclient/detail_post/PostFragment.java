@@ -1,6 +1,7 @@
 package com.rajasaboor.redditclient.detail_post;
 
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -27,8 +28,8 @@ public class PostFragment extends Fragment {
     private static final String ACTION_TYPE = "type";
     private RedditPost post;
     private int postProgress = 0; // maintain the progress bar progress for the loading purpose
-    private FragmentPostBinding postBinding = null;
     private boolean showContent;
+    private FragmentPostBinding postBinding = null;
 
     public static PostFragment newInstance(RedditPost post, boolean showContent) {
         PostFragment postFragment = new PostFragment();
@@ -67,10 +68,12 @@ public class PostFragment extends Fragment {
             postBinding.postWebview.restoreState(savedInstanceState);
             postProgress = postBinding.postWebview.getProgress() == 10 ? 100 : postBinding.postWebview.getProgress();
         } else {
-            if (showContent) {
-                postBinding.postWebview.loadUrl(post.getPostURL());
-            } else {
-                postBinding.postWebview.loadUrl(BuildConfig.BASE_URI + post.getCommentsLink());
+            if (post != null) {
+                if (showContent) {
+                    postBinding.postWebview.loadUrl(post.getPostURL());
+                } else {
+                    postBinding.postWebview.loadUrl(BuildConfig.BASE_URI + post.getCommentsLink());
+                }
             }
         }
         postBinding.postProgressBar.setProgress(postProgress);
@@ -109,13 +112,33 @@ public class PostFragment extends Fragment {
 
     @Subscribe
     public void refreshWebView(PostFragment postFragment) {
-        Log.d(TAG, "refreshWebView: Refresh the web View");
-        if (showContent) {
-            Log.d(TAG, "refreshWebView: Show the POST URL");
+        if ((showContent) && (getUserVisibleHint())) {
+            Log.d(TAG, "refreshWebView: Load the POST URL");
             postBinding.postWebview.loadUrl(post.getPostURL());
-        } else {
-            Log.d(TAG, "refreshWebView: show the COMMENT URL");
+        }
+        if ((!showContent) && (getUserVisibleHint())) {
+            Log.d(TAG, "refreshWebView: Load the COMMENT URL");
             postBinding.postWebview.loadUrl(BuildConfig.BASE_URI + post.getCommentsLink());
+        }
+    }
+
+    @Subscribe
+    public void sharePost(String share) {
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        if ((showContent) && (getUserVisibleHint())) {
+            shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(getContext().getString(R.string.share_message), post.getPostURL()));
+            Log.d(TAG, "sharePost: share content");
+        }
+        if ((!showContent) && (getUserVisibleHint())) {
+            shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(getContext().getString(R.string.share_message), BuildConfig.BASE_URI + post.getCommentsLink()));
+            Log.d(TAG, "sharePost: share comments");
+        }
+
+        if (getUserVisibleHint()) {
+            Log.d(TAG, "sharePost: Showing");
+            startActivity(shareIntent);
         }
     }
 }

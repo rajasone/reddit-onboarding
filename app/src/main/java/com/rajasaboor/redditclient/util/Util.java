@@ -1,25 +1,15 @@
 package com.rajasaboor.redditclient.util;
 
-import android.app.Dialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.res.Resources;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
-import android.support.design.widget.TabLayout;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.webkit.WebView;
 import android.widget.ProgressBar;
-import android.widget.Toast;
 
 import com.rajasaboor.redditclient.BuildConfig;
-import com.rajasaboor.redditclient.R;
-import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 
 import java.util.List;
@@ -60,7 +50,6 @@ public class Util {
 
             @Override
             public void run() {
-//                Log.d(TAG, "onCreateView: Progress ---> " + postWebView.getProgress());
                 postProgress = postWebView.getProgress();
                 if (postProgress == 100) {
                     Log.d(TAG, "run: now off the thread");

@@ -7,7 +7,6 @@ import com.rajasaboor.redditclient.model.RedditPost;
  */
 
 class DetailPresenter implements DetailPostContract.Presenter {
-    private static final String TAG = DetailPresenter.class.getSimpleName();
     private RedditPost post = null;
 
     DetailPresenter(RedditPost post) {

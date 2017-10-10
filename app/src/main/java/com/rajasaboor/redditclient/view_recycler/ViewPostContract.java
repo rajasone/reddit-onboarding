@@ -24,8 +24,6 @@ interface ViewPostContract {
 
         void setViewPagerPost(RedditPost redditPost);
 
-        void sharePost(String message);
-
         Bus getBusInstance();
     }
 
@@ -41,6 +39,8 @@ interface ViewPostContract {
         void showToast(String message);
 
         void hideNoOfflineDataAvailableTextView(boolean hide);
+
+        void showMenuItem(int menuItemId, boolean show);
     }
 
     interface Presenter {
@@ -66,10 +66,12 @@ interface ViewPostContract {
 
         void checkCurrentLayoutAndSetUpViews();
 
-        void sharePost();
-
         void loadCacheOrRequestServer();
 
         void handleRefreshIcon();
+
+        void handleShareAction();
+
+        void actionsPerformIfTabLayout();
     }
 }

@@ -1,11 +1,9 @@
 package com.rajasaboor.redditclient.detail_post;
 
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -13,10 +11,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.rajasaboor.redditclient.BuildConfig;
 import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.RedditApplication;
-import com.rajasaboor.redditclient.appbar_layout.DetailViewPager;
+import com.rajasaboor.redditclient.appbar_layout.DetailPagerAdapter;
 import com.rajasaboor.redditclient.databinding.DetailFragmentLayoutBinding;
 
 /**
@@ -27,7 +24,6 @@ public class DetailActivityFragment extends Fragment {
     private static final String TAG = DetailActivityFragment.class.getSimpleName();
     private DetailFragmentLayoutBinding detailFragmentLayoutBinding = null;
     private DetailPostContract.Presenter presenter;
-    private DetailViewPager detailViewPager;
 
     public static DetailActivityFragment newInstance() {
         return new DetailActivityFragment();
@@ -43,8 +39,8 @@ public class DetailActivityFragment extends Fragment {
     }
 
     private void setUpViewPager() {
-        detailViewPager = new DetailViewPager(getFragmentManager(), presenter.getPost());
-        detailFragmentLayoutBinding.detailsViewPager.setAdapter(detailViewPager);
+        DetailPagerAdapter detailPagerAdapter = new DetailPagerAdapter(getFragmentManager(), presenter.getPost());
+        detailFragmentLayoutBinding.detailsViewPager.setAdapter(detailPagerAdapter);
         detailFragmentLayoutBinding.detailsTabsLayout.setupWithViewPager(detailFragmentLayoutBinding.detailsViewPager);
     }
 
@@ -55,32 +51,16 @@ public class DetailActivityFragment extends Fragment {
     }
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.share_menu:
-                sharePost();
+                ((RedditApplication) getActivity().getApplication()).getBus().post("share");
                 break;
             case R.id.refresh_menu:
-                Log.d(TAG, "onOptionsItemSelected: Refresh Tapped");
                 ((RedditApplication) getActivity().getApplication()).getBus().post(new PostFragment());
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    public void sharePost() {
-        String urlToShare = detailFragmentLayoutBinding.detailsTabsLayout.getSelectedTabPosition() == 0 ? presenter.getPost().getPostURL() :
-                BuildConfig.BASE_URI + presenter.getPost().getCommentsLink();
-        Intent shareIntent = new Intent();
-        shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(getContext().getString(R.string.share_message), urlToShare));
-        shareIntent.setType("text/plain");
-        startActivity(shareIntent);
     }
 
     public void setPresenter(DetailPostContract.Presenter presenter) {

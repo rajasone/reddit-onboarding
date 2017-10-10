@@ -1,6 +1,5 @@
 package com.rajasaboor.redditclient.view_recycler;
 
-import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
@@ -37,17 +36,16 @@ public class ViewActivity extends AppCompatActivity implements ViewPostContract.
         // If the device is tablet set up the tablet layout and pass it to the presenter
         DetailsTabletFragment detailsTabletFragment = null;
         if (mainBinding.detailFragmentContainer != null) {
-            // fragment layout is active
             detailsTabletFragment = (DetailsTabletFragment) getSupportFragmentManager().findFragmentById(R.id.detail_fragment_container);
             if (detailsTabletFragment == null) {
-                detailsTabletFragment = DetailsTabletFragment.newInstance(null);
+                detailsTabletFragment = DetailsTabletFragment.newInstance();
                 getSupportFragmentManager().beginTransaction()
                         .add(R.id.detail_fragment_container, detailsTabletFragment)
                         .commit();
             }
             mainBinding.detailFragmentContainer.setVisibility(View.GONE); // hide the fragment if user tap on post then it will be visible
         }
-        viewPostFragment.setViewPresenter(new ViewPresenter(getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE), viewPostFragment,
+        viewPostFragment.setPresenter(new ViewPresenter(getSharedPreferences(BuildConfig.SHARED_PREFS_NAME, MODE_PRIVATE), viewPostFragment,
                 this, detailsTabletFragment, (ConnectivityManager) getSystemService(CONNECTIVITY_SERVICE)));
     }
 
@@ -64,15 +62,6 @@ public class ViewActivity extends AppCompatActivity implements ViewPostContract.
     @Override
     public void setViewPagerPost(RedditPost redditPost) {
         ((DetailsTabletFragment) getSupportFragmentManager().findFragmentById(R.id.detail_fragment_container)).setViewPagerPost(redditPost);
-    }
-
-    @Override
-    public void sharePost(String message) {
-        Intent shareIntent = new Intent();
-        shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(getString(R.string.share_message), message));
-        shareIntent.setType("text/plain");
-        startActivity(shareIntent);
     }
 
     @Override

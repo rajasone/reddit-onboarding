@@ -12,14 +12,14 @@ import com.rajasaboor.redditclient.model.RedditPost;
  * Created by default on 8/4/2017.
  */
 
-public class DetailViewPager extends FragmentStatePagerAdapter {
-    private static final String TAG = DetailViewPager.class.getSimpleName();
+public class DetailPagerAdapter extends FragmentStatePagerAdapter {
+    private static final String TAG = DetailPagerAdapter.class.getSimpleName();
     private RedditPost post;
     private static final int COMMENT_TAB_POSITION = 1;
     private static final String[] TABS_NAMES = {"Posts", "Comments"};
 
 
-    public DetailViewPager(FragmentManager fm, RedditPost post) {
+    public DetailPagerAdapter(FragmentManager fm, RedditPost post) {
         super(fm);
         this.post = post;
     }
@@ -44,8 +44,8 @@ public class DetailViewPager extends FragmentStatePagerAdapter {
 
     @Override
     public CharSequence getPageTitle(int position) {
-        return ((post != null) && (post.isPostIsSelf()) ? DetailViewPager.TABS_NAMES[DetailViewPager.COMMENT_TAB_POSITION] :
-                DetailViewPager.TABS_NAMES[position]);
+        return ((post != null) && (post.isPostIsSelf()) ? DetailPagerAdapter.TABS_NAMES[DetailPagerAdapter.COMMENT_TAB_POSITION] :
+                DetailPagerAdapter.TABS_NAMES[position]);
     }
 
     public RedditPost getPost() {
@@ -55,4 +55,5 @@ public class DetailViewPager extends FragmentStatePagerAdapter {
     public void setPost(RedditPost post) {
         this.post = post;
     }
+
 }

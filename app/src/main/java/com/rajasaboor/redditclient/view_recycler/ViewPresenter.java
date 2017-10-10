@@ -111,27 +111,21 @@ class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IO
 
     @Override
     public void checkCurrentLayoutAndSetUpViews() {
+        Log.d(TAG, "checkCurrentLayoutAndSetUpViews: start");
         if (isTabletLayoutIsActive()) {
+            Log.d(TAG, "checkCurrentLayoutAndSetUpViews: Tab layout is active");
             if (getSelectedPost() == null) {
+                Log.e(TAG, "checkCurrentLayoutAndSetUpViews: Selected post is NULL");
                 activityView.hideNoPostSelectedTextView(false); // NO post is selected SHOW the text view no post is selected
             } else {
+                Log.d(TAG, "checkCurrentLayoutAndSetUpViews: Selected post is good to go");
                 activityView.hideNoPostSelectedTextView(true); // post is selected HIDE the text view no post is selected
                 activityView.hideDetailFragment(false); // selected post is not NULL show the detail fragment
                 activityView.setViewPagerPost(getSelectedPost());
             }
         }
-    }
+        Log.d(TAG, "checkCurrentLayoutAndSetUpViews: end");
 
-    @Override
-    public void sharePost() {
-        if (getSelectedPost() == null) {
-            fragmentView.showToast(fragmentView.getMessageFromStringRes(R.string.no_post_selected));
-        } else {
-            tabletFragment.getTabLayout().getSelectedTabPosition();
-            String urlToShare = tabletFragment.getTabLayout().getSelectedTabPosition() == 0 ? getSelectedPost().getPostURL() :
-                    BuildConfig.BASE_URI + getSelectedPost().getCommentsLink();
-            activityView.sharePost(urlToShare);
-        }
     }
 
     @Override
@@ -160,6 +154,22 @@ class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IO
     }
 
     @Override
+    public void handleShareAction() {
+        if (getSelectedPost() == null) {
+            fragmentView.showToast(fragmentView.getMessageFromStringRes(R.string.no_post_selected));
+        } else {
+            activityView.getBusInstance().post("share");
+        }
+    }
+
+    @Override
+    public void actionsPerformIfTabLayout() {
+        if (isTabletLayoutIsActive()) {
+            fragmentView.showMenuItem(R.id.share_menu, true);
+        }
+    }
+
+    @Override
     public void saveDownloadTimeInSharedPrefs() {
         preferences.edit().putLong(BuildConfig.LAST_DOWNLOAD_TIME_KEY, System.currentTimeMillis()).apply();
     }
@@ -171,7 +181,7 @@ class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IO
 
     @Override
     public RedditPost getSelectedPost() {
-        return selectedPost;
+        return this.selectedPost;
     }
 
     @Override

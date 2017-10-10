@@ -42,7 +42,7 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.Fragm
     private MainFragmentBinding fragmentBinding = null;
     private ItemsAdapter itemsAdapter = null;
     private Menu menu = null;
-    private ViewPostContract.Presenter viewPresenter;
+    private ViewPostContract.Presenter presenter;
 
 
     public static ViewPostFragment newInstance() {
@@ -56,9 +56,8 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.Fragm
         fragmentBinding.swipeLayout.setOnRefreshListener(this);
         setHasOptionsMenu(true);
         setUpRecyclerView();
-
         if (savedInstanceState != null) {
-            viewPresenter.setSelectedPost((RedditPost) savedInstanceState.getParcelable(BuildConfig.INDIVIDUAL_POST_ITEM_KEY));
+            presenter.setSelectedPost((RedditPost) savedInstanceState.getParcelable(BuildConfig.INDIVIDUAL_POST_ITEM_KEY));
         }
         return fragmentBinding.getRoot();
     }
@@ -76,39 +75,37 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.Fragm
     @Override
     public void onResume() {
         super.onResume();
-        viewPresenter.loadCacheOrRequestServer();
-        viewPresenter.checkCurrentLayoutAndSetUpViews();
+        presenter.loadCacheOrRequestServer();
+        presenter.checkCurrentLayoutAndSetUpViews();
     }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelable(BuildConfig.INDIVIDUAL_POST_ITEM_KEY, viewPresenter.getSelectedPost());
+        outState.putParcelable(BuildConfig.INDIVIDUAL_POST_ITEM_KEY, presenter.getSelectedPost());
     }
 
-    public void setViewPresenter(ViewPostContract.Presenter viewPresenter) {
-        this.viewPresenter = viewPresenter;
+    public void setPresenter(ViewPostContract.Presenter presenter) {
+        this.presenter = presenter;
     }
-
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         super.onCreateOptionsMenu(menu, inflater);
         inflater.inflate(R.menu.main_menu, menu);
         setMenu(menu);
-        if (viewPresenter.isTabletLayoutIsActive()) {
-            menu.findItem(R.id.share_menu).setVisible(true);
-        }
+        presenter.actionsPerformIfTabLayout();
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.refresh_post_list_menu:
-                viewPresenter.handleRefreshIcon();
+                presenter.handleRefreshIcon();
                 break;
             case R.id.share_menu:
-                viewPresenter.sharePost();
+                Log.d(TAG, "onOptionsItemSelected: Share Tapped");
+                presenter.handleShareAction();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -153,6 +150,11 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.Fragm
     }
 
     @Override
+    public void showMenuItem(int menuItemId, boolean show) {
+        menu.findItem(menuItemId).setVisible(show);
+    }
+
+    @Override
     public void updatePostAdapter(List<RedditPostWrapper> wrapperList) {
         itemsAdapter.updateAdapter(wrapperList);
     }
@@ -167,21 +169,22 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.Fragm
 
     @Override
     public void onRefresh() {
-        viewPresenter.requestServer();
+        presenter.requestServer();
         fragmentBinding.swipeLayout.setRefreshing(false);
     }
 
     @Override
     public void onPostTappedListener(int position) {
         Log.d(TAG, "onPostTappedListener: Position ---> " + position);
-        viewPresenter.setSelectedPost(viewPresenter.getPostWrapperList().get(position).getData());
+        Log.d(TAG, "onPostTappedListener: Title ----> " + presenter.getPostWrapperList().get(position));
+        presenter.setSelectedPost(presenter.getPostWrapperList().get(position).getData());
 
-        if (!viewPresenter.isTabletLayoutIsActive()) {
+        if (!presenter.isTabletLayoutIsActive()) {
             Intent detail = new Intent(getContext(), DetailActivity.class);
-            detail.putExtra(BuildConfig.INDIVIDUAL_POST_ITEM_KEY, viewPresenter.getPostWrapperList().get(position).getData());
+            detail.putExtra(BuildConfig.INDIVIDUAL_POST_ITEM_KEY, presenter.getPostWrapperList().get(position).getData());
             startActivity(detail);
         } else {
-            viewPresenter.checkCurrentLayoutAndSetUpViews();
+            presenter.checkCurrentLayoutAndSetUpViews();
         }
     }
 }

@@ -10,13 +10,10 @@ import com.rajasaboor.redditclient.databinding.ActivityDetailBinding;
 import com.rajasaboor.redditclient.model.RedditPost;
 
 public class DetailActivity extends AppCompatActivity {
-    private static final String TAG = DetailActivity.class.getSimpleName();
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ActivityDetailBinding detailBinding = DataBindingUtil.setContentView(this, R.layout.activity_detail);
-
         setSupportActionBar(detailBinding.detailToolbar.customToolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
