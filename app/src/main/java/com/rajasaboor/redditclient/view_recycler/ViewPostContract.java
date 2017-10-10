@@ -1,11 +1,10 @@
 package com.rajasaboor.redditclient.view_recycler;
 
-import android.net.ConnectivityManager;
 import android.support.annotation.StringRes;
 
-import com.rajasaboor.redditclient.detail_post.DetailsTabletFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
+import com.squareup.otto.Bus;
 
 import java.util.List;
 
@@ -26,6 +25,8 @@ interface ViewPostContract {
         void setViewPagerPost(RedditPost redditPost);
 
         void sharePost(String message);
+
+        Bus getBusInstance();
     }
 
     interface FragmentView {
@@ -68,5 +69,7 @@ interface ViewPostContract {
         void sharePost();
 
         void loadCacheOrRequestServer();
+
+        void handleRefreshIcon();
     }
 }

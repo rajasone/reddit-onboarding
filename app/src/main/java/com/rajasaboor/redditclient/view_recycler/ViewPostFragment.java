@@ -1,10 +1,8 @@
 package com.rajasaboor.redditclient.view_recycler;
 
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
@@ -27,7 +25,6 @@ import com.rajasaboor.redditclient.R;
 import com.rajasaboor.redditclient.adapter.ItemsAdapter;
 import com.rajasaboor.redditclient.databinding.MainFragmentBinding;
 import com.rajasaboor.redditclient.detail_post.DetailActivity;
-import com.rajasaboor.redditclient.detail_post.DetailsTabletFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.model.RedditPostWrapper;
 
@@ -108,7 +105,7 @@ public class ViewPostFragment extends Fragment implements ViewPostContract.Fragm
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.refresh_post_list_menu:
-                viewPresenter.requestServer();
+                viewPresenter.handleRefreshIcon();
                 break;
             case R.id.share_menu:
                 viewPresenter.sharePost();

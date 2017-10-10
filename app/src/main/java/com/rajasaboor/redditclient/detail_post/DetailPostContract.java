@@ -1,7 +1,5 @@
 package com.rajasaboor.redditclient.detail_post;
 
-import android.support.design.widget.TabLayout;
-
 import com.rajasaboor.redditclient.model.RedditPost;
 
 /**

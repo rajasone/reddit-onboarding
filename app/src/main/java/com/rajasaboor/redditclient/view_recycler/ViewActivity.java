@@ -10,9 +10,11 @@ import android.view.View;
 
 import com.rajasaboor.redditclient.BuildConfig;
 import com.rajasaboor.redditclient.R;
+import com.rajasaboor.redditclient.RedditApplication;
 import com.rajasaboor.redditclient.databinding.ActivityMainBinding;
 import com.rajasaboor.redditclient.detail_post.DetailsTabletFragment;
 import com.rajasaboor.redditclient.model.RedditPost;
+import com.squareup.otto.Bus;
 
 public class ViewActivity extends AppCompatActivity implements ViewPostContract.ActivityView {
     private static final String TAG = ViewActivity.class.getSimpleName(); // Tag name for the Debug purposes
@@ -71,6 +73,11 @@ public class ViewActivity extends AppCompatActivity implements ViewPostContract.
         shareIntent.putExtra(Intent.EXTRA_TEXT, String.format(getString(R.string.share_message), message));
         shareIntent.setType("text/plain");
         startActivity(shareIntent);
+    }
+
+    @Override
+    public Bus getBusInstance() {
+        return ((RedditApplication) getApplication()).getBus();
     }
 
     @Override

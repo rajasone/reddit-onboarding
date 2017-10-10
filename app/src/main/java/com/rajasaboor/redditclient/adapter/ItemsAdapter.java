@@ -21,12 +21,13 @@ import java.util.List;
 
 /**
  * Created by default on 8/3/2017.
- * An adpater class which is responsible for holding the data
+ * An adapter class which is responsible for holding the data
  */
 
 public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemsViewHolder> {
     private static final String TAG = ItemsAdapter.class.getSimpleName();
     private List<RedditPostWrapper> postWrapperList = null; // Data source which is assigned to this by constructor or setter method
+    @LayoutRes
     private int layoutResource; // Layout address which will be inflate by this class
     private ItemsAdapter.IOnPostTapped onPostTapped = null;
 
@@ -49,7 +50,7 @@ public class ItemsAdapter extends RecyclerView.Adapter<ItemsAdapter.ItemsViewHol
 
     @Override
     public void onBindViewHolder(ItemsViewHolder holder, int position) {
-        holder.bind(postWrapperList.get(position).getData());
+        holder.bind(postWrapperList.get(position == RecyclerView.NO_POSITION ? 0 : position).getData());
     }
 
     @Override

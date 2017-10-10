@@ -144,6 +144,7 @@ class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IO
     @Override
     public void loadCacheOrRequestServer() {
         Log.d(TAG, "loadCacheOrRequestServer: start");
+        checkTheCacheAndRequestServer();
         if (getTimeDifferenceInMinutes() >= 5) {
             if (Util.checkConnection(connectivityManager)) {
                 requestServer();
@@ -151,7 +152,18 @@ class ViewPresenter implements ViewPostContract.Presenter, RetrofitController.IO
             }
         }
         Log.d(TAG, "loadCacheOrRequestServer: Getting the cache data");
-        checkTheCacheAndRequestServer();
+    }
+
+    @Override
+    public void handleRefreshIcon() {
+        if (isTabletLayoutIsActive()) {
+            Log.d(TAG, "onOptionsItemSelected: Tablet layout is loaded");
+            if (getSelectedPost() != null) {
+                requestServer();
+                activityView.getBusInstance().post(tabletFragment.getTabLayout().getSelectedTabPosition());
+            }
+        }
+        requestServer();
     }
 
     @Override

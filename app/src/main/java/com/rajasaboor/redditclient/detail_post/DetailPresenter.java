@@ -1,7 +1,5 @@
 package com.rajasaboor.redditclient.detail_post;
 
-import android.util.Log;
-
 import com.rajasaboor.redditclient.model.RedditPost;
 
 /**
@@ -20,4 +18,5 @@ class DetailPresenter implements DetailPostContract.Presenter {
     public RedditPost getPost() {
         return post;
     }
+
 }

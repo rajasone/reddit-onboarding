@@ -5,6 +5,8 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -14,6 +16,7 @@ import android.view.ViewGroup;
 
 import com.rajasaboor.redditclient.BuildConfig;
 import com.rajasaboor.redditclient.R;
+import com.rajasaboor.redditclient.RedditApplication;
 import com.rajasaboor.redditclient.appbar_layout.DetailViewPager;
 import com.rajasaboor.redditclient.databinding.DetailFragmentLayoutBinding;
 
@@ -21,10 +24,11 @@ import com.rajasaboor.redditclient.databinding.DetailFragmentLayoutBinding;
  * Created by rajaSaboor on 9/5/2017.
  */
 
-public class DetailActivityFragment extends Fragment {
+public class DetailActivityFragment extends Fragment implements ViewPager.OnPageChangeListener {
     private static final String TAG = DetailActivityFragment.class.getSimpleName();
     private DetailFragmentLayoutBinding detailFragmentLayoutBinding = null;
     private DetailPostContract.Presenter presenter;
+    private DetailViewPager detailViewPager;
 
     public static DetailActivityFragment newInstance() {
         return new DetailActivityFragment();
@@ -36,11 +40,12 @@ public class DetailActivityFragment extends Fragment {
         detailFragmentLayoutBinding = DataBindingUtil.inflate(inflater, R.layout.detail_fragment_layout, container, false);
         setHasOptionsMenu(true);
         setUpViewPager();
+        detailFragmentLayoutBinding.detailsViewPager.addOnPageChangeListener(this);
         return detailFragmentLayoutBinding.getRoot();
     }
 
     private void setUpViewPager() {
-        DetailViewPager detailViewPager = new DetailViewPager(getFragmentManager(), presenter.getPost());
+        detailViewPager = new DetailViewPager(getFragmentManager(), presenter.getPost());
         detailFragmentLayoutBinding.detailsViewPager.setAdapter(detailViewPager);
         detailFragmentLayoutBinding.detailsTabsLayout.setupWithViewPager(detailFragmentLayoutBinding.detailsViewPager);
     }
@@ -52,10 +57,19 @@ public class DetailActivityFragment extends Fragment {
     }
 
     @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.share_menu:
                 sharePost();
+                break;
+            case R.id.refresh_menu:
+                Log.d(TAG, "onOptionsItemSelected: Refresh Tapped");
+                ((RedditApplication) getActivity().getApplication()).getBus().post(detailFragmentLayoutBinding.detailsViewPager.getCurrentItem());
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -73,5 +87,32 @@ public class DetailActivityFragment extends Fragment {
 
     public void setPresenter(DetailPostContract.Presenter presenter) {
         this.presenter = presenter;
+    }
+
+    @Override
+    public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+    }
+
+    @Override
+    public void onPageSelected(int position) {
+        ((RedditApplication) getActivity().getApplication()).getBus().post(new PageSelected(position));
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int state) {
+
+    }
+
+    class PageSelected {
+        private int position;
+
+        PageSelected(int position) {
+            this.position = position;
+        }
+
+        public Integer getSelectedPage() {
+            return this.position;
+        }
     }
 }

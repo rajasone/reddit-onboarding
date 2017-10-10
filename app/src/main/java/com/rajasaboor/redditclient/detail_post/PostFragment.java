@@ -13,18 +13,22 @@ import android.webkit.WebViewClient;
 
 import com.rajasaboor.redditclient.BuildConfig;
 import com.rajasaboor.redditclient.R;
+import com.rajasaboor.redditclient.RedditApplication;
 import com.rajasaboor.redditclient.databinding.FragmentPostBinding;
 import com.rajasaboor.redditclient.model.RedditPost;
 import com.rajasaboor.redditclient.util.Util;
+import com.squareup.otto.Subscribe;
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class PostFragment extends Fragment {
     private static final String TAG = PostFragment.class.getSimpleName();
+    private static final String IS_POST = "is_post";
     private RedditPost post;
     private int postProgress = 0; // maintain the progress bar progress for the loading purpose
     private FragmentPostBinding postBinding = null;
+    private boolean isPost;
 
 
     public PostFragment() {
@@ -38,15 +42,23 @@ public class PostFragment extends Fragment {
         if (getArguments().getParcelable(BuildConfig.KEY_URL_STRING) != null) {
             post = getArguments().getParcelable(BuildConfig.KEY_URL_STRING);
         }
+
+        if (savedInstanceState != null) {
+            isPost = savedInstanceState.getBoolean(PostFragment.IS_POST);
+        }
     }
 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        Log.d(TAG, "onCreateView: start");
         postBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_post, container, false);
 
+
+        ((RedditApplication) getActivity().getApplication()).getBus().register(this);
+
         // If key == 0 Post URI will be loaded otherwise Comments URI will be loaded
-        boolean isPost = getArguments().getInt(BuildConfig.POST_TAB_KEY) == 0;
+        isPost = getArguments().getInt(BuildConfig.POST_TAB_KEY) == 0;
         initWebView();
         /*
         * Check whether the bundle is NULL or not
@@ -73,7 +85,14 @@ public class PostFragment extends Fragment {
         } else {
             postBinding.postProgressBar.setVisibility(View.GONE);
         }
+        Log.d(TAG, "onCreateView: end");
         return postBinding.getRoot();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        ((RedditApplication) getActivity().getApplication()).getBus().unregister(this);
     }
 
     private void initWebView() {
@@ -88,5 +107,41 @@ public class PostFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         postBinding.postWebview.saveState(outState);
+        outState.putBoolean(PostFragment.IS_POST, isPost);
+    }
+
+    @Subscribe
+    public void refreshWebView(Integer pos) {
+        Log.d(TAG, "refreshWebView: Refresh the web View");
+
+        boolean temp = getUserVisibleHint();
+        Log.d(TAG, "refreshWebView: Temp ----> " + temp);
+
+        if (pos == 0) {
+            Log.d(TAG, "refreshWebView: Post view is open");
+            Log.d(TAG, "refreshWebView: Url to load ====> " + post.getPostURL());
+            postBinding.postWebview.loadUrl(post.getPostURL());
+        } else {
+            Log.d(TAG, "refreshWebView: Comments view is open");
+            Log.d(TAG, "refreshWebView: Url to load ----> " + BuildConfig.BASE_URI + post.getCommentsLink());
+            postBinding.postWebview.loadUrl(BuildConfig.BASE_URI + post.getCommentsLink());
+        }
+    }
+
+    @Subscribe
+    public void pageSelected(DetailActivityFragment.PageSelected pageSelected) {
+        Log.d(TAG, "pageSelected: start");
+        Log.d(TAG, "pageSelected: Selected page ----> " + pageSelected.getSelectedPage());
+
+        if (pageSelected.getSelectedPage() == 0) {
+            if (!postBinding.postWebview.getUrl().equals(post.getPostURL())) {
+                postBinding.postWebview.loadUrl(post.getPostURL());
+            }
+        } else {
+            if (!postBinding.postWebview.getUrl().equals(BuildConfig.BASE_URI + post.getCommentsLink())) {
+                postBinding.postWebview.loadUrl(BuildConfig.BASE_URI + post.getCommentsLink());
+            }
+        }
+        Log.d(TAG, "pageSelected: end");
     }
 }
